@@ -48,7 +48,7 @@ int main(int argc,char **argv){
   namedWindow("post",CV_WINDOW_NORMAL);
   while(ster!='q'){
     try{
-      kam.stopKlatka(obr);;
+      kam.stopKlatka(obr);
       obr.copyTo(gemben);
       rozm=obr.size();
       /*    zera=Mat::zeros(rozm,CV_8U);
