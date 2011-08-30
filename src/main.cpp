@@ -26,7 +26,8 @@ int main(int argc,char **argv){
   Mat czer;
   Mat bw;
   Mat gemben;
-
+  Mat ggemben;
+  
   int m,n;
 
   vector<Rect> twarze; 
@@ -34,48 +35,32 @@ int main(int argc,char **argv){
   Lapacz kam(0);
 
   CascadeClassifier szukacz;
-  //  gpu::CascadeClassifier_GPU gSzukacz;
+  gpu::CascadeClassifier_GPU gszuk;
 
-  szukacz.load(argv[1]);
-  //  gSzukacz.load(argv[1]);
-
+  
   cout<<gpu::getCudaEnabledDeviceCount()<<endl;
-
+  
+  szukacz.load(argv[1]);
+  try{
+    gszuk.load(argv[1]);
+  }
+  catch(Exception ex){
+    cerr<<ex.code<<endl<<ex.err<<endl<<ex.func<<endl<<ex.line<<endl;
+  }
+  
   cout<<"hi thar"<<endl;
   namedWindow("in",CV_WINDOW_NORMAL);
   namedWindow("proces",CV_WINDOW_NORMAL);
   namedWindow("test",CV_WINDOW_NORMAL);
-  namedWindow("post",CV_WINDOW_NORMAL);
+  namedWindow("gpu",CV_WINDOW_NORMAL);
   while(ster!='q'){
     try{
-      kam.stopKlatka(obr);;
-      obr.copyTo(gemben);
+      kam.stopKlatka(obr);
+            obr.copyTo(gemben);
       rozm=obr.size();
-      /*    zera=Mat::zeros(rozm,CV_8U);
-	    split(obr,bgr);
-	    mid.create(rozm.height*2,rozm.width*4,CV_8U);
-	    for(int i=0;i<3;++i){
-	    Mat midPt=mid(Rect(rozm.width*i,0,rozm.width,rozm.height));
-	    resize(bgr[i],midPt,midPt.size(),0,0,CV_INTER_LINEAR);
-	    }
-	    for(int i=0;i<3;++i){
-	    equalizeHist(bgr[i],eq[i]);
-	    Mat midPt=mid(Rect(rozm.width*i,rozm.height,rozm.width,rozm.height));
-	    resize(eq[i],midPt,midPt.size(),0,0,CV_INTER_LINEAR);
-	    }
-    
-	    // inDft[0]=obr;
-	    // inDft[1]=zera;
-	    */
       cvtColor(obr,bw,CV_RGB2GRAY);
       equalizeHist(bw,eq[3]);
-      //Mat midPt=mid(Rect(rozm.width*3,rozm.height,rozm.width,rozm.height));
-      // resize(eq[3],midPt,midPt.size(),0,0,CV_INTER_LINEAR);
       cvtColor(eq[3],outDft,CV_GRAY2RGB);
-      //    outDft.create(getOptimalDFTSize(bw.cols),getOptimalDFTSize(czer.rows),CV_8U);
-
-      //    dft(czer,outDft,0,czer.rows);
-
       merge(eq,3,postEq);
       imshow("in",obr);
     }
@@ -83,14 +68,10 @@ int main(int argc,char **argv){
     catch(Exception ex){
       cerr<<ex.code<<endl<<ex.err<<endl<<ex.func<<endl<<ex.line<<endl;
     }
-
-   
-    //    imshow("proces",mid);
-    //  imshow("post",postEq);
-    // imshow("test",outDft);
-
+    
     try{
-      //      gpu::gpuMat gObr(eq[3]);
+        
+      {
       
       szukacz.detectMultiScale(eq[3],twarze,1.3);
       if(!twarze.empty()){
@@ -108,29 +89,45 @@ int main(int argc,char **argv){
 			     rozm.width*(i%m),
 			     rozm.width,rozm.width));
 	  resize(Mat(obr,(*it)),midPt,midPt.size(),0,0,CV_INTER_LINEAR);
-	  /* imshow("post",midPt);
-	     imshow("proces",mid);*/
-	  //q waitKey(500);
-	  cerr<<twarze.size()<<" "<<m<<" "<<n<<endl;
-	  cerr<<rozm.width*(i/n)<<endl;
-	  // cerr<<ceil(sqrt(twarze.size()))<<endl;
-	  cerr<<rozm.height*(i%m)<<endl;
-	  // cerr<<(int)(floor(sqrt(twarze.size())))<<endl;
-	  cerr<<endl;
-	  /* 
-	     waitKey(500);*/
+	//  cerr<<twarze.size()<<" "<<m<<" "<<n<<endl;
+	//  cerr<<rozm.width*(i/n)<<endl;
+
+	//  cerr<<rozm.height*(i%m)<<endl;
+
+	//  cerr<<endl;
 	}
       }
-    
-    imshow("test",gemben);
-    imshow("proces",mid);
-    ster=waitKey(1000);
+      }
+
+      // {
+      // Mat image_cpu;
+      // image_cpu=obr.clone();
+
+      // gpu::GpuMat gmat(eq[3]);
+      // gpu::GpuMat objbuf;
+
+      // int detections_number = gszuk.detectMultiScale( gmat,
+      // 						      objbuf, 1.2);
+      
+      // Mat obj_host;
+      // // download only detected number of rectangles
+      // objbuf.colRange(0, detections_number).download(obj_host);
+      
+      // Rect* faces = obj_host.ptr<Rect>();
+      // for(int i = 0; i < detections_number; ++i)
+      // 	cv::rectangle(image_cpu, faces[i], Scalar(255));
+      // }
+
+      //imshow("gpu",image_cpu);
+      imshow("test",gemben);
+      imshow("proces",mid);
+      ster=waitKey(100);
     
     }
     catch(Exception ex){
       cerr<<ex.code<<endl<<ex.err<<endl<<ex.func<<endl<<ex.line<<endl;
     }
-
+    
   }
   
 return 0;

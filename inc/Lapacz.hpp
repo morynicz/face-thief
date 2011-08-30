@@ -1,7 +1,7 @@
 #include "thread.hpp"
 #include "opencv2/opencv.hpp"
 #include "opencv2/highgui/highgui.hpp"
-#include <iostream>
+//#include <iostream>
 
 #ifndef LAPACZ
 #define LAPACZ
@@ -15,14 +15,15 @@ class Lapacz{
 
   class Kamera{
     cv::VideoCapture kam;
-    cv::Mat kl;
+    cv::Mat *kl;
     boost::mutex *mut;
   public:
-    Kamera(){ 
-      mut=NULL;
-    }
+      Kamera(){ 
+	mut=NULL;
+	//	cerr<<"dupa"<<endl;
+      }
     Kamera(int nr,
-	   cv::Mat &mat,
+	   cv::Mat *mat,
 	   boost::mutex *mtx);
     void  operator()();
   };

@@ -1,8 +1,11 @@
 #include "Lapacz.hpp"
 
+#include <iostream>
+
+using namespace std;
 
 Lapacz::Kamera::Kamera(int nr,
-		       cv::Mat &mat,
+		       cv::Mat *mat,
 		       boost::mutex *mtx):kam(nr){
  
   if(!kam.isOpened())
@@ -15,15 +18,15 @@ Lapacz::Kamera::Kamera(int nr,
 void Lapacz::Kamera::operator()(){
   while(!boost::this_thread::interruption_requested()){
     mut->lock();
-    kam>>kl;
+    kam>>(*kl);
     mut->unlock();
   }
 }
     
 Lapacz::Lapacz(int nr){
   mut=new boost::mutex;
-  kam=Kamera(nr,kl,mut);
-  wat=new boost::thread(kam);
+  kam=Kamera(nr,&kl,mut);
+  wat=new boost::thread(boost::ref(kam));
 }
 
 Lapacz::~Lapacz(){
@@ -38,9 +41,3 @@ void Lapacz::stopKlatka(cv::Mat& klatka){
   mut->unlock();
 }
 
-/*
-int main(){
-  Lapacz lap(1,2);
-  return 0;
-}
-*/
