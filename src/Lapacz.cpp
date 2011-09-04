@@ -31,8 +31,8 @@ Lapacz::Lapacz(int nr){
 
 Lapacz::~Lapacz(){
   wat->interrupt();
-  delete mut;
   wat->join();
+  delete mut;
 }
 
 void Lapacz::stopKlatka(cv::Mat& klatka){
