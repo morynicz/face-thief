@@ -33,8 +33,7 @@ struct Gallery{
 int main(int argc,char **argv){
 
   Size rozm;
-  Mat obr,postEq;
-  Mat bgr[3],eq[4];
+  Mat obr,eq;
   char ster='1';
   Mat mid;
   Mat zera;
@@ -129,9 +128,7 @@ int main(int argc,char **argv){
       obr.copyTo(gemben);
       rozm=obr.size();
       cvtColor(obr,bw,CV_RGB2GRAY);
-      equalizeHist(bw,eq[3]);
-      cvtColor(eq[3],outDft,CV_GRAY2RGB);
-      merge(eq,3,postEq);
+      equalizeHist(bw,eq);
       imshow("in",obr);
     }
 
@@ -144,7 +141,7 @@ int main(int argc,char **argv){
       {
 	stringstream sBufor;
 	string cel,label,buff;
-	szukacz.detectMultiScale(eq[3],twarze,1.3);
+	szukacz.detectMultiScale(eq,twarze,1.3);
 	if(!twarze.empty()){
 	  m=floor(sqrt(twarze.size()));
 	  n=ceil(sqrt(twarze.size()));
@@ -200,7 +197,6 @@ int main(int argc,char **argv){
 		      boost::filesystem::create_directory(adres+'/'+label);
 		      cerr<<(adres+'/'+label)<<endl;
 		    }
-		    //git=galeries.back();
 		  }
 		}else{
 		  Gallery gal;
@@ -219,7 +215,7 @@ int main(int argc,char **argv){
 		cerr<<cel<<endl;
 	    
 		Mat toWrite(rozm.width,rozm.height,CV_8U);
-		resize(Mat(eq[3],(*it)),toWrite,toWrite.size(),
+		resize(Mat(eq,(*it)),toWrite,toWrite.size(),
 		       0,0,CV_INTER_LINEAR);
 
 		imwrite(cel,toWrite);
