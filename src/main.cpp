@@ -59,14 +59,12 @@ int main(int argc,char **argv){
 
   CascadeClassifier szukacz;
   
-  cout<<gpu::getCudaEnabledDeviceCount()<<endl;
-  
   szukacz.load(argv[1]);
   adres=argv[2];
 
-  try{
+  // wczytywanie galerii zdjęć
 
-  
+  try{
 
     FileStorage fs(string(adres+"/galeria.xml"),
 		   FileStorage::READ);
@@ -84,7 +82,8 @@ int main(int argc,char **argv){
       Gallery gal;
       (*it)[LABEL]>>gal.label;
       (*it)[COUNTER]>>gal.counter;
-      
+
+#if CV_MINOR_VERSION > 3
       (*it)[ADDRES]>>gal.photos;
       cerr<<gal.label<<endl<<gal.counter<<endl;
       for(unsigned i=0;i<gal.photos.size();++i){
@@ -93,6 +92,18 @@ int main(int argc,char **argv){
 	img=imread(gal.photos[i]);
 	gal.pictures.push_back(img);
       }
+#else
+      FileNode gfn=(*it)[ADDRES];
+      FileNodeIterator git=gfn.begin();
+      for(;git!=gfn.end();++git){
+	Mat img;
+	gal.photos.push_back((string)(*git));
+	cerr<<gal.photos.back()<<endl;
+	img=imread(gal.photos.back());
+	gal.pictures.push_back(img);
+      }
+
+#endif
       galeries.push_back(gal);
       
     }
@@ -101,19 +112,12 @@ int main(int argc,char **argv){
    
   } 
 
+  // wczytywanie zakończone
+
   catch(Exception ex){
     cerr<<ex.code<<endl<<ex.err<<endl<<ex.func<<endl<<ex.line<<endl;
   }
-    
-
-    // //=========================================================
-    //    tu powinno byc wczytanie do wektora galerii 
-    //   poszczegolnych galerii z fs'a
-
-
-  //    fs<<"image_list"<<"[";
   
-
   cout<<"hi thar"<<endl;
   namedWindow("in",CV_WINDOW_NORMAL);
   namedWindow("proces",CV_WINDOW_NORMAL);
@@ -242,6 +246,7 @@ int main(int argc,char **argv){
     
   }
 
+  //zapis galerii do pliku
   {
     FileStorage fs(string(adres+"/galeria.xml"),
 		   FileStorage::WRITE);
@@ -268,10 +273,8 @@ int main(int argc,char **argv){
       fs<<"]";
     }
   }
-  //===================================================
-  // a tu zapis wektora galerii do fs'a
 
-  //  fs<<"]";
-  //  fs.release();
+  //koniec zapisu
+
   return 0;
 }
