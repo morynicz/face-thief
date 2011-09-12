@@ -7,6 +7,7 @@
 #include <cmath>
 #include <string>
 #include "filesystem.hpp"
+#include "Galleries.hpp"
 
 #include <sstream> //do nazw plików
 
@@ -16,10 +17,6 @@ using namespace cv;
 using namespace std;
 
 const float FACE_FACTOR=0.2;
-const string GALERIES="Galeries";
-const string LABEL="Label";
-const string COUNTER="COUNTER";
-const string ADDRES="Addres";
 
 
     
@@ -40,8 +37,8 @@ int main(int argc,char **argv){
   
   string adres;
 
-  list<Gallery> galeries; 
-
+  //  list<Gallery> galeries; 
+  Galleries galleries;
   long long counter=1;
 
   int m,n;
@@ -56,7 +53,10 @@ int main(int argc,char **argv){
   adres=argv[2];
 
   // wczytywanie galerii zdjęć
-
+  try{
+    galleries.setPath(adres);
+    galleries.load("galeria.xml");
+  }
   catch(Exception ex){
     cerr<<ex.code<<endl<<ex.err<<endl<<ex.func<<endl<<ex.line<<endl;
   }
@@ -92,7 +92,7 @@ int main(int argc,char **argv){
 	  mid.create(rozm.width*m*(1+FACE_FACTOR),rozm.width*n,CV_8UC3);
 	  int i=0;
 	  
-	  list<Gallery>::iterator git;
+	  //	  list<Gallery>::iterator git;
 	  
 	  for(vector<Rect>::iterator it=twarze.begin();
 	      it!=twarze.end();++it,++i){
@@ -119,17 +119,19 @@ int main(int argc,char **argv){
 		cin>>label;
 		if(label=="koniec")
 		  break;
+		galleries.add(label,midPt);
 		//=================
 	      }
-	    if(label=="koniec")
-	      break;
+	      if(label=="koniec")
+		break;
+	    }
 	  }
 	}
-      }
-      if(ster!='q'){
-	imshow("test",gemben);
-	imshow("proces",mid);
-	ster=waitKey(100);
+	if(ster!='q'){
+	  imshow("test",gemben);
+	  imshow("proces",mid);
+	  ster=waitKey(100);
+	}
       }
     }
     catch(Exception ex){
@@ -139,8 +141,10 @@ int main(int argc,char **argv){
   }
 
     //===========zapis
-
+  
+  galleries.save("galeria.xml");
+  
   //koniec zapisu
-
+  
   return 0;
 }

@@ -14,7 +14,7 @@ run: detektor
 	./detektor kaskady/haarcascade_frontalface_default.xml \
 	galerie
 
-detektor: src/*.cpp inc/*.hpp obj/main.o obj/Lapacz.o
+detektor: src/*.cpp inc/*.hpp obj/main.o obj/Lapacz.o obj/Galleries.o
 	gcc -o detektor  obj/*.o ${CFLAGS}
 
 obj/main.o: src/main.cpp inc/*.hpp
@@ -22,6 +22,9 @@ obj/main.o: src/main.cpp inc/*.hpp
 
 obj/Lapacz.o: inc/Lapacz.hpp src/Lapacz.cpp
 	gcc -o obj/Lapacz.o src/Lapacz.cpp -c ${CFLAGS}
+
+obj/Galleries.o: inc/Galleries.hpp
+	gcc -o obj/Galleries.o src/Galleries.cpp -c ${CFLAGS}
 
 clean:
 	rm obj/* detektor

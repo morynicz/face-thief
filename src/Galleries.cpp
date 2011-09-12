@@ -1,135 +1,227 @@
 #include "Galleries.hpp"
+#include <iostream>
+#include <sstream>
+#include <boost/filesystem.hpp>
+#include "opencv2/highgui/highgui.hpp"
+
+using std::cerr;
+using std::endl;
+using namespace cv;
+
+Galleries::Galleries(string path, string filename){
+  setPath(path);
+  load(filename);
+}
 
 void Galleries::load(string filename){
+  if(!_path.empty()){
+    try{
 
-  try{
-
-    FileStorage fs(string(filename),
-		   FileStorage::READ);
-    if(!fs.isOpened()){
-      cv::Exception err(CANNOT_OPEN_FILE,
-			"file cannot be opened",
-			__func__,__FILE__,__LINE__);
-      throw err;
-    }
+      FileStorage fs(_path+'/'+filename,
+		     FileStorage::READ);
+      if(!fs.isOpened()){
+	cv::Exception err(CANNOT_OPEN_FILE,
+			  "file cannot be opened",
+			  __func__,__FILE__,__LINE__);
+	throw err;
+      }
     
-    FileNode gals=fs["Galeries"];
-    FileNodeIterator it=gals.begin();
+      FileNode galleries=fs["Galeries"];
+      FileNodeIterator it=galleries.begin();
     
-    for(;it!=gals.end();++it){
-      Gallery gal;
+      for(;it!=galleries.end();++it){
+	Gallery gallery;
       
-      (*it)[LABEL]>>gal.label;
-      (*it)[COUNTER]>>gal.counter;
+	(*it)[LABEL]>>gallery.label;
+	(*it)[COUNTER]>>gallery.counter;
 
 #if CV_MINOR_VERSION > 3
-      (*it)[ADDRES]>>gal.photos;
-      cerr<<gal.label<<endl<<gal.counter<<endl;
-      /*  for(unsigned i=0;i<gal.photos.size();++i){
-	  Mat img;
-	  cerr<<gal.photos[i]<<endl;
-	  img=imread(gal.photos[i]);
-	  gal.pictures.push_back(img);*/
-    }
+	(*it)[ADDRES]>>gallery.photos;
+	cerr<<_gal.label<<endl<<_gal.counter<<endl;
+     
 #else
-    FileNode gfn=(*it)[ADDRES];
-    FileNodeIterator git=gfn.begin();
-    for(;git!=gfn.end();++git){
-      Mat img;
-      gal.photos.push_back((string)(*git));
-      cerr<<gal.photos.back()<<endl;
-      /*	img=imread(gal.photos.back());
-		gal.pictures.push_back(img);*/
-    }
-
-#endif
-    galeries.push_back(gal);
+	FileNode gfn=(*it)[ADDRES];
+	FileNodeIterator git=gfn.begin();
+	for(;git!=gfn.end();++git){
+	
+	  gallery.photos.push_back((string)(*git));
+	  cerr<<gallery.photos.back()<<endl;
       
+	}
+    
+#endif
+	_gal.push_back(gallery);
+    
+      }
+      fs.release();   
+    }
+    catch(Exception ex){
+      throw ex;
+    }
+  }else{
+    Exception ex(NO_PATH_DECLARED,
+		 "exception: galleries path was not declared",
+		 __func__,__FILE__,__LINE__);
+    throw ex;
   }
-   
-  fs.release();   
-} 
+  
+}
 
 
-  // wczytywanie zakończone
+// wczytywanie zakończone
 
 //================ zapis
 void Galleries::add(string label,cv::Mat img){
-  vector<Gallery>::iterator git;
-  if(!galeries.empty()){
-    for(git=gal.begin();
-	git!=gal.end();
-	++git){
-      cerr<<"szuka "<<label<<" == "<<git->label<<'?'<<endl;
-      if(git->label==label)
-	break;
-    }
+  if(!_path.empty()){
+    vector<Gallery>::iterator git;
+    if(!_gal.empty()){
+      for(git=_gal.begin();
+	  git!=_gal.end();
+	  ++git){
+	cerr<<"szuka "<<label<<" == "<<git->label<<'?'<<endl;
+	if(git->label==label)
+	  break;
+      }
     
-    if(git==galeries.end()){
+      if(git==_gal.end()){
+	Gallery galeria;
+	galeria.label=label;
+	galeria.counter=0;
+	--git;
+	_gal.push_back(galeria);
+	++git;
+	if(!boost::filesystem::exists(_path+'/'+label)){
+	  boost::filesystem::create_directory(_path+'/'+label);
+	  cerr<<(_path+'/'+label)<<endl;
+	}
+      }
+    }else{
       Gallery galeria;
       galeria.label=label;
       galeria.counter=0;
-      --git;
-      gal.push_back(galeria);
-      ++git;
-      if(!boost::filesystem::exists(adres+'/'+label)){
-		      boost::filesystem::create_directory(adres+'/'+label);
-		      cerr<<(adres+'/'+label)<<endl;
+      _gal.push_back(galeria);
+      git=_gal.begin();
+      if(!boost::filesystem::exists(_path+'/'+label)){
+	boost::filesystem::create_directory(_path+'/'+label);
+	cerr<<(_path+'/'+label)<<endl;
       }
     }
-  }else{
-    Gallery galeria;
-    galeria.label=label;
-    galeria.counter=0;
-    gal.push_back(galeria);
-    git=gal.begin();
-    if(!boost::filesystem::exists(adres+'/'+label)){
-      boost::filesystem::create_directory(adres+'/'+label);
-      cerr<<(adres+'/'+label)<<endl;
+    {
+      string cel;
+      std::stringstream sBufor;
+      sBufor<<_path<<'/'<<git->label<<'/'<<git->counter++<<".jpg";
+      sBufor>>cel;
+      cerr<<cel<<endl;
+    
+      //gallery	      
+      git->photos.push_back(cel);
     }
+  }else{
+    Exception ex(NO_PATH_DECLARED,
+		 "exception: galleries path was not declared",
+		 __func__,__FILE__,__LINE__);
+    throw ex;
   }
-  
-  sBufor<<adres<<'/'<<git->label<<'/'<<git->counter++<<".jpg";
-  sBufor>>cel;
-  cerr<<cel<<endl;
-	    
-  //gallery	      
-  git->photos.push_back(cel);
-  git->pictures.push_back(toWrite.clone());
-  
 }
 
 
 // ================ //dodawanie
 
-//=================== zapis
-
-
-  //zapis galerii do pliku
-void Galleries::save(string filename){
-  FileStorage fs(filename,
-		 FileStorage::WRITE);
-  if(!fs.isOpened()){
-    cv::Exception err(CANNOT_OPEN_FILE,"file cannot be opened",
-		      __func__,__FILE__,__LINE__);
-    throw err;
-  }
-
-
-  {
-    fs<<GALERIES<<"[";
-    for(int i=0;i<gal.size();++i){
-      it!=galeries.end();++it){
-      fs<<"{"<<LABEL<<it->label;
-      fs<<COUNTER<<it->counter;
-      fs<<ADDRES<<"[";
-      for(unsigned j=0;j<gal[i].photos.size();++j){
-	fs<<gal[i].photos[j];
-      }
-      fs<<"]"<<"}";
-    }
-
-    fs<<"]";
+void Galleries::setPath(string path){
+  if(!boost::filesystem::exists(path)){
+    Exception ex(NO_SUCH_DIRECTORY,
+		 "exception: directory "+path+"does not exist",
+		 __func__,__FILE__,__LINE__);
+    throw ex;
+  }else{
+    _path=path;
   }
 }
 
+
+//=================== zapis
+
+
+//zapis galerii do pliku
+void Galleries::save(string filename){
+  if(!_path.empty()){
+    FileStorage fs(_path+'/'+filename,
+		   FileStorage::WRITE);
+    if(!fs.isOpened()){
+      cv::Exception err(CANNOT_OPEN_FILE,"file cannot be opened",
+			__func__,__FILE__,__LINE__);
+      throw err;
+    }
+
+  
+    {
+      fs<<GALLERIES<<"[";
+      for(int i=0;i<_gal.size();++i){
+	fs<<"{"<<LABEL<<_gal[i].label;
+	fs<<COUNTER<<_gal[i].counter;
+	fs<<ADDRES<<"[";
+	for(unsigned j=0;j<_gal[i].photos.size();++j){
+	  fs<<_gal[i].photos[j];
+	}
+	fs<<"]"<<"}";
+      }
+    
+      fs<<"]";
+    }
+  }else{
+    Exception ex(NO_PATH_DECLARED,
+		 "exception: galleries path was not declared",
+		 __func__,__FILE__,__LINE__);
+    throw ex;
+  }
+}
+
+cv::Mat Galleries::getPicture(string label,int number){
+  int i;
+  for(i=0;i<_gal.size();++i){
+    if(label==_gal[i].label){
+      try{
+	return getPicture(i,number);
+      }
+      catch(cv::Exception ex){
+	throw ex;
+      }
+    }
+  }
+  cv::Exception ex(LABEL_NOT_FOUND,"exception: label not found",
+		   __func__,__FILE__,__LINE__);
+  throw ex;
+}
+
+cv::Mat Galleries::getPicture(int galleryNumber,int photoNumber){
+  if(galleryNumber<0||galleryNumber>_gal.size()){
+    cv::Exception ex(INCORRECT_GALLERY_NUMBER,
+		     "exception: incorrect gallery number",
+		     __func__,__FILE__,__LINE__);
+    throw ex;
+  }else if(photoNumber<0||photoNumber>_gal[galleryNumber].photos.size()){
+    cv::Exception ex(INCORRECT_PHOTO_NUMBER,
+		     "exception: incorrect photo number",
+		     __func__,__FILE__,__LINE__);
+    throw ex;
+  }else{
+    try{
+      cv::Mat img=imread(_gal[galleryNumber].photos[photoNumber]);
+      return img;
+    }
+    catch(Exception ex){
+      throw ex;
+    }
+  }
+}
+
+int Galleries::gallerySize(int galleryNumber){
+  if(galleryNumber<0||galleryNumber>_gal.size()){
+    cv::Exception ex(INCORRECT_GALLERY_NUMBER,
+		     "exception: incorrect gallery number",
+		     __func__,__FILE__,__LINE__);
+    throw ex;
+  }else{
+    return _gal[galleryNumber].photos.size();
+  }
+}
