@@ -18,7 +18,7 @@ using namespace std;
 
 const float FACE_FACTOR=0.2;
 
-
+  
     
 
 int main(int argc,char **argv){
@@ -42,6 +42,7 @@ int main(int argc,char **argv){
   long long counter=1;
 
   int m,n;
+  int numerZdjecia,numerGalerii;
 
   vector<Rect> twarze; 
   
@@ -66,6 +67,7 @@ int main(int argc,char **argv){
   namedWindow("proces",CV_WINDOW_NORMAL);
   namedWindow("test",CV_WINDOW_NORMAL);
   namedWindow("gemba",CV_WINDOW_NORMAL);
+  namedWindow("z_galerii",CV_WINDOW_NORMAL);
   while(ster!='q'){
     try{
       kam.stopKlatka(obr);
@@ -128,7 +130,16 @@ int main(int argc,char **argv){
 	  }
 	}
 	if(ster!='q'){
-	  imshow("test",gemben);
+	  if(ster=='w'){
+	      namedWindow("sterowanie",CV_WINDOW_NORMAL);
+	      cout<<"podaj numer galerii i numer zdjęcia"<<endl;
+	      cin>>numerGalerii>>numerZdjecia;
+	      Mat zGalerii=galleries.getPicture(numerGalerii,numerZdjecia);
+	      cout<<zGalerii<<endl;
+	      imshow("z_galerii",zGalerii);
+	    
+	    }
+	    imshow("test",gemben);
 	  imshow("proces",mid);
 	  ster=waitKey(100);
 	}

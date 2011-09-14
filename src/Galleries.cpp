@@ -194,12 +194,12 @@ cv::Mat Galleries::getPicture(string label,int number){
 }
 
 cv::Mat Galleries::getPicture(int galleryNumber,int photoNumber){
-  if(galleryNumber<0||galleryNumber>_gal.size()){
+  if(galleryNumber<0||galleryNumber>=_gal.size()){
     cv::Exception ex(INCORRECT_GALLERY_NUMBER,
 		     "exception: incorrect gallery number",
 		     __func__,__FILE__,__LINE__);
     throw ex;
-  }else if(photoNumber<0||photoNumber>_gal[galleryNumber].photos.size()){
+  }else if(photoNumber<0||photoNumber>=_gal[galleryNumber].photos.size()){
     cv::Exception ex(INCORRECT_PHOTO_NUMBER,
 		     "exception: incorrect photo number",
 		     __func__,__FILE__,__LINE__);
@@ -207,6 +207,8 @@ cv::Mat Galleries::getPicture(int galleryNumber,int photoNumber){
   }else{
     try{
       cv::Mat img=imread(_gal[galleryNumber].photos[photoNumber]);
+      cerr<<_gal.size<<"  "<<_gal[galleryNumber].photos.size()<<endl;
+      cerr<<img<<endl;
       return img;
     }
     catch(Exception ex){
