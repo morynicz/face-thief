@@ -8,23 +8,25 @@ CFLAGS= -I inc \
 	-lopencv_gpu  \
 	-lboost_thread \
 	-lboost_filesystem \
-	-g
+	-g -O0
+
+CC=g++
 
 run: detektor
 	./detektor kaskady/haarcascade_frontalface_default.xml \
 	galerie
 
 detektor: src/*.cpp inc/*.hpp obj/main.o obj/Lapacz.o obj/Galleries.o
-	gcc -o detektor  obj/*.o ${CFLAGS}
+	$(CC) -o detektor  obj/*.o ${CFLAGS}
 
 obj/main.o: src/main.cpp inc/*.hpp
-	gcc -o obj/main.o src/main.cpp -c ${CFLAGS}
+	$(CC) -o obj/main.o src/main.cpp -c ${CFLAGS}
 
 obj/Lapacz.o: inc/Lapacz.hpp src/Lapacz.cpp
-	gcc -o obj/Lapacz.o src/Lapacz.cpp -c ${CFLAGS}
+	$(CC) -o obj/Lapacz.o src/Lapacz.cpp -c ${CFLAGS}
 
-obj/Galleries.o: inc/Galleries.hpp
-	gcc -o obj/Galleries.o src/Galleries.cpp -c ${CFLAGS}
+obj/Galleries.o: inc/Galleries.hpp src/Galleries.cpp
+	$(CC) -o obj/Galleries.o src/Galleries.cpp -c ${CFLAGS}
 
 clean:
 	rm obj/* detektor

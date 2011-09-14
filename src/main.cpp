@@ -59,6 +59,8 @@ int main(int argc,char **argv){
     galleries.load("galeria.xml");
   }
   catch(Exception ex){
+    cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
+	<<" in fucntion "<<__func__;
     cerr<<ex.code<<endl<<ex.err<<endl<<ex.func<<endl<<ex.line<<endl;
   }
   
@@ -79,6 +81,8 @@ int main(int argc,char **argv){
     }
 
     catch(Exception ex){
+      cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
+	  <<" in fucntion "<<__func__;
       cerr<<ex.code<<endl<<ex.err<<endl<<ex.func<<endl<<ex.line<<endl;
     }
     
@@ -131,21 +135,24 @@ int main(int argc,char **argv){
 	}
 	if(ster!='q'){
 	  if(ster=='w'){
-	      namedWindow("sterowanie",CV_WINDOW_NORMAL);
 	      cout<<"podaj numer galerii i numer zdjęcia"<<endl;
 	      cin>>numerGalerii>>numerZdjecia;
 	      Mat zGalerii=galleries.getPicture(numerGalerii,numerZdjecia);
-	      cout<<zGalerii<<endl;
+	      cerr<<flush;
 	      imshow("z_galerii",zGalerii);
 	    
 	    }
+	  if(!twarze.empty()){
 	    imshow("test",gemben);
-	  imshow("proces",mid);
+	    imshow("proces",mid);
+	  }
 	  ster=waitKey(100);
 	}
       }
     }
     catch(Exception ex){
+      cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
+	  <<" in fucntion "<<__func__<<endl;
       cerr<<ex.code<<endl<<ex.err<<endl<<ex.func<<endl<<ex.line<<endl;
     }
     

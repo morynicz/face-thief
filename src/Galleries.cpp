@@ -56,6 +56,8 @@ void Galleries::load(string filename){
       fs.release();   
     }
     catch(Exception ex){
+      cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
+	  <<" in fucntion "<<__func__<<endl;
       throw ex;
     }
   }else{
@@ -184,6 +186,8 @@ cv::Mat Galleries::getPicture(string label,int number){
 	return getPicture(i,number);
       }
       catch(cv::Exception ex){
+	cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
+	    <<" in fucntion "<<__func__<<endl;
 	throw ex;
       }
     }
@@ -194,6 +198,7 @@ cv::Mat Galleries::getPicture(string label,int number){
 }
 
 cv::Mat Galleries::getPicture(int galleryNumber,int photoNumber){
+  cerr<<"cimcirimci"<<endl;
   if(galleryNumber<0||galleryNumber>=_gal.size()){
     cv::Exception ex(INCORRECT_GALLERY_NUMBER,
 		     "exception: incorrect gallery number",
@@ -206,13 +211,20 @@ cv::Mat Galleries::getPicture(int galleryNumber,int photoNumber){
     throw ex;
   }else{
     try{
+      cerr<<"tu byłem"<<endl;
       cv::Mat img=imread(_gal[galleryNumber].photos[photoNumber]);
-      cerr<<_gal.size<<"  "<<_gal[galleryNumber].photos.size()<<endl;
-      cerr<<img<<endl;
+      if(img.data==NULL){
+	cv::Exception ex(CANNOT_OPEN_FILE,
+			 "exception: could not open photo file",
+		       __func__,__FILE__,__LINE__);
+	throw ex;
+      }
       return img;
     }
     catch(Exception ex){
-      throw ex;
+      cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
+	  <<" in fucntion "<<__func__<<endl;
+      //throw ex;
     }
   }
 }
