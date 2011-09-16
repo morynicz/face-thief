@@ -70,7 +70,31 @@ int main(int argc,char **argv){
   namedWindow("test",CV_WINDOW_NORMAL);
   namedWindow("gemba",CV_WINDOW_NORMAL);
   namedWindow("z_galerii",CV_WINDOW_NORMAL);
-  while(ster!='q'){
+ 
+
+  Mat input=galleries.getPicture(0,0);
+  cerr<<input.type()<<endl;
+  cerr<<CV_8UC3<<endl;
+  cerr<<input.channels()<<endl;
+  cerr<<input.depth()<<endl;
+  imshow("in",input);
+  waitKey(500);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  /*
+   while(ster!='q'){
     try{
       kam.stopKlatka(obr);
       obr.copyTo(gemben);
@@ -157,9 +181,9 @@ int main(int argc,char **argv){
     }
     
   }
-
+  */
     //===========zapis
-  
+    
   galleries.save("galeria.xml");
   
   //koniec zapisu
