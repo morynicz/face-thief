@@ -46,7 +46,7 @@ int main(int argc,char **argv){
 
   vector<Rect> twarze; 
   
-  Lapacz kam(0);
+  //  Lapacz kam(0);
 
   CascadeClassifier szukacz;
   
@@ -79,16 +79,42 @@ int main(int argc,char **argv){
   cerr<<input.depth()<<endl;
   imshow("in",input);
   waitKey(500);
-
-
-
-
-
-
-
-
-
-
+  {
+    int rows=0;
+    int cols=galleries.getPictureSize().width*galleries.getPictureSize().height;
+    for(int i=0;i<galleries.totalSize();++i){
+      rows+=galleries.gallerySize(i);
+   }
+    
+    input.create(rows,cols,CV_8U);
+    int y=0;
+    for(int i=0;i<galleries.totalSize();++i){
+      for(int j=0;j<galleries.gallerySize(i);++j){
+	Mat img=galleries.getPicture(i,j);
+	cvtColor(img,img,CV_RGB2GRAY);
+	img.reshape(0,1);
+	Mat inInput(input(Rect(0,y++,cols,1)));
+	resize(img,inInput,inInput.size(),0,0,CV_INTER_LINEAR);
+	/*	cerr<<"wuf";
+	imshow("in",input);
+	cerr<<"wum";
+	waitKey(5000);
+	cerr<<"psik";*/
+      }
+    }
+    
+    /*
+      imshow("in",input);
+      waitKey(5000);
+    */
+    
+    //  cerr<<input<<endl;
+    int maxcomponents=cols*0.9;
+    
+    PCA pca(input,Mat(),CV_PCA_DATA_AS_COL,maxcomponents);
+    
+  }
+  
 
 
 
