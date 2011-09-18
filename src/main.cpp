@@ -88,8 +88,6 @@ int main(int argc,char **argv){
     for(int i=0;i<galleries.totalSize();++i){
       rows+=galleries.gallerySize(i);
    }
-    
-    cerr<<rows<<" "<<cols<<endl;
 
     Mat input(rows,cols,CV_8U);
     
@@ -98,47 +96,42 @@ int main(int argc,char **argv){
       for(int j=0;j<galleries.gallerySize(i);++j){
 	Mat img=galleries.getPicture(i,j);
 	Mat bw; //needed or OCV2.2 would segment fault
-
-	cvtColor(img,bw,CV_RGB2GRAY);
-
 	
-	cerr<<bw.size().width<<" "<<bw.size().height<<endl;
-	cerr<<bw.cols<<" "<<bw.rows<<endl;
-	bw.reshape(1,1);
-	cerr<<"reshaped"<<endl;
-	cerr<<bw.size().width<<" "<<bw.size().height<<endl;
-	cerr<<bw.cols<<" "<<bw.rows<<endl;
-
-
+	cvtColor(img,bw,CV_RGB2GRAY);
+	Mat reshaped=bw.reshape(1,1);
 	Mat inInput=input.row(y);
 
 	
 	
-	resize(bw,inInput,inInput.size(),0,0,CV_INTER_LINEAR);
-
-	Mat tmp=inInput.clone();
-	tmp.reshape(1,galleries.getPictureSize().height);
-	cerr<<galleries.getPictureSize().height<<endl;
-
-
-	imshow("in",tmp);
-	waitKey(5000);
+	resize(reshaped,inInput,inInput.size(),0,0,CV_INTER_LINEAR);
 	
       }
     }
     
     
-
-    //  cerr<<input<<endl;
-    int maxComponents=cols*0.3;
-   
-    PCA pca(input,Mat(),CV_PCA_DATA_AS_ROW,maxComponents);
+    int maxComponents=cols;
+    cerr<<maxComponents<<endl;
+    PCA pca(input,Mat(),CV_PCA_DATA_AS_ROW);
    
     Mat compressed(rows,maxComponents,CV_8U);
 
     
 
-   
+    for(int i=0;i<rows;++i){
+      Mat in=input.row(i);
+      Mat coord=compressed.row(i);
+    }
+
+    for(int i=0;i<rows;++i){
+      for(int j=0;j<rows;++j){
+	Mat input[2];//coord i , j
+	Mat covar;
+	Mat mean;
+	//	calcCovarMatrix// covar mat
+		  // double dist=mahalanobis(//coord i //coord j , covar^-1)
+      }
+    }
+
   }
   
 
