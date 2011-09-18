@@ -71,14 +71,17 @@ int main(int argc,char **argv){
   namedWindow("gemba",CV_WINDOW_NORMAL);
   namedWindow("z_galerii",CV_WINDOW_NORMAL);
  
-
+  /*
   Mat input=galleries.getPicture(0,0);
   cerr<<input.type()<<endl;
   cerr<<CV_8UC3<<endl;
   cerr<<input.channels()<<endl;
   cerr<<input.depth()<<endl;
   imshow("in",input);
-  waitKey(500);
+  waitKey(500);*/
+  
+  Mat input;
+
   {
     int rows=0;
     int cols=galleries.getPictureSize().width*galleries.getPictureSize().height;
@@ -91,10 +94,13 @@ int main(int argc,char **argv){
     for(int i=0;i<galleries.totalSize();++i){
       for(int j=0;j<galleries.gallerySize(i);++j){
 	Mat img=galleries.getPicture(i,j);
-	cvtColor(img,img,CV_RGB2GRAY);
+	Mat bw; //needed or OCV2.2 would segment fault
+
+	cvtColor(img,bw,CV_RGB2GRAY);
+
 	img.reshape(0,1);
 	Mat inInput(input(Rect(0,y++,cols,1)));
-	resize(img,inInput,inInput.size(),0,0,CV_INTER_LINEAR);
+	resize(bw,inInput,inInput.size(),0,0,CV_INTER_LINEAR);
 	/*	cerr<<"wuf";
 	imshow("in",input);
 	cerr<<"wum";
@@ -112,7 +118,7 @@ int main(int argc,char **argv){
     int maxcomponents=cols*0.9;
     
     PCA pca(input,Mat(),CV_PCA_DATA_AS_COL,maxcomponents);
-    
+   
   }
   
 
