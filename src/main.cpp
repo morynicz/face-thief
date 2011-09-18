@@ -80,7 +80,7 @@ int main(int argc,char **argv){
   imshow("in",input);
   waitKey(500);*/
   
-  Mat input;
+
 
   {
     int rows=0;
@@ -89,7 +89,10 @@ int main(int argc,char **argv){
       rows+=galleries.gallerySize(i);
    }
     
-    input.create(rows,cols,CV_8U);
+    cerr<<rows<<" "<<cols<<endl;
+
+    Mat input(rows,cols,CV_8U);
+    
     int y=0;
     for(int i=0;i<galleries.totalSize();++i){
       for(int j=0;j<galleries.gallerySize(i);++j){
@@ -98,26 +101,43 @@ int main(int argc,char **argv){
 
 	cvtColor(img,bw,CV_RGB2GRAY);
 
-	img.reshape(0,1);
-	Mat inInput(input(Rect(0,y++,cols,1)));
+	
+	cerr<<bw.size().width<<" "<<bw.size().height<<endl;
+	cerr<<bw.cols<<" "<<bw.rows<<endl;
+	bw.reshape(1,1);
+	cerr<<"reshaped"<<endl;
+	cerr<<bw.size().width<<" "<<bw.size().height<<endl;
+	cerr<<bw.cols<<" "<<bw.rows<<endl;
+
+
+	Mat inInput=input.row(y);
+
+	
+	
 	resize(bw,inInput,inInput.size(),0,0,CV_INTER_LINEAR);
-	/*	cerr<<"wuf";
-	imshow("in",input);
-	cerr<<"wum";
+
+	Mat tmp=inInput.clone();
+	tmp.reshape(1,galleries.getPictureSize().height);
+	cerr<<galleries.getPictureSize().height<<endl;
+
+
+	imshow("in",tmp);
 	waitKey(5000);
-	cerr<<"psik";*/
+	
       }
     }
     
-    /*
-      imshow("in",input);
-      waitKey(5000);
-    */
     
+
     //  cerr<<input<<endl;
-    int maxcomponents=cols*0.9;
+    int maxComponents=cols*0.3;
+   
+    PCA pca(input,Mat(),CV_PCA_DATA_AS_ROW,maxComponents);
+   
+    Mat compressed(rows,maxComponents,CV_8U);
+
     
-    PCA pca(input,Mat(),CV_PCA_DATA_AS_COL,maxcomponents);
+
    
   }
   
