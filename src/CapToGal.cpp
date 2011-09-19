@@ -76,7 +76,7 @@ int main(int argc,char **argv){
   namedWindow("gemba",CV_WINDOW_NORMAL);
   namedWindow("z_galerii",CV_WINDOW_NORMAL);
 
-  
+  /*
   {//PCA
     { //Odczyt i przejście na tablice wektorow
       int rows=0;
@@ -93,8 +93,6 @@ int main(int argc,char **argv){
 	for(int j=0;j<galleries.gallerySize(i);++j){
 	  Mat img=galleries.getPicture(i,j);
 	  Mat bw; //needed or OCV2.2 would segment fault
-	  
-	  cerr<<img.type()<<" "<<CV_8U<<endl;
 
 	  if(img.channels()!=1){
 	    Mat tmp;
@@ -104,9 +102,6 @@ int main(int argc,char **argv){
 	  }else{
 	    bw=img;
 	  }
-	  cerr<<bw.type()<<endl;
-	  //  waitKey(5000);
-	  
 	  Mat reshaped=bw.reshape(1,1);
 	  Mat inInput=input.row(y++);
 	  resize(reshaped,inInput,inInput.size(),0,0,CV_INTER_LINEAR);
@@ -128,7 +123,6 @@ int main(int argc,char **argv){
 
       pca.backProject(compressed,reconstructed);
 
-      //      cerr<<compressed<<endl;
 
       for(int i=0;i<rows;++i){
 	Mat img=reconstructed.row(i).reshape(0,galleries.getPictureSize().width);
@@ -137,8 +131,6 @@ int main(int argc,char **argv){
 	imshow("proces",umg);
 	waitKey(5000);
 
-	
-	
       }
 
 
@@ -163,7 +155,7 @@ int main(int argc,char **argv){
       
     }
   }
-  /*
+  */
 
 
 
@@ -255,7 +247,7 @@ int main(int argc,char **argv){
     }
     
   }
-  */
+  
     //===========zapis
     
   galleries.save("galeria.xml");
