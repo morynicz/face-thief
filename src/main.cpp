@@ -51,7 +51,7 @@ int main(int argc,char **argv){
 
   vector<Rect> twarze; 
   
-  Lapacz kam(0);
+  //  Lapacz kam(0);
 
   CascadeClassifier szukacz;
   

@@ -1,6 +1,7 @@
 CFLAGS= -I inc \
 	-I /usr/local/include/opencv2 \
 	-I /usr/include/boost \
+	-I ../../pittpatt/pittpatt_ftr_sdk-4.2.2-linux-x86/include \
 	-lopencv_core \
 	-lopencv_highgui \
 	-lopencv_ml \
@@ -37,5 +38,7 @@ obj/Lapacz.o: inc/Lapacz.hpp src/Lapacz.cpp
 obj/Galleries.o: inc/Galleries.hpp src/Galleries.cpp
 	$(CC) -o obj/Galleries.o src/Galleries.cpp -c ${CFLAGS}
 
+obj/ocv2pit.o: inc/ocv2pit.hpp src/ocv2pit.cpp
+	gcc -o obj/ocv2pit.o src/ocv2pit.cpp -c ${CFLAGS}
 clean:
 	rm obj/* detektor
