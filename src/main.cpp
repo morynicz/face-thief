@@ -27,22 +27,18 @@ int main(int argc,char **argv){
   Mat obr,eq;
   char ster='1';
   Mat mid;
-  //  Mat zera;
-
-  //  Mat inDft,outDft;
-  //  Mat czer;
   Mat bw;
   Mat gemben;
 
   int outWidth=200;
   int outHeight=outWidth*(1+FACE_FACTOR);
 
+  string zdjecie;
 
   Size rozm(outWidth,outHeight);
   
   string adres;
 
-  //  list<Gallery> galeries; 
   Galleries galleries;
   long long counter=1;
 
@@ -53,11 +49,14 @@ int main(int argc,char **argv){
   
   //  Lapacz kam(0);
 
-  CascadeClassifier szukacz;
+  //  CascadeClassifier szukacz;
   
-  szukacz.load(argv[1]);
-  adres=argv[2];
+  // szukacz.load(argv[1]);
+  adres=argv[1];
+  zdjecie=argv[2];
 
+  Mat do_golenia=imread(zdjecie);
+  Mat kompresowany;
   // wczytywanie galerii zdjęć
   try{
     galleries.setPath(adres);
@@ -93,19 +92,14 @@ int main(int argc,char **argv){
 	for(int j=0;j<galleries.gallerySize(i);++j){
 	  Mat img=galleries.getPicture(i,j);
 	  Mat bw; //needed or OCV2.2 would segment fault
-	  
-	  cerr<<img.type()<<" "<<CV_8U<<endl;
 
 	  if(img.channels()!=1){
 	    Mat tmp;
 	    cvtColor(img,tmp,CV_RGB2GRAY);
-	    cerr<<"puff"<<endl;
 	    equalizeHist(tmp,bw);
 	  }else{
 	    bw=img;
 	  }
-	  cerr<<bw.type()<<endl;
-	  //  waitKey(5000);
 	  
 	  Mat reshaped=bw.reshape(1,1);
 	  Mat inInput=input.row(y++);
@@ -115,152 +109,79 @@ int main(int argc,char **argv){
       }
       
     
-      int maxComponents=cols*1;
+      int maxComponents=cols*0;
       cerr<<maxComponents<<endl;
       PCA pca(input,Mat(),CV_PCA_DATA_AS_ROW,maxComponents);
    
-      Mat compressed(rows,maxComponents,CV_8U);
-
-
+      //      Mat compressed(rows,maxComponents,CV_8U);
+      Mat compressed;
       pca.project(input,compressed);
+
+
       
+
+	 
+	 cerr<<do_golenia.cols<<do_golenia.rows<<do_golenia.channels()<<endl;
+
+	 Mat ch,ch2;
+	 cvtColor(do_golenia,ch2,CV_RGB2GRAY);
+	 
+      cerr<<ch2.type()<<endl;
+      cerr<<ch2.cols<<" "<<ch2.rows<<endl;
+      cerr<<input.cols<<endl;
+      pca.project(ch2.reshape(1,1),kompresowany);
+
+
+
+      cerr<<compressed.cols<<" "<<compressed.rows<<endl;
+      cerr<<compressed.depth()<<compressed.channels()<<endl;
+      cerr<<pca.eigenvectors.cols<<" "<<pca.eigenvectors.rows<<endl;
       Mat reconstructed;
 
       pca.backProject(compressed,reconstructed);
 
-      //      cerr<<compressed<<endl;
-
+      /*
       for(int i=0;i<rows;++i){
 	Mat img=reconstructed.row(i).reshape(0,galleries.getPictureSize().width);
 	Mat umg=input.row(i).reshape(0,galleries.getPictureSize().width);
+	Mat emg=pca.eigenvectors.row(i).reshape(0,galleries.getPictureSize().width);
+	
 	imshow("in",img);
 	imshow("proces",umg);
-	waitKey(5000);
+	imshow("test",emg*100);
+	waitKey(5100);
 
-	
-	
       }
+      */
 
+      Mat covar;
+      Mat mean;
+      Mat icovar;
+      
+      calcCovarMatrix(compressed,covar,mean,
+		      CV_COVAR_NORMAL|CV_COVAR_ROWS,
+		      compressed.type());
+      invert(covar,icovar,DECOMP_SVD);
 
       for(int i=0;i<rows;++i){
+	 double dist2=Mahalanobis(compressed.row(i),kompresowany,icovar.t());
+	 cerr<<i<<" "<<dist2<<endl<<endl;
 	for(int j=0;j<rows;++j){
 	  Mat in[2];//coord i , j
-	  Mat covar;
-	  Mat mean;
-	  Mat icovar;
+	 
 	  in[0]=compressed.row(i);
 	  in[1]=compressed.row(j);
-	  
-	  calcCovarMatrix(in,2,covar,mean,CV_COVAR_NORMAL);
-
-	  invert(covar,icovar,DECOMP_SVD);
-	  //	  double dist=Mahalanobis(in[0],in[1],icovar.t());
-
-	  //	calcCovarMatrix// covar mat
-	  // double dist=mahalanobis(//coord i //coord j , covar^-1)
+	 
+	  double dist=Mahalanobis(in[0],in[1],icovar.t());
+	 
+	  cerr<<i<<" "<<j<<" "<<dist<<endl;
+	
+	
 	}
       }
       
     }
   }
-  /*
-
-
-
-  
-   while(ster!='q'){
-    try{
-      kam.stopKlatka(obr);
-      obr.copyTo(gemben);
-      //rozm=obr.size();
-      cvtColor(obr,bw,CV_RGB2GRAY);
-      equalizeHist(bw,eq);
-      imshow("in",obr);
-    }
-
-    catch(Exception ex){
-      cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
-	  <<" in fucntion "<<__func__;
-      cerr<<ex.code<<endl<<ex.err<<endl<<ex.func<<endl<<ex.line<<endl;
-    }
-    
-    try{
-      
-      {
-	stringstream sBufor;
-	string cel,label,buff;
-	szukacz.detectMultiScale(eq,twarze,1.3);
-	if(!twarze.empty()){
-	  m=floor(sqrt(twarze.size()));
-	  n=ceil(sqrt(twarze.size()));
-	  mid.create(rozm.width*m*(1+FACE_FACTOR),rozm.width*n,eq.type());
-	  int i=0;
-	  
-	  //	  list<Gallery>::iterator git;
-	  
-	  for(vector<Rect>::iterator it=twarze.begin();
-	      it!=twarze.end();++it,++i){
-	    it->y-=(it->height)*FACE_FACTOR/2;
-	    it->height*=(1+FACE_FACTOR);
-	    rectangle(gemben,
-		      Point(it->x,it->y),
-		      Point(it->x+it->width,it->y+it->height),
-		      Scalar(255,0,0));
-	    
-	    Mat midPt=mid(Rect(rozm.width*(i/n),
-			       rozm.width*(i%m)*(1+FACE_FACTOR),
-			       rozm.width,rozm.width*(1+FACE_FACTOR)));
-	    resize(Mat(eq,(*it)),midPt,midPt.size(),0,0,CV_INTER_LINEAR);
-	    
-	    
-	    
-	    imshow("gemba",midPt);
-	    if(ster!='q'){
-	      ster=' ';
-	      ster=waitKey(1000);
-	      if(ster=='c'){
-		cout<<"kto to?"<<endl;
-		cin>>label;
-		if(label=="koniec")
-		  break;
-		galleries.add(label,midPt);
-		//=================
-	      }
-	      if(label=="koniec")
-		break;
-	    }
-	  }
-	}
-	if(ster!='q'){
-	  if(ster=='w'){
-	      cout<<"podaj numer galerii i numer zdjęcia"<<endl;
-	      cin>>numerGalerii>>numerZdjecia;
-	      Mat zGalerii=galleries.getPicture(numerGalerii,numerZdjecia);
-	      cerr<<flush;
-	      imshow("z_galerii",zGalerii);
-	    
-	    }
-	  if(!twarze.empty()){
-	    imshow("test",gemben);
-	    imshow("proces",mid);
-	  }
-	  ster=waitKey(100);
-	}
-      }
-    }
-    catch(Exception ex){
-      cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
-	  <<" in fucntion "<<__func__<<endl;
-      cerr<<ex.code<<endl<<ex.err<<endl<<ex.func<<endl<<ex.line<<endl;
-    }
-    
-  }
-  */
-    //===========zapis
-    
-  galleries.save("galeria.xml");
-  
-  //koniec zapisu
   
   return 0;
 }

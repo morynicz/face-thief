@@ -111,24 +111,32 @@ void Galleries::load(string filename){
 
 //================ zapis
 void Galleries::add(string label,cv::Mat img){
+  int number;
   if(!_path.empty()){
-    vector<Gallery>::iterator git;
+    //    vector<Gallery>::iterator git;
     if(!_gal.empty()){
-      for(git=_gal.begin();
+      /*for(git=_gal.begin();
 	  git!=_gal.end();
 	  ++git){
 	cerr<<"szuka "<<label<<" == "<<git->label<<'?'<<endl;
 	if(git->label==label)
 	  break;
+	  }*/
+      for(number=0;number<_gal.size();++number){
+	cerr<<"szuka "<<label<<" == "<<_gal[number].label<<'?'<<endl;
+	if(_gal[number].label==label)
+	  break;
       }
-    
-      if(git==_gal.end()){
+
+      //      if(git==_gal.end()){
+      if(_gal.size()==number){
+	cerr<<"a";
 	Gallery galeria;
 	galeria.label=label;
 	galeria.counter=0;
-	--git;
+	//	--git;
 	_gal.push_back(galeria);
-	++git;
+	//	++git;
 	if(!boost::filesystem::exists(_path+'/'+label)){
 	  boost::filesystem::create_directory(_path+'/'+label);
 	  cerr<<(_path+'/'+label)<<endl;
@@ -139,7 +147,8 @@ void Galleries::add(string label,cv::Mat img){
       galeria.label=label;
       galeria.counter=0;
       _gal.push_back(galeria);
-      git=_gal.begin();
+      //  git=_gal.begin();
+      number=0;
       _picSize=img.size();
       _picType=img.type();
       if(!boost::filesystem::exists(_path+'/'+label)){
@@ -161,12 +170,15 @@ void Galleries::add(string label,cv::Mat img){
       }
       string cel;
       std::stringstream sBufor;
-      sBufor<<_path<<'/'<<git->label<<'/'<<git->counter++<<".jpg";
+      //sBufor<<_path<<'/'<<git->label<<'/'<<git->counter++<<".jpg";
+       sBufor<<_path<<'/'<<_gal[number].label<<'/'<<_gal[number].counter++
+	     <<".jpg";
       sBufor>>cel;
       cerr<<cel<<endl;
       imwrite(cel,img);
       //gallery	      
-      git->photos.push_back(cel);
+      // git->photos.push_back(cel);
+      _gal[number].photos.push_back(cel);
     }
   }else{
     Exception ex(NO_PATH_DECLARED,
