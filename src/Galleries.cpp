@@ -302,3 +302,12 @@ int Galleries::gallerySize(int galleryNumber){
     return _gal[galleryNumber].photos.size();
   }
 }
+
+std::string Galleries::getGalleryLabel(int galleryNumber){
+  if(galleryNumber<0||galleryNumber>=_gal.size()){
+    throw cv::Exception(INCORRECT_GALLERY_NUMBER,
+			 "exception: incorrect gallery number",
+			__func__,__FILE__,__LINE__);
+  }
+  return _gal[galleryNumber].label;
+}

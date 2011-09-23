@@ -60,6 +60,7 @@ public:
   int getPictureType(){return _picType;}
   int gallerySize(string label);
   int gallerySize(int galleryNumber);
+  std::string getGalleryLabel(int galleryNumber);
   ~Galleries(){};
 };
 

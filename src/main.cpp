@@ -8,7 +8,7 @@
 #include <string>
 #include "filesystem.hpp"
 #include "Galleries.hpp"
-
+#include "PCARec.hpp"
 #include <sstream> //do nazw plików
 
 #include "Lapacz.hpp"
@@ -75,7 +75,17 @@ int main(int argc,char **argv){
   namedWindow("gemba",CV_WINDOW_NORMAL);
   namedWindow("z_galerii",CV_WINDOW_NORMAL);
 
-  
+  PCARec pca;
+  pca.loadGalleries(galleries);
+  pca.compute();
+  Mat pomiar=imread(zdjecie);
+  std::list<Result> wyniki=pca.recognise(pomiar);
+
+  for(std::list<Result>::iterator it=wyniki.begin();it!=wyniki.end();++it){
+    cout<<galleries.getGalleryLabel(it->label)<<" "<<it->score<<endl;
+  }
+      
+  /*
   {//PCA
     { //Odczyt i przejście na tablice wektorow
       int rows=0;
@@ -140,19 +150,19 @@ int main(int argc,char **argv){
 
       pca.backProject(compressed,reconstructed);
 
-      /*
-      for(int i=0;i<rows;++i){
-	Mat img=reconstructed.row(i).reshape(0,galleries.getPictureSize().width);
-	Mat umg=input.row(i).reshape(0,galleries.getPictureSize().width);
-	Mat emg=pca.eigenvectors.row(i).reshape(0,galleries.getPictureSize().width);
+      // /*
+      // for(int i=0;i<rows;++i){
+      // 	Mat img=reconstructed.row(i).reshape(0,galleries.getPictureSize().width);
+      // 	Mat umg=input.row(i).reshape(0,galleries.getPictureSize().width);
+      // 	Mat emg=pca.eigenvectors.row(i).reshape(0,galleries.getPictureSize().width);
 	
-	imshow("in",img);
-	imshow("proces",umg);
-	imshow("test",emg*100);
-	waitKey(5100);
+      // 	imshow("in",img);
+      // 	imshow("proces",umg);
+      // 	imshow("test",emg*100);
+      // 	waitKey(5100);
 
-      }
-      */
+      // }
+      // 
 
       Mat covar;
       Mat mean;
@@ -172,7 +182,7 @@ int main(int argc,char **argv){
 	  in[0]=compressed.row(i);
 	  in[1]=compressed.row(j);
 	 
-	  double dist=Mahalanobis(in[0],in[1],icovar.t());
+	  double dist=Mahalanobis(in[0],in[1],icovar);
 	 
 	  cerr<<i<<" "<<j<<" "<<dist<<endl;
 	
@@ -182,6 +192,8 @@ int main(int argc,char **argv){
       
     }
   }
-  
+  */
+
+
   return 0;
 }
