@@ -9,6 +9,15 @@ class PCARec:public Rec{
   cv::PCA _pca;
   std::list<int> _labelNr;
   cv::Mat _icovar;
+
+  static std::string DATA;
+  static std::string VECTORS;
+  static std::string ICOVAR;
+  static std::string LABEL_NR;
+  static std::string EIGENVALUES;
+  static std::string EIGENVECTORS;
+  static std::string MEAN;
+
 public:
   PCARec();
   virtual void loadGalleries(Galleries& galleries);

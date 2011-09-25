@@ -9,7 +9,7 @@ CFLAGS= -I inc \
 	-lopencv_gpu  \
 	-lboost_thread \
 	-lboost_filesystem \
-	-g -O0
+	-g -O0 -Wall -pedantic
 
 CC=g++
 
@@ -17,13 +17,14 @@ CC=g++
 #	./detektor kaskady/haarcascade_frontalface_default.xml \
 #	galerie
 
-all: galeriator porownywacz obj/PCARec.o
+all: galeriator porownywacz 
 
 galeriator: src/*.cpp inc/*.hpp obj/CapToGal.o obj/Lapacz.o obj/Galleries.o
 	$(CC) -o galeriator  ${CFLAGS} obj/CapToGal.o obj/Lapacz.o \
 	obj/Galleries.o	
 
-porownywacz: src/*.cpp inc/*.hpp obj/main.o obj/Lapacz.o obj/Galleries.o
+porownywacz: src/*.cpp inc/*.hpp obj/main.o obj/Lapacz.o obj/Galleries.o \
+	obj/PCARec.o
 	$(CC) -o porownywacz  ${CFLAGS} obj/main.o obj/Lapacz.o obj/Galleries.o \
 	obj/PCARec.o
 

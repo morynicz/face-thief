@@ -25,7 +25,7 @@ int main(int argc,char **argv){
 
 
   Mat obr,eq;
-  char ster='1';
+  //  char ster='1';
   Mat mid;
   Mat bw;
   Mat gemben;
@@ -40,10 +40,7 @@ int main(int argc,char **argv){
   string adres;
 
   Galleries galleries;
-  long long counter=1;
-
-  int m,n;
-  int numerZdjecia,numerGalerii;
+  //long counter=1;
 
   vector<Rect> twarze; 
   
@@ -79,11 +76,23 @@ int main(int argc,char **argv){
   pca.loadGalleries(galleries);
   pca.compute();
   Mat pomiar=imread(zdjecie);
-  std::list<Result> wyniki=pca.recognise(pomiar);
+  {
+    std::list<Result> wyniki=pca.recognise(pomiar);
 
-  for(std::list<Result>::iterator it=wyniki.begin();it!=wyniki.end();++it){
-    cout<<galleries.getGalleryLabel(it->label)<<" "<<it->score<<endl;
+    for(std::list<Result>::iterator it=wyniki.begin();it!=wyniki.end();++it){
+      cout<<galleries.getGalleryLabel(it->label)<<" "<<it->score<<endl;
+    }
   }
+  pca.savePrecomputedGalleries("PCA.xml");
+  pca.loadPrecomputedGalleries("PCA.xml");
+ 
+  {
+    std::list<Result> wyniki=pca.recognise(pomiar);
+    cerr<<wyniki.size()<<endl;
+    for(std::list<Result>::iterator it=wyniki.begin();it!=wyniki.end();++it){
+      cout<<galleries.getGalleryLabel(it->label)<<" "<<it->score<<endl;
+    }
+  } 
       
   /*
   {//PCA
@@ -150,7 +159,7 @@ int main(int argc,char **argv){
 
       pca.backProject(compressed,reconstructed);
 
-      // /*
+      // 
       // for(int i=0;i<rows;++i){
       // 	Mat img=reconstructed.row(i).reshape(0,galleries.getPictureSize().width);
       // 	Mat umg=input.row(i).reshape(0,galleries.getPictureSize().width);

@@ -1,7 +1,19 @@
 #include "PCARec.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
+#include <iostream>
 using std::string;
+using std::list;
+using std::cerr;
+using std::endl;
 using namespace cv;
+
+string PCARec::DATA="DATA";
+string PCARec::VECTORS="VECTORS";
+string PCARec::ICOVAR="ICOVAR";
+string PCARec::LABEL_NR="LABEL_NR";
+string PCARec::EIGENVECTORS="EIGENVECTORS";
+string PCARec::EIGENVALUES="EIGENVALUES";
+string PCARec::MEAN="MEAN";
 
 PCARec::PCARec(){
  
@@ -40,13 +52,80 @@ void PCARec::loadGalleries(Galleries& galleries){
 }
 
 void PCARec::loadPrecomputedGalleries(const string& path){
+  clear();
+  try{
+    FileStorage fs(path,FileStorage::READ);
+    if(!fs.isOpened()){
+      cv::Exception err(CANNOT_OPEN_FILE,
+			"file cannot be opened",
+			__func__,__FILE__,__LINE__);
+      throw err;
+    }
+    
+    fs[DATA]>>_data;
+    fs[VECTORS]>>_vectors;
+    fs[ICOVAR]>>_icovar;
+    fs[EIGENVECTORS]>>_pca.eigenvectors;
+    fs[EIGENVALUES]>>_pca.eigenvalues;
+    fs[MEAN]>>_pca.mean;
 
+
+    FileNode fn=fs[LABEL_NR];
+    for(FileNodeIterator it=fn.begin();it!=fn.end();++it){
+      _labelNr.push_back((int)(*it));
+    }
+    
+    
+    fs.release();
+    // _pca(_data,Mat(),CV_PCA_DATA_AS_ROW);
+    cerr<<_data.cols<<" "<<_data.rows<<endl;
+  }
+  catch(Exception ex){
+    cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
+	<<" in fucntion "<<__func__<<endl;
+    throw ex;
+  }
 }
 
 void PCARec::savePrecomputedGalleries(const string& path){
-
+  try{
+    FileStorage fs(path,FileStorage::WRITE);
+    if(!fs.isOpened()){
+      cv::Exception err(CANNOT_OPEN_FILE,
+			"file cannot be opened",
+			__func__,__FILE__,__LINE__);
+      throw err;
+    }
+  
+    cerr<<"data"<<endl;
+    fs
+      <<DATA<<_data
+      <<VECTORS<<_vectors
+      <<ICOVAR<<_icovar
+      <<EIGENVECTORS<<_pca.eigenvectors
+      <<EIGENVALUES<<_pca.eigenvalues
+      <<MEAN<<_pca.mean
+      <<LABEL_NR<<"[";
+    cerr<<"labels"<<endl;
+    int z=0;
+    /* cerr<<_labelNr.size()<<endl;
+    std::cin.clear();
+    std::cin>>z;*/
+    for(list<int>::iterator it=_labelNr.begin();
+	it!=_labelNr.end();++it){
+      fs<<(*it);
+      //      cerr<<z++<<endl;
+    }
+    fs<<"]";
+    cerr<<"post"<<endl;
+  }
+  catch(Exception ex){
+    cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
+	<<" in fucntion "<<__func__<<endl;
+    throw ex;
+  } 
 }
-
+  
 void PCARec::compute(){
   _pca(_data,Mat(),CV_PCA_DATA_AS_ROW);
   _pca.project(_data,_vectors);
@@ -62,7 +141,9 @@ void PCARec::compute(){
 }
 
 void PCARec::clear(){
-
+  _labelNr.clear();
+  
+  //  _pca(Mat(),Mat(),CV_PCA_DATA_AS_ROW); 
 }
 
 std::list<Result> PCARec::recognise(const string& path){
@@ -86,12 +167,12 @@ std::list<Result> PCARec::recognise(cv::Mat& img){
   Result similarity;
   similarity.score=0;
   similarity.label=-1;
-  for(int i=0;i<_vectors.cols;++i){
+  for(int i=0;i<_vectors.rows;++i){
     int label=*it;
     similarity.score+=Mahalanobis(_vectors.row(i),vec,_icovar);
     ++it;
     ++counter;
-    if(*it!=label){
+    if(*it!=label||it==_labelNr.end()){
       similarity.score/=counter;
       similarity.label=label;
       results.push_back(similarity);
