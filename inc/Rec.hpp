@@ -9,7 +9,9 @@
 ///Structure with results
 struct Result{
   int label;
-  double score;
+  double mean;
+  double min;
+  double max;
 };
 
 ///

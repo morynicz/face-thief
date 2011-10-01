@@ -165,18 +165,30 @@ std::list<Result> PCARec::recognise(cv::Mat& img){
   
  
   Result similarity;
-  similarity.score=0;
+  similarity.mean=0;
+  similarity.min=100;
+  similarity.max=0;
   similarity.label=-1;
   for(int i=0;i<_vectors.rows;++i){
     int label=*it;
-    similarity.score+=Mahalanobis(_vectors.row(i),vec,_icovar);
+    double distance=Mahalanobis(_vectors.row(i),vec,_icovar);
+    cerr<<label<<" "<<distance<<endl;
+    similarity.mean+=distance;
+    if(similarity.min>distance){
+      similarity.min=distance;
+    }
+    if(similarity.max<distance){
+      similarity.max=distance;
+    }
     ++it;
     ++counter;
     if(*it!=label||it==_labelNr.end()){
-      similarity.score/=counter;
+      similarity.mean/=counter;
       similarity.label=label;
       results.push_back(similarity);
-      similarity.score=counter=0;
+      similarity.min=100;
+      similarity.max=0;
+      similarity.mean=counter=0;
     }
   }
   return results;

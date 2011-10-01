@@ -50,12 +50,19 @@ int main(int argc,char **argv){
   int numerZdjecia,numerGalerii;
 
   vector<Rect> twarze; 
-  
+  vector<Rect> lOka;
+  vector<Rect> pOka;
+
   Lapacz kam(0);
 
   CascadeClassifier szukacz;
-  
+  CascadeClassifier lewe;
+  CascadeClassifier prawe;
+
   szukacz.load(argv[1]);
+  lewe.load("kaskady/haarcascade_lefteye_2splits.xml");
+  prawe.load("kaskady/haarcascade_righteye_2splits.xml");
+
   adres=argv[2];
 
   // wczytywanie galerii zdjęć
@@ -204,8 +211,18 @@ int main(int argc,char **argv){
 			       rozm.width,rozm.width*(1+FACE_FACTOR)));
 	    resize(Mat(eq,(*it)),midPt,midPt.size(),0,0,CV_INTER_LINEAR);
 	    
-	    
-	    
+	    lewe.detectMultiScale(midPt,lOka,1.3);
+	    for(int j=0;j<lOka.size();++j){
+	      rectangle(midPt,Point(lOka[j].x,lOka[j].y),
+			Point(lOka[j].x+lOka[j].width,lOka[j].y+lOka[j].height),
+			Scalar(0,255,0));
+	    }
+	    prawe.detectMultiScale(midPt,pOka,1.3);
+	    for(int j=0;j<pOka.size();++j){
+	      rectangle(midPt,Point(pOka[j].x,pOka[j].y),
+			Point(pOka[j].x+pOka[j].width,pOka[j].y+pOka[j].height),
+			Scalar(0,0,255));
+	    }
 	    imshow("gemba",midPt);
 	    if(ster!='q'){
 	      ster=' ';

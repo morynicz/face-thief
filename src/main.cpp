@@ -80,19 +80,21 @@ int main(int argc,char **argv){
     std::list<Result> wyniki=pca.recognise(pomiar);
 
     for(std::list<Result>::iterator it=wyniki.begin();it!=wyniki.end();++it){
-      cout<<galleries.getGalleryLabel(it->label)<<" "<<it->score<<endl;
+      cout<<galleries.getGalleryLabel(it->label)<<" "<<it->mean
+	  <<" "<<it->max<<" "<<it->min<<endl;
     }
   }
   pca.savePrecomputedGalleries("PCA.xml");
-  pca.loadPrecomputedGalleries("PCA.xml");
+  // pca.loadPrecomputedGalleries("PCA.xml");
  
-  {
-    std::list<Result> wyniki=pca.recognise(pomiar);
-    cerr<<wyniki.size()<<endl;
-    for(std::list<Result>::iterator it=wyniki.begin();it!=wyniki.end();++it){
-      cout<<galleries.getGalleryLabel(it->label)<<" "<<it->score<<endl;
-    }
-  } 
+  // {
+  //   std::list<Result> wyniki=pca.recognise(pomiar);
+  //   cerr<<wyniki.size()<<endl;
+  //   for(std::list<Result>::iterator it=wyniki.begin();it!=wyniki.end();++it){
+  //     cout<<galleries.getGalleryLabel(it->label)<<" "<<it->mean
+  // 	  <<" "<<it->max<<" "<<it->min<<endl;
+  //   }
+  // } 
       
   /*
   {//PCA
