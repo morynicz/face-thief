@@ -1,5 +1,6 @@
 #include "PCARec.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/highgui/highgui.hpp"
 #include <iostream>
 using std::string;
 using std::list;
@@ -106,11 +107,7 @@ void PCARec::savePrecomputedGalleries(const string& path){
       <<EIGENVALUES<<_pca.eigenvalues
       <<MEAN<<_pca.mean
       <<LABEL_NR<<"[";
-    cerr<<"labels"<<endl;
-    int z=0;
-    /* cerr<<_labelNr.size()<<endl;
-    std::cin.clear();
-    std::cin>>z;*/
+    //    cerr<<"labels"<<endl;
     for(list<int>::iterator it=_labelNr.begin();
 	it!=_labelNr.end();++it){
       fs<<(*it);
@@ -142,12 +139,11 @@ void PCARec::compute(){
 
 void PCARec::clear(){
   _labelNr.clear();
-  
-  //  _pca(Mat(),Mat(),CV_PCA_DATA_AS_ROW); 
 }
 
 std::list<Result> PCARec::recognise(const string& path){
-
+  Mat img=imread(path);
+  return recognise(img);
 }
 
 std::list<Result> PCARec::recognise(cv::Mat& img){

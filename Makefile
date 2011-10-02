@@ -19,14 +19,14 @@ CC=g++
 
 all: galeriator porownywacz 
 
-galeriator: src/*.cpp inc/*.hpp obj/CapToGal.o obj/Lapacz.o obj/Galleries.o
-	$(CC) -o galeriator  ${CFLAGS} obj/CapToGal.o obj/Lapacz.o \
+kreatorGalerii: src/*.cpp inc/*.hpp obj/CapToGal.o obj/Lapacz.o obj/Galleries.o
+	$(CC) -o kreatorGalerii  ${CFLAGS} obj/CapToGal.o obj/Lapacz.o \
 	obj/Galleries.o	
 
 porownywacz: src/*.cpp inc/*.hpp obj/main.o obj/Lapacz.o obj/Galleries.o \
-	obj/PCARec.o
+	obj/PCARec.o obj/SVMRec.o
 	$(CC) -o porownywacz  ${CFLAGS} obj/main.o obj/Lapacz.o obj/Galleries.o \
-	obj/PCARec.o
+	obj/PCARec.o obj/SVMRec.o
 
 obj/CapToGal.o: src/CapToGal.cpp inc/*.hpp
 	$(CC) -o obj/CapToGal.o src/CapToGal.cpp -c ${CFLAGS}	
@@ -46,5 +46,8 @@ obj/ocv2pit.o: inc/ocv2pit.hpp src/ocv2pit.cpp
 obj/PCARec.o: inc/PCARec.hpp inc/Rec.hpp src/PCARec.cpp
 	$(CC) -o obj/PCARec.o src/PCARec.cpp -c ${CFLAGS}
 
+obj/SVMRec.o: inc/Rec.hpp inc/SVMRec.hpp src/SVMRec.cpp
+	$(CC) -o obj/SVMRec.o src/SVMRec.cpp -c ${CFLAGS}
+
 clean:
-	rm obj/* detektor
+	rm obj/* porownywacz galeriator

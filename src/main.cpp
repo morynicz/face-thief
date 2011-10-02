@@ -9,6 +9,7 @@
 #include "filesystem.hpp"
 #include "Galleries.hpp"
 #include "PCARec.hpp"
+#include "SVMRec.hpp"
 #include <sstream> //do nazw plików
 
 #include "Lapacz.hpp"
@@ -85,6 +86,19 @@ int main(int argc,char **argv){
     }
   }
   pca.savePrecomputedGalleries("PCA.xml");
+
+
+  SVMRec svm;
+  svm.loadGalleries(galleries);
+  svm.compute();
+  {
+    std::list<Result> wyniki=svm.recognise(pomiar);
+
+    for(std::list<Result>::iterator it=wyniki.begin();it!=wyniki.end();++it){
+      cout<<galleries.getGalleryLabel(it->label)<<" "<<it->mean
+	  <<" "<<it->max<<" "<<it->min<<endl;
+    }
+  }
   // pca.loadPrecomputedGalleries("PCA.xml");
  
   // {

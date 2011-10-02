@@ -63,6 +63,8 @@ int main(int argc,char **argv){
   lewe.load("kaskady/haarcascade_lefteye_2splits.xml");
   prawe.load("kaskady/haarcascade_righteye_2splits.xml");
 
+  lewe.load("kaskady/haarcascade_mcs_lefteye.xml");
+  prawe.load("kaskady/haarcascade_mcs_righteye.xml");
   adres=argv[2];
 
   // wczytywanie galerii zdjęć
@@ -82,87 +84,6 @@ int main(int argc,char **argv){
   namedWindow("test",CV_WINDOW_NORMAL);
   namedWindow("gemba",CV_WINDOW_NORMAL);
   namedWindow("z_galerii",CV_WINDOW_NORMAL);
-
-  /*
-  {//PCA
-    { //Odczyt i przejście na tablice wektorow
-      int rows=0;
-      int cols=galleries.getPictureSize().width
-	*galleries.getPictureSize().height;
-      for(int i=0;i<galleries.totalSize();++i){
-	rows+=galleries.gallerySize(i);
-      }
-      
-      Mat input(rows,cols,CV_8U);
-      
-      int y=0;
-      for(int i=0;i<galleries.totalSize();++i){
-	for(int j=0;j<galleries.gallerySize(i);++j){
-	  Mat img=galleries.getPicture(i,j);
-	  Mat bw; //needed or OCV2.2 would segment fault
-
-	  if(img.channels()!=1){
-	    Mat tmp;
-	    cvtColor(img,tmp,CV_RGB2GRAY);
-	    cerr<<"puff"<<endl;
-	    equalizeHist(tmp,bw);
-	  }else{
-	    bw=img;
-	  }
-	  Mat reshaped=bw.reshape(1,1);
-	  Mat inInput=input.row(y++);
-	  resize(reshaped,inInput,inInput.size(),0,0,CV_INTER_LINEAR);
-	
-	}
-      }
-      
-    
-      int maxComponents=cols*1;
-      cerr<<maxComponents<<endl;
-      PCA pca(input,Mat(),CV_PCA_DATA_AS_ROW,maxComponents);
-   
-      Mat compressed(rows,maxComponents,CV_8U);
-
-
-      pca.project(input,compressed);
-      
-      Mat reconstructed;
-
-      pca.backProject(compressed,reconstructed);
-
-
-      for(int i=0;i<rows;++i){
-	Mat img=reconstructed.row(i).reshape(0,galleries.getPictureSize().width);
-	Mat umg=input.row(i).reshape(0,galleries.getPictureSize().width);
-	imshow("in",img);
-	imshow("proces",umg);
-	waitKey(5000);
-
-      }
-
-
-      for(int i=0;i<rows;++i){
-	for(int j=0;j<rows;++j){
-	  Mat in[2];//coord i , j
-	  Mat covar;
-	  Mat mean;
-	  Mat icovar;
-	  in[0]=compressed.row(i);
-	  in[1]=compressed.row(j);
-	  
-	  calcCovarMatrix(in,2,covar,mean,CV_COVAR_NORMAL);
-
-	  invert(covar,icovar,DECOMP_SVD);
-	  //	  double dist=Mahalanobis(in[0],in[1],icovar.t());
-
-	  //	calcCovarMatrix// covar mat
-	  // double dist=mahalanobis(//coord i //coord j , covar^-1)
-	}
-      }
-      
-    }
-  }
-  */
 
 
 
@@ -211,18 +132,18 @@ int main(int argc,char **argv){
 			       rozm.width,rozm.width*(1+FACE_FACTOR)));
 	    resize(Mat(eq,(*it)),midPt,midPt.size(),0,0,CV_INTER_LINEAR);
 	    
-	    lewe.detectMultiScale(midPt,lOka,1.3);
-	    for(int j=0;j<lOka.size();++j){
-	      rectangle(midPt,Point(lOka[j].x,lOka[j].y),
-			Point(lOka[j].x+lOka[j].width,lOka[j].y+lOka[j].height),
-			Scalar(0,255,0));
-	    }
-	    prawe.detectMultiScale(midPt,pOka,1.3);
-	    for(int j=0;j<pOka.size();++j){
-	      rectangle(midPt,Point(pOka[j].x,pOka[j].y),
-			Point(pOka[j].x+pOka[j].width,pOka[j].y+pOka[j].height),
-			Scalar(0,0,255));
-	    }
+	    // lewe.detectMultiScale(midPt,lOka,1.3);
+	    // for(int j=0;j<lOka.size();++j){
+	    //   rectangle(midPt,Point(lOka[j].x,lOka[j].y),
+	    // 		Point(lOka[j].x+lOka[j].width,lOka[j].y+lOka[j].height),
+	    // 		Scalar(0,255,0));
+	    // }
+	    // prawe.detectMultiScale(midPt,pOka,1.3);
+	    // for(int j=0;j<pOka.size();++j){
+	    //   rectangle(midPt,Point(pOka[j].x,pOka[j].y),
+	    // 		Point(pOka[j].x+pOka[j].width,pOka[j].y+pOka[j].height),
+	    // 		Scalar(0,0,255));
+	    // }
 	    imshow("gemba",midPt);
 	    if(ster!='q'){
 	      ster=' ';

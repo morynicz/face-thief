@@ -25,8 +25,8 @@ public:
   virtual void savePrecomputedGalleries(const std::string& path);
   virtual void compute();
   virtual void clear();
-  std::list<Result> recognise(const std::string& path);
-  std::list<Result> recognise(cv::Mat& img);
+  virtual std::list<Result> recognise(const std::string& path);
+  virtual std::list<Result> recognise(cv::Mat& img);
   virtual ~PCARec();
 };
 
