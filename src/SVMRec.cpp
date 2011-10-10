@@ -68,11 +68,11 @@ void SVMRec::compute(){
     _pca.project(_data,_vectors);
 
   
-    for(int i=0;i<_labelNr.back();++i){
+    for(int i=0;i<=_labelNr.back();++i){
       vector<int> res;
       for(list<int>::iterator it=_labelNr.begin();
 	  it!=_labelNr.end();++it){
-	if((*it)!=i){
+	if((*it)==i){
 	  res.push_back(NEGATIVE);
 	}else{
 	  res.push_back(POSITIVE);
@@ -103,7 +103,7 @@ list<Result> SVMRec::recognise(Mat& img){
   Mat tmp,eq,vec,in;
   std::list<Result> results;
   std::list<int>::iterator it=_labelNr.begin();
-  int counter=0;
+  //int counter=0;
     
   try{
     if(img.channels()!=1){
@@ -121,8 +121,8 @@ list<Result> SVMRec::recognise(Mat& img){
     _pca.project(eq.reshape(1,1),vec);
     vec.convertTo(in,CV_32FC1);
 
-    cerr<<in.cols<<" "<<in.rows<<" "<<in.depth()<<" "<<in.channels()<<endl;
-    cerr<<_data.cols<<" "<<_data.rows<<" "<<_data.depth()<<" "<<_data.channels()<<endl;
+    //cerr<<in.cols<<" "<<in.rows<<" "<<in.depth()<<" "<<in.channels()<<endl;
+    //cerr<<_data.cols<<" "<<_data.rows<<" "<<_data.depth()<<" "<<_data.channels()<<endl;
     int cnt=0;
     for(list<CvSVM>::iterator it=_svms.begin();
 	it!=_svms.end();++it,++cnt){
@@ -140,38 +140,6 @@ list<Result> SVMRec::recognise(Mat& img){
 	<<" in fucntion "<<__func__<<endl;
     throw ex;
   } 
-    
-
-  // _pca.project(eq.reshape(1,1),vec);
-  
- 
-
-  // similarity.mean=0;
-  // similarity.min=100;
-  // similarity.max=0;
-  // similarity.label=-1;
-  // for(int i=0;i<_vectors.rows;++i){
-  //   int label=*it;
-  //   double distance=Mahalanobis(_vectors.row(i),vec,_icovar);
-  //   cerr<<label<<" "<<distance<<endl;
-  //   similarity.mean+=distance;
-  //   if(similarity.min>distance){
-  //     similarity.min=distance;
-  //   }
-  //   if(similarity.max<distance){
-  //     similarity.max=distance;
-  //   }
-  //   ++it;
-  //   ++counter;
-  //   if(*it!=label||it==_labelNr.end()){
-  //     similarity.mean/=counter;
-  //     similarity.label=label;
-  //     results.push_back(similarity);
-  //     similarity.min=100;
-  //     similarity.max=0;
-  //     similarity.mean=counter=0;
-  //   }
-  // }
   return results;
 }
   

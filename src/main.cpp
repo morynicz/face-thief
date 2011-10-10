@@ -67,11 +67,11 @@ int main(int argc,char **argv){
   }
   
   cout<<"hi thar"<<endl;
-  namedWindow("in",CV_WINDOW_NORMAL);
-  namedWindow("proces",CV_WINDOW_NORMAL);
-  namedWindow("test",CV_WINDOW_NORMAL);
-  namedWindow("gemba",CV_WINDOW_NORMAL);
-  namedWindow("z_galerii",CV_WINDOW_NORMAL);
+  // namedWindow("in",CV_WINDOW_NORMAL);
+  // namedWindow("proces",CV_WINDOW_NORMAL);
+  // namedWindow("test",CV_WINDOW_NORMAL);
+  // namedWindow("gemba",CV_WINDOW_NORMAL);
+  // namedWindow("z_galerii",CV_WINDOW_NORMAL);
 
   PCARec pca;
   pca.loadGalleries(galleries);
@@ -85,7 +85,7 @@ int main(int argc,char **argv){
 	  <<" "<<it->max<<" "<<it->min<<endl;
     }
   }
-  pca.savePrecomputedGalleries("PCA.xml");
+  //  pca.savePrecomputedGalleries("PCA.xml");
 
 
   SVMRec svm;

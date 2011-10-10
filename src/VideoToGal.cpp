@@ -43,7 +43,7 @@ int main(int argc,char **argv){
 
   //  list<Gallery> galeries; 
   Galleries galleries;
-  long long counter=1;
+  // long long counter=1;
 
   int m,n;
   int numerZdjecia,numerGalerii;
@@ -52,20 +52,22 @@ int main(int argc,char **argv){
   vector<Rect> lOka;
   vector<Rect> pOka;
 
-  Lapacz kam(0);
+  VideoCapture kam;
 
   CascadeClassifier szukacz;
   CascadeClassifier lewe;
   CascadeClassifier prawe;
+  
+  if(argc<5){
+    cerr<<"Error: not enough parameters."<<endl<<"./"<<argv[0]
+	<<"haarcascade galleries_folder label input_source"<<endl;
+    return 1;
+  }
 
   szukacz.load(argv[1]);
-  // lewe.load("kaskady/haarcascade_lefteye_2splits.xml");
-  // prawe.load("kaskady/haarcascade_righteye_2splits.xml");
-
-  // lewe.load("kaskady/haarcascade_mcs_lefteye.xml");
-  // prawe.load("kaskady/haarcascade_mcs_righteye.xml");
   adres=argv[2];
   label=argv[3];
+  kam.open(argv[4]);
   // wczytywanie galerii zdjęć
   try{
     galleries.setPath(adres);
@@ -78,23 +80,27 @@ int main(int argc,char **argv){
   }
   
   cout<<"hi thar"<<endl;
-  namedWindow("in",CV_WINDOW_NORMAL);
-  namedWindow("proces",CV_WINDOW_NORMAL);
-  namedWindow("test",CV_WINDOW_NORMAL);
-  namedWindow("gemba",CV_WINDOW_NORMAL);
-  namedWindow("z_galerii",CV_WINDOW_NORMAL);
+  //namedWindow("in",CV_WINDOW_NORMAL);
+  namedWindow("faces",CV_WINDOW_NORMAL);
+  namedWindow("input",CV_WINDOW_NORMAL);
+  // namedWindow("gemba",CV_WINDOW_NORMAL);
+  // namedWindow("z_galerii",CV_WINDOW_NORMAL);
 
 
 
   
    while(ster!='q'){
     try{
-      kam.stopKlatka(obr);
+      //      kam.stopKlatka(obr);
+      kam>>obr;
+      if(obr.data==NULL){
+	break;
+      }
       obr.copyTo(gemben);
       //rozm=obr.size();
       cvtColor(obr,bw,CV_RGB2GRAY);
       equalizeHist(bw,eq);
-      imshow("in",obr);
+      // imshow("in",obr);
     }
 
     catch(Exception ex){
@@ -131,49 +137,39 @@ int main(int argc,char **argv){
 			       rozm.width,rozm.width*(1+FACE_FACTOR)));
 	    resize(Mat(eq,(*it)),midPt,midPt.size(),0,0,CV_INTER_LINEAR);
 	    
-	    // lewe.detectMultiScale(midPt,lOka,1.3);
-	    // for(int j=0;j<lOka.size();++j){
-	    //   rectangle(midPt,Point(lOka[j].x,lOka[j].y),
-	    // 		Point(lOka[j].x+lOka[j].width,lOka[j].y+lOka[j].height),
-	    // 		Scalar(0,255,0));
-	    // }
-	    // prawe.detectMultiScale(midPt,pOka,1.3);
-	    // for(int j=0;j<pOka.size();++j){
-	    //   rectangle(midPt,Point(pOka[j].x,pOka[j].y),
-	    // 		Point(pOka[j].x+pOka[j].width,pOka[j].y+pOka[j].height),
-	    // 		Scalar(0,0,255));
-	    // }
-	    imshow("gemba",midPt);
-	    if(ster!='q'){
-	      ster=' ';
-	      ster=waitKey(1000);
-	      if(ster=='c'){
+	    // imshow("gemba",midPt);
+	    // if(ster!='q'){
+	    //   ster=' ';
+	    //   ster=waitKey(1000);
+	    //   if(ster=='c'){
 		// cout<<"kto to?"<<endl;
 		// cin>>label;
 		// if(label=="koniec")
 		//   break;
-		galleries.add(label,midPt);
-		//=================
-	      }
-	      if(label=="koniec")
-		break;
+	    if(twarze.size()==1){
+	      galleries.add(label,midPt);
 	    }
+	    //=================
+	      // }
+	      // if(label=="koniec")
+	      // 	break;
+		//}
 	  }
 	}
 	if(ster!='q'){
-	  if(ster=='w'){
-	      cout<<"podaj numer galerii i numer zdjęcia"<<endl;
-	      cin>>numerGalerii>>numerZdjecia;
-	      Mat zGalerii=galleries.getPicture(numerGalerii,numerZdjecia);
-	      cerr<<flush;
-	      imshow("z_galerii",zGalerii);
+	  // if(ster=='w'){
+	  //   cout<<"podaj numer galerii i numer zdjęcia"<<endl;
+	  //   cin>>numerGalerii>>numerZdjecia;
+	  //   Mat zGalerii=galleries.getPicture(numerGalerii,numerZdjecia);
+	  //   cerr<<flush;
+	  //   imshow("z_galerii",zGalerii);
 	    
-	    }
+	  // }
 	  if(!twarze.empty()){
-	    imshow("test",gemben);
-	    imshow("proces",mid);
+	    imshow("input",gemben);
+	    imshow("faces",mid);
 	  }
-	  ster=waitKey(100);
+	  ster=waitKey(10);
 	}
       }
     }
@@ -184,12 +180,12 @@ int main(int argc,char **argv){
     }
     
   }
-  
-    //===========zapis
+   
+   //===========zapis
     
-  galleries.save("galeria.xml");
-  
-  //koniec zapisu
+   galleries.save("galeria.xml");
+   
+   //koniec zapisu
   
   return 0;
 }

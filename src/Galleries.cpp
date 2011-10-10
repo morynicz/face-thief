@@ -46,7 +46,7 @@ void Galleries::load(string filename){
 
 #if CV_MINOR_VERSION > 3
 	(*it)[ADDRESS]>>gallery.photos;
-	cerr<<_gal.label<<endl<<_gal.counter<<endl;
+	//	cerr<<_gal.label<<endl<<_gal.counter<<endl;
 	{ //size check
 	  int i=0;
 	  if(_picSize.width==INITIAL_SIZE && _picSize.height==INITIAL_SIZE){
@@ -70,7 +70,7 @@ void Galleries::load(string filename){
 	for(;git!=gfn.end();++git){
 	  
 	  gallery.photos.push_back((string)(*git));
-	  cerr<<gallery.photos.back()<<endl;
+	  //cerr<<gallery.photos.back()<<endl;
 	  cv::Mat img=imread(gallery.photos.back());
 	  if(_picSize.width==INITIAL_SIZE && _picSize.height==INITIAL_SIZE){
 	    _picSize=img.size();

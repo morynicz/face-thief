@@ -98,7 +98,7 @@ void PCARec::savePrecomputedGalleries(const string& path){
       throw err;
     }
   
-    cerr<<"data"<<endl;
+    //    cerr<<"data"<<endl;
     fs
       <<DATA<<_data
       <<VECTORS<<_vectors
@@ -114,7 +114,7 @@ void PCARec::savePrecomputedGalleries(const string& path){
       //      cerr<<z++<<endl;
     }
     fs<<"]";
-    cerr<<"post"<<endl;
+    // cerr<<"post"<<endl;
   }
   catch(Exception ex){
     cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
@@ -168,7 +168,7 @@ std::list<Result> PCARec::recognise(cv::Mat& img){
   for(int i=0;i<_vectors.rows;++i){
     int label=*it;
     double distance=Mahalanobis(_vectors.row(i),vec,_icovar);
-    cerr<<label<<" "<<distance<<endl;
+    //cerr<<label<<" "<<distance<<endl;
     similarity.mean+=distance;
     if(similarity.min>distance){
       similarity.min=distance;
