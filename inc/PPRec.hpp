@@ -9,7 +9,7 @@ class PPRec:public Rec{
   string modelPath;
   string galleryFile;
   ppr_precision_type precision;
-  ppr_landmark_detektor_type detektor;
+  ppr_landmark_detector_type detektor;
   int threadNumber;
   int threadRecognitionNumber;
   int searchPrunning;
@@ -17,7 +17,7 @@ class PPRec:public Rec{
   int maxSize;
   float adaptiveMinSize;
   float adaptiveMaxSize;
-  fload detectionThreshold;
+  float detectionThreshold;
   ppr_frontal_jaw_constraint_type yawConstraint;
   ppr_template_extraction_type templateExtractor;
   ppr_context_type context;
@@ -31,7 +31,7 @@ public:
   virtual void savePrecomputedGalleries(const std::string& path);
   virtual void compute();
   virtual void clear();
-  void set
+  //void set
   std::list<Result> recognise(const std::string& path);
   std::list<Result> recognise(cv::Mat& img);
   virtual ~PPRec();
