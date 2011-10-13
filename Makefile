@@ -13,7 +13,7 @@ CFLAGS=${INCLUDES} -g -O0 -Wall -pedantic
 
 CC=g++
 
-S_GAL=kreator_galerii
+S_GAL=kreatorGalerii
 M_GAL=masGalKreator
 POR=porownywacz
 VID=videoKreator
