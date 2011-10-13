@@ -1,7 +1,7 @@
 INCLUDES= -Iinc \
 	-I /usr/local/include/opencv2 \
 	-I /usr/include/boost \
-	-I ../../pittpatt/pittpatt_ftr_sdk-4.2.2-linux-x86/include 
+	-I ../../pittpatt/pittpatt_sdk/include 
 LIBS=-lopencv_core \
 	-lopencv_highgui \
 	-lopencv_ml \
@@ -64,6 +64,9 @@ obj/PCARec.o: inc/PCARec.hpp inc/Rec.hpp src/PCARec.cpp
 
 obj/SVMRec.o: inc/Rec.hpp inc/SVMRec.hpp src/SVMRec.cpp
 	$(CC) -o obj/SVMRec.o src/SVMRec.cpp -c ${CFLAGS}
+
+obj/PPRec.o: inc/Rec.hpp inc/PPRec.hpp inc/ocv2pit.hpp src/PPRec.cpp
+	$(CC) -o obj/PPRec.o src/PPRec.cpp -c ${CFLAGS}
 
 obj/VideoCap.o: inc/Lapacz.hpp  src/VideoCap.cpp
 	$(CC) -o obj/VideoCap.o src/VideoCap.cpp -c ${CFLAGS}
