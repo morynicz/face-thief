@@ -16,11 +16,14 @@ class PPRec:public Rec{
   int minSize;
   int maxSize;
   float adaptiveMinSize;
-  flaot adaptiveMaxSize;
+  float adaptiveMaxSize;
   fload detectionThreshold;
   ppr_frontal_jaw_constraint_type yawConstraint;
   ppr_template_extraction_type templateExtractor;
   ppr_context_type context;
+
+  ppr_gallery_type pGallery;
+
 public:
   PPRec();
   virtual void loadGalleries(Galleries& galleries);

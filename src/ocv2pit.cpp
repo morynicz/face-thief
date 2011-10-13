@@ -42,12 +42,14 @@ ppr_error_type mat2PprImage(cv::Mat& in,
     break;
   case PPR_RAW_IMAGE_RGB24:
   case PPR_RAW_IMAGE_BGR24:
-  case PPR_RAW_IMAGE_YUV:
     if(in.channels()!=3){
       return PPR_INVALID_IMAGE;
     }else{
       in.convertTo(ready,CV_8UC3); //same as higher
     }
+  case PPR_RAW_IMAGE_YUV:
+    cvtColor(tmp,ready,CV_RGB2YUV);
+    break;
   default:
     return PPR_INVALID_IMAGE_COLOR_SPACE;
   }

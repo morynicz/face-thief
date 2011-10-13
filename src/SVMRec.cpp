@@ -114,7 +114,7 @@ list<Result> SVMRec::recognise(Mat& img){
     equalizeHist(tmp,eq);
     Result similarity;
     similarity.mean=0;
-    similarity.min=100;
+    similarity.min=0;
     similarity.max=0;
     similarity.label=-1;
    
