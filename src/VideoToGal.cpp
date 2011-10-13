@@ -16,7 +16,7 @@
 using namespace cv;
 using namespace std;
 
-const float FACE_FACTOR=0.0;
+const float FACE_FACTOR=0.3;
 
 
     
@@ -59,8 +59,8 @@ int main(int argc,char **argv){
   CascadeClassifier prawe;
   
   if(argc<5){
-    cerr<<"Error: not enough parameters."<<endl<<"./"<<argv[0]
-	<<"haarcascade galleries_folder label input_source"<<endl;
+    cerr<<"Error: not enough parameters."<<endl<<argv[0]
+	<<" haarcascade galleries_folder label input_source"<<endl;
     return 1;
   }
 

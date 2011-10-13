@@ -124,17 +124,24 @@ void PCARec::savePrecomputedGalleries(const string& path){
 }
   
 void PCARec::compute(){
-  _pca(_data,Mat(),CV_PCA_DATA_AS_ROW);
-  _pca.project(_data,_vectors);
+  try{
+    _pca(_data,Mat(),CV_PCA_DATA_AS_ROW);
+    _pca.project(_data,_vectors);
 
 
-  Mat covar;
-  Mat mean;
+    Mat covar;
+    Mat mean;
       
-  calcCovarMatrix(_vectors,covar,mean,
-		  CV_COVAR_NORMAL|CV_COVAR_ROWS,
-		  _vectors.type());
-  invert(covar,_icovar,DECOMP_SVD);
+    calcCovarMatrix(_vectors,covar,mean,
+		    CV_COVAR_NORMAL|CV_COVAR_ROWS,
+		    _vectors.type());
+    invert(covar,_icovar,DECOMP_SVD);
+  }
+  catch(Exception ex){
+    cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
+	<<" in fucntion "<<__func__<<endl;
+    throw ex;
+  } 
 }
 
 void PCARec::clear(){
@@ -151,42 +158,49 @@ std::list<Result> PCARec::recognise(cv::Mat& img){
   std::list<Result> results;
   std::list<int>::iterator it=_labelNr.begin();
   int counter=0;
-  if(img.channels()!=1){
-    cvtColor(img,tmp,CV_RGB2GRAY);
-  }else{
-    tmp=img;
-  }
-  equalizeHist(tmp,eq);
-  _pca.project(eq.reshape(1,1),vec);
+  try{
+    if(img.channels()!=1){
+      cvtColor(img,tmp,CV_RGB2GRAY);
+    }else{
+      tmp=img;
+    }
+    equalizeHist(tmp,eq);
+    _pca.project(eq.reshape(1,1),vec);
   
  
-  Result similarity;
-  similarity.mean=0;
-  similarity.min=100;
-  similarity.max=0;
-  similarity.label=-1;
-  for(int i=0;i<_vectors.rows;++i){
-    int label=*it;
-    double distance=Mahalanobis(_vectors.row(i),vec,_icovar);
-    //cerr<<label<<" "<<distance<<endl;
-    similarity.mean+=distance;
-    if(similarity.min>distance){
-      similarity.min=distance;
-    }
-    if(similarity.max<distance){
-      similarity.max=distance;
-    }
-    ++it;
-    ++counter;
-    if(*it!=label||it==_labelNr.end()){
-      similarity.mean/=counter;
-      similarity.label=label;
-      results.push_back(similarity);
-      similarity.min=100;
-      similarity.max=0;
-      similarity.mean=counter=0;
-    }
+    Result similarity;
+    similarity.mean=0;
+    similarity.min=100;
+    similarity.max=0;
+    similarity.label=-1;
+    for(int i=0;i<_vectors.rows;++i){
+      int label=*it;
+      double distance=Mahalanobis(_vectors.row(i),vec,_icovar);
+      //cerr<<label<<" "<<distance<<endl;
+      similarity.mean+=distance;
+      if(similarity.min>distance){
+	similarity.min=distance;
+      }
+      if(similarity.max<distance){
+	similarity.max=distance;
+      }
+      ++it;
+      ++counter;
+      if(*it!=label||it==_labelNr.end()){
+	similarity.mean/=counter;
+	similarity.label=label;
+	results.push_back(similarity);
+	similarity.min=100;
+	similarity.max=0;
+	similarity.mean=counter=0;
+      }
+    } 
   }
+  catch(Exception ex){
+    cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
+	<<" in fucntion "<<__func__<<endl;
+    throw ex;
+  } 
   return results;
 }
 

@@ -13,27 +13,32 @@ CFLAGS=${INCLUDES} -g -O0 -Wall -pedantic
 
 CC=g++
 
+S_GAL=kreator_galerii
+M_GAL=masGalKreator
+POR=porownywacz
+VID=videoKreator
+
 #run: detektor
 #	./detektor kaskady/haarcascade_frontalface_default.xml \
 #	galerie
 
 all: kreatorGalerii porownywacz  masGalKreator videoKreator
 
-kreatorGalerii: src/*.cpp inc/*.hpp obj/CapToGal.o obj/Lapacz.o obj/Galleries.o
-	$(CC) -o kreatorGalerii  ${LIBS} obj/CapToGal.o obj/Lapacz.o \
+${S_GAL}: src/*.cpp inc/*.hpp obj/CapToGal.o obj/Lapacz.o obj/Galleries.o
+	$(CC) -o ${S_GAL}  ${LIBS} obj/CapToGal.o obj/Lapacz.o \
 	obj/Galleries.o	
 
-porownywacz: src/*.cpp inc/*.hpp obj/main.o obj/Lapacz.o obj/Galleries.o \
+${POR}: src/*.cpp inc/*.hpp obj/main.o obj/Lapacz.o obj/Galleries.o \
 	obj/PCARec.o obj/SVMRec.o
-	$(CC) -o porownywacz  ${LIBS} obj/main.o obj/Lapacz.o obj/Galleries.o \
+	$(CC) -o ${POR}  ${LIBS} obj/main.o obj/Lapacz.o obj/Galleries.o \
 	obj/PCARec.o obj/SVMRec.o
 
-masGalKreator: src/*.cpp inc/*.hpp obj/VideoToGal.o obj/Lapacz.o obj/Galleries.o
-	$(CC) -o masGalKreator  ${LIBS} obj/VideoToGal.o  \
+${M_GAL}: src/*.cpp inc/*.hpp obj/VideoToGal.o obj/Lapacz.o obj/Galleries.o
+	$(CC) -o ${M_GAL}  ${LIBS} obj/VideoToGal.o  \
 	obj/Galleries.o	
 
-videoKreator: obj/VideoCap.o obj/Lapacz.o
-	$(CC) -o videoKreator ${LIBS} obj/VideoCap.o obj/Lapacz.o
+${VID}: obj/VideoCap.o obj/Lapacz.o
+	$(CC) -o ${VID} ${LIBS} obj/VideoCap.o obj/Lapacz.o
 
 obj/CapToGal.o: src/CapToGal.cpp inc/*.hpp
 	$(CC) -o obj/CapToGal.o src/CapToGal.cpp -c ${CFLAGS}	
@@ -64,5 +69,5 @@ obj/VideoCap.o: inc/Lapacz.hpp  src/VideoCap.cpp
 	$(CC) -o obj/VideoCap.o src/VideoCap.cpp -c ${CFLAGS}
 
 clean:
-	rm obj/* porownywacz galeriator
+	rm obj/* ${VID} ${M_GAL} ${S_GAL} ${POR}
 
