@@ -18,7 +18,7 @@ class PPRec:public Rec{
   float adaptiveMinSize;
   float adaptiveMaxSize;
   float detectionThreshold;
-  ppr_frontal_jaw_constraint_type yawConstraint;
+  ppr_frontal_yaw_constraint_type yawConstraint;
   ppr_template_extraction_type templateExtractor;
   ppr_context_type context;
 

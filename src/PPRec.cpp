@@ -1,11 +1,15 @@
 #include "PPRec.hpp"
 #include "ocv2pit.hpp"
 #include <vector>
+#include "opencv2/highgui/highgui.hpp"
+#include <iostream>
 
 using namespace cv;
 using std::string;
 using std::vector;
 using std::list;
+using std::cerr;
+using std::endl;
 // TRY
 // PPR_SUCCESS
 // PPR_REQUIRES_FRONTAL_FACE_OBJECT
@@ -13,7 +17,7 @@ using std::list;
 // exit(EXIT_FAILURE);
 
 void eC(ppr_error_type err){
-  if(err!= PPR_SUCCES){
+  if(err!= PPR_SUCCESS){
     Exception ex(PITTPATT_ERROR,ppr_error_message(err),__func__,__FILE__,
 		 __LINE__);
     throw ex;
@@ -27,7 +31,7 @@ PPRec::PPRec(){
   detektor=PPR_NO_LANDMARK_DETECTOR;
   threadNumber=1;
   threadRecognitionNumber=1;
-  searchPrunning=PPR_MAX_SEARCH_PRUNNING_AGGRESIVENESS;
+  searchPrunning=PPR_MAX_SEARCH_PRUNING_AGGRESSIVENESS;
   minSize=4;
   maxSize=15;
   adaptiveMinSize=0.01;
@@ -36,15 +40,19 @@ PPRec::PPRec(){
   yawConstraint=PPR_FRONTAL_YAW_CONSTRAINT_RESTRICTIVE;
   templateExtractor=PPR_EXTRACT_SINGLE;
     
+  
 
   context=ppr_get_context();
   try{  
+  
+    eC(ppr_set_license(context,my_license_id,my_license_key));
+
     eC(ppr_enable_tracking(context));
     eC(ppr_enable_recognition(context));
   
-    eC(ppr_set_detection_precission(context,precision));
+    eC(ppr_set_detection_precision(context,precision));
     eC(ppr_set_num_detection_threads(context,threadNumber));
-    eC(ppr_set_search_prunning_aggressiveness(context,searchPrunning));
+    eC(ppr_set_search_pruning_aggressiveness(context,searchPrunning));
     eC(ppr_set_num_recognition_threads(context,threadRecognitionNumber));
     eC(ppr_set_min_size(context, minSize));
     eC(ppr_set_max_size(context, maxSize));
@@ -62,27 +70,16 @@ PPRec::PPRec(){
     
 }
 
-void loadGalleries(Galleries& galleries){
+void PPRec::loadGalleries(Galleries& galleries){
   ppr_image_type pImg;
   ppr_object_list_type oList;
-  ppr_subject_list_type sList;
-  ppr_tracked_object_list tList;
   ppr_template_type pTemplate;
   ppr_object_suitability_type recAble;
   
   vector<int> idList;
   vector<int>lList;
 
-  int rows=0;
-  int cols=galleries.getPictureSize().width
-    *galleries.getPictureSize().height;
-  for(int i=0;i<galleries.totalSize();++i){
-    rows+=galleries.gallerySize(i);
-  }
-  
-  //_data=Mat(rows,cols,CV_8U);
   try{  
-    int y=0;
     for(int i=0;i<galleries.totalSize();++i){
       for(int j=0;j<galleries.gallerySize(i);++j){
 	Mat img=galleries.getPicture(i,j);
@@ -102,13 +99,15 @@ void loadGalleries(Galleries& galleries){
 	// _labelNr.push_back(i);
 	eC(mat2PprImage(img,pImg,PPR_RAW_IMAGE_GRAY8));
 	eC(ppr_detect_objects(context,pImg,&oList));
-	eC(ppr_detect_landmarks(context,pImg,&oList)); //might be unnecessary
-	for(int k=0;k<oList.numObjects;++k){
+	for(int k=0;k<oList.num_objects;++k){
 	  int id;
+	  //might be unnecessary
+	  eC(ppr_detect_landmarks_from_object(context,pImg,&oList.objects[k])); 
+
 	  eC(ppr_is_object_suitable_for_recognition(context,oList.objects[k],
 						    &recAble));
-	  if(PPR_OBJECT_SUITABLE_FOR_RECOGNITNION==recAble){
-	    eC(ppr_extract_template_from_object(context,pImage,oList.objects[k],
+	  if(PPR_OBJECT_SUITABLE_FOR_RECOGNITION==recAble){
+	    eC(ppr_extract_template_from_object(context,pImg,oList.objects[k],
 						&pTemplate));
 	    eC(ppr_set_template_string(context,&pTemplate,
 				       galleries.getGalleryLabel(i).c_str()));
@@ -122,10 +121,10 @@ void loadGalleries(Galleries& galleries){
     }
     for(int i=1;i<idList.size();++i){
       if(lList[i-1]!=lList[i]){
-	ec(ppr_set_template_relationship(context,&gallery,idList[i-1],idList[i],
+	eC(ppr_set_template_relationship(context,&pGallery,idList[i-1],idList[i],
 					 PPR_RELATIONSHIP_DIFFERENT_SUBJECTS));
       }else{
-	ec(ppr_set_template_relationship(context,&gallery,idList[i-1],idList[i],
+	eC(ppr_set_template_relationship(context,&pGallery,idList[i-1],idList[i],
 					 PPR_RELATIONSHIP_SAME_SUBJECT));
       }
     }
@@ -137,23 +136,23 @@ void loadGalleries(Galleries& galleries){
   }
 }
 
-void loadPrecomputedGalleries(const string& path){
+void PPRec::loadPrecomputedGalleries(const string& path){
   
 }
   
-void savePrecomputedGalleries(const string& path){
+void PPRec::savePrecomputedGalleries(const string& path){
   
 }
 
-void compute(){
+void PPRec::compute(){
   //all is done in load gallery
 }
 
-void clear(){
+void PPRec::clear(){
 
 }
 
-list<Result> recognise(const string& path){
+list<Result> PPRec::recognise(const string& path){
   try{
     Mat img;
     img=imread(path);
@@ -166,10 +165,35 @@ list<Result> recognise(const string& path){
   }
 }
 
-list<Result> recognise(Mat &img){
-  ppr_image_type pImage;
+list<Result> PPRec::recognise(Mat &img){
+  ppr_image_type pImg;
+
+  ppr_object_list_type oList;
+  ppr_template_type pTemplate;
+  ppr_object_suitability_type recAble;
+  ppr_score_type sList;
+
   
-  eC
+  //  eC
+  eC(mat2PprImage(img,pImg,PPR_RAW_IMAGE_GRAY8));
+  eC(ppr_detect_objects(context,pImg,&oList));
+  for(int k=0;k<oList.num_objects;++k){
+    int id;
+    //might be unnecessary
+    eC(ppr_detect_landmarks_from_object(context,pImg,&oList.objects[k])); 
+
+    eC(ppr_is_object_suitable_for_recognition(context,oList.objects[k],
+					      &recAble));
+    if(PPR_OBJECT_SUITABLE_FOR_RECOGNITION==recAble){
+      eC(ppr_extract_template_from_object(context,pImg,oList.objects[k],
+					  &pTemplate));
+      eC(ppr_compare_template_to_gallery(context,pTemplate,pGallery,&sList));
+      
+    }
+  }
+
+  //TO DO: wyciągnąć ze scoreów dane do rezultatów, wywalić wektory id i l do
+  //obiektu
   
 }
 
