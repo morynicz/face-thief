@@ -10,7 +10,9 @@
 #include "Galleries.hpp"
 #include "PCARec.hpp"
 #include "SVMRec.hpp"
+#if HOSTNAME==rab
 #include "PPRec.hpp"
+#endif
 #include <sstream> //do nazw plików
 
 #include "Lapacz.hpp"
@@ -109,6 +111,9 @@ int main(int argc,char **argv){
     }
   }
   */
+
+#if HOSTNAME==rab
+
    try{
   PPRec pp;
   pp.loadGalleries(galleries);
@@ -128,6 +133,7 @@ int main(int argc,char **argv){
 	<<" in fucntion "<<__func__<<endl;
     throw ex;
   }   
+#endif
   // pca.loadPrecomputedGalleries("PCA.xml");
  
   // {
