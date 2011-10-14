@@ -1,6 +1,7 @@
 INCLUDES= -Iinc \
 	-I /usr/local/include/opencv2 \
 	-I /usr/include/boost \
+	-I ../../pittpatt/pittpatt_sdk/source/utilities \
 	-I ../../pittpatt/pittpatt_sdk/include 
 LIBS=-lopencv_core \
 	-lopencv_highgui \
@@ -9,6 +10,12 @@ LIBS=-lopencv_core \
 	-lopencv_gpu  \
 	-lboost_thread \
 	-lboost_filesystem 
+
+#-L ../../pittpatt/pittpatt_sdk/ 
+PP_LIBS= -lpittpatt_ftr_sdk \
+	-lpittpatt_raw_image \
+	-lpittpatt_recognition_core  
+
 CFLAGS=${INCLUDES} -g -O0 -Wall -pedantic
 
 CC=g++
@@ -18,26 +25,27 @@ M_GAL=masGalKreator
 POR=porownywacz
 VID=videoKreator
 
+S_GAL_OBJ=obj/CapToGal.o obj/Lapacz.o obj/Galleries.o
+M_GAL_OBJ= obj/VideoToGal.o obj/Lapacz.o obj/Galleries.o
+POR_OBJ=obj/main.o obj/Lapacz.o obj/Galleries.o \
+	obj/PCARec.o obj/SVMRec.o obj/ocv2pit.o obj/PPRec.o
+VID_OBJ=obj/VideoCap.o obj/Lapacz.o
 #run: detektor
 #	./detektor kaskady/haarcascade_frontalface_default.xml \
 #	galerie
 
 all: kreatorGalerii porownywacz  masGalKreator videoKreator
 
-${S_GAL}: src/*.cpp inc/*.hpp obj/CapToGal.o obj/Lapacz.o obj/Galleries.o
-	$(CC) -o ${S_GAL}  ${LIBS} obj/CapToGal.o obj/Lapacz.o \
-	obj/Galleries.o	
+${S_GAL}: ${S_GAL_OBJ}
+	$(CC) -o ${S_GAL}  ${LIBS} ${S_GAL_OBJ} 
 
-${POR}: src/*.cpp inc/*.hpp obj/main.o obj/Lapacz.o obj/Galleries.o \
-	obj/PCARec.o obj/SVMRec.o
-	$(CC) -o ${POR}  ${LIBS} obj/main.o obj/Lapacz.o obj/Galleries.o \
-	obj/PCARec.o obj/SVMRec.o
+${POR}: ${POR_OBJ}
+	$(CC) -o ${POR}  ${LIBS} ${POR_OBJ} ${PP_LIBS}
 
-${M_GAL}: src/*.cpp inc/*.hpp obj/VideoToGal.o obj/Lapacz.o obj/Galleries.o
-	$(CC) -o ${M_GAL}  ${LIBS} obj/VideoToGal.o  \
-	obj/Galleries.o	
+${M_GAL}: ${M_GAL_OBJ}
+	$(CC) -o ${M_GAL}  ${LIBS} ${M_GAL_OBJ}
 
-${VID}: obj/VideoCap.o obj/Lapacz.o
+${VID}: ${VID_OBJ}
 	$(CC) -o ${VID} ${LIBS} obj/VideoCap.o obj/Lapacz.o
 
 obj/CapToGal.o: src/CapToGal.cpp inc/*.hpp

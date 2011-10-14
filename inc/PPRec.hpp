@@ -1,6 +1,6 @@
 #include "Rec.hpp"
 #include <string>
-#include "pittpatt_ftr_sdk.h"
+#include <pittpatt_ftr_sdk.h>
 
 #ifndef __PP_REC__
 #define __PP_REC__
@@ -23,7 +23,10 @@ class PPRec:public Rec{
   ppr_context_type context;
 
   ppr_gallery_type pGallery;
+  std::vector<int> idList;
+  std::vector<int> lList;
 
+  void eC(ppr_error_type err,std::string func,std::string file,int line);
 public:
   PPRec();
   virtual void loadGalleries(Galleries& galleries);

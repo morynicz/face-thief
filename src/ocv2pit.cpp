@@ -1,4 +1,6 @@
 #include "ocv2pit.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+using namespace cv;
 
 ppr_error_type mat2PprImage(cv::Mat& in, 
 			    ppr_image_type& out,
@@ -47,8 +49,15 @@ ppr_error_type mat2PprImage(cv::Mat& in,
     }else{
       in.convertTo(ready,CV_8UC3); //same as higher
     }
+    break;
   case PPR_RAW_IMAGE_YUV:
-    cvtColor(tmp,ready,CV_RGB2YUV);
+    if(in.channels()!=3){
+      return PPR_INVALID_IMAGE;
+    }else{
+      Mat tmp;
+      in.convertTo(tmp,CV_8UC3);
+      cvtColor(tmp,ready,CV_RGB2YUV);
+    }
     break;
   default:
     return PPR_INVALID_IMAGE_COLOR_SPACE;

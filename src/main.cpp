@@ -10,6 +10,7 @@
 #include "Galleries.hpp"
 #include "PCARec.hpp"
 #include "SVMRec.hpp"
+#include "PPRec.hpp"
 #include <sstream> //do nazw plików
 
 #include "Lapacz.hpp"
@@ -50,6 +51,11 @@ int main(int argc,char **argv){
   //  CascadeClassifier szukacz;
   
   // szukacz.load(argv[1]);
+  if(argc!=3){
+    cerr<<"Error: incorrect number of arguments. Correct invocation:"<<endl
+	<<argv[0]<<" galleries_folder photo_for_recognition"<<endl;
+    return 1;
+  }
   adres=argv[1];
   zdjecie=argv[2];
 
@@ -73,10 +79,13 @@ int main(int argc,char **argv){
   // namedWindow("gemba",CV_WINDOW_NORMAL);
   // namedWindow("z_galerii",CV_WINDOW_NORMAL);
 
+   Mat pomiar=imread(zdjecie);
+
+  /*
   PCARec pca;
   pca.loadGalleries(galleries);
   pca.compute();
-  Mat pomiar=imread(zdjecie);
+
   {
     std::list<Result> wyniki=pca.recognise(pomiar);
 
@@ -99,6 +108,26 @@ int main(int argc,char **argv){
 	  <<" "<<it->max<<" "<<it->min<<endl;
     }
   }
+  */
+   try{
+  PPRec pp;
+  pp.loadGalleries(galleries);
+  pp.compute();
+  
+  {
+    std::list<Result> wyniki=pp.recognise(pomiar);
+
+    for(std::list<Result>::iterator it=wyniki.begin();it!=wyniki.end();++it){
+      cout<<galleries.getGalleryLabel(it->label)<<" "<<it->mean
+	  <<" "<<it->max<<" "<<it->min<<endl;
+    }
+  }
+   }
+  catch(Exception ex){
+    cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
+	<<" in fucntion "<<__func__<<endl;
+    throw ex;
+  }   
   // pca.loadPrecomputedGalleries("PCA.xml");
  
   // {
