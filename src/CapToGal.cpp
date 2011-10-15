@@ -41,9 +41,7 @@ int main(int argc,char **argv){
   
   string adres,label;
 
-  //  list<Gallery> galeries; 
   Galleries galleries;
-  long long counter=1;
 
   int m,n;
   int numerZdjecia,numerGalerii;
@@ -59,11 +57,6 @@ int main(int argc,char **argv){
   CascadeClassifier prawe;
 
   szukacz.load(argv[1]);
-  // lewe.load("kaskady/haarcascade_lefteye_2splits.xml");
-  // prawe.load("kaskady/haarcascade_righteye_2splits.xml");
-
-  // lewe.load("kaskady/haarcascade_mcs_lefteye.xml");
-  // prawe.load("kaskady/haarcascade_mcs_righteye.xml");
   adres=argv[2];
   label=argv[3];
   // wczytywanie galerii zdjęć
@@ -91,7 +84,6 @@ int main(int argc,char **argv){
     try{
       kam.stopKlatka(obr);
       obr.copyTo(gemben);
-      //rozm=obr.size();
       cvtColor(obr,bw,CV_RGB2GRAY);
       equalizeHist(bw,eq);
       imshow("in",obr);
@@ -115,8 +107,6 @@ int main(int argc,char **argv){
 	  mid.create(rozm.width*m*(1+FACE_FACTOR),rozm.width*n,eq.type());
 	  int i=0;
 	  
-	  //	  list<Gallery>::iterator git;
-	  
 	  for(vector<Rect>::iterator it=twarze.begin();
 	      it!=twarze.end();++it,++i){
 	    it->y-=(it->height)*FACE_FACTOR/2;
@@ -130,28 +120,11 @@ int main(int argc,char **argv){
 			       rozm.width*(i%m)*(1+FACE_FACTOR),
 			       rozm.width,rozm.width*(1+FACE_FACTOR)));
 	    resize(Mat(eq,(*it)),midPt,midPt.size(),0,0,CV_INTER_LINEAR);
-	    
-	    // lewe.detectMultiScale(midPt,lOka,1.3);
-	    // for(int j=0;j<lOka.size();++j){
-	    //   rectangle(midPt,Point(lOka[j].x,lOka[j].y),
-	    // 		Point(lOka[j].x+lOka[j].width,lOka[j].y+lOka[j].height),
-	    // 		Scalar(0,255,0));
-	    // }
-	    // prawe.detectMultiScale(midPt,pOka,1.3);
-	    // for(int j=0;j<pOka.size();++j){
-	    //   rectangle(midPt,Point(pOka[j].x,pOka[j].y),
-	    // 		Point(pOka[j].x+pOka[j].width,pOka[j].y+pOka[j].height),
-	    // 		Scalar(0,0,255));
-	    // }
 	    imshow("gemba",midPt);
 	    if(ster!='q'){
 	      ster=' ';
 	      ster=waitKey(1000);
 	      if(ster=='c'){
-		// cout<<"kto to?"<<endl;
-		// cin>>label;
-		// if(label=="koniec")
-		//   break;
 		galleries.add(label,midPt);
 		//=================
 	      }

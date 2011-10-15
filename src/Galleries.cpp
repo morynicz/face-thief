@@ -48,7 +48,7 @@ void Galleries::load(string filename){
 	(*it)[ADDRESS]>>gallery.photos;
 	//	cerr<<_gal.label<<endl<<_gal.counter<<endl;
 	{ //size check
-	  int i=0;
+	  unsigned i=0;
 	  if(_picSize.width==INITIAL_SIZE && _picSize.height==INITIAL_SIZE){
 	    cv::Mat img=imread(gallery.photos.front());
 	    _picSize=img.size();
@@ -111,32 +111,21 @@ void Galleries::load(string filename){
 
 //================ zapis
 void Galleries::add(string label,cv::Mat img){
-  int number;
+  unsigned number;
   if(!_path.empty()){
-    //    vector<Gallery>::iterator git;
     if(!_gal.empty()){
-      /*for(git=_gal.begin();
-	  git!=_gal.end();
-	  ++git){
-	cerr<<"szuka "<<label<<" == "<<git->label<<'?'<<endl;
-	if(git->label==label)
-	  break;
-	  }*/
       for(number=0;number<_gal.size();++number){
 	cerr<<"szuka "<<label<<" == "<<_gal[number].label<<'?'<<endl;
 	if(_gal[number].label==label)
 	  break;
       }
 
-      //      if(git==_gal.end()){
+
       if(_gal.size()==number){
-	cerr<<"a";
 	Gallery galeria;
 	galeria.label=label;
 	galeria.counter=0;
-	//	--git;
 	_gal.push_back(galeria);
-	//	++git;
 	if(!boost::filesystem::exists(_path+'/'+label)){
 	  boost::filesystem::create_directory(_path+'/'+label);
 	  cerr<<(_path+'/'+label)<<endl;
@@ -147,7 +136,6 @@ void Galleries::add(string label,cv::Mat img){
       galeria.label=label;
       galeria.counter=0;
       _gal.push_back(galeria);
-      //  git=_gal.begin();
       number=0;
       _picSize=img.size();
       _picType=img.type();
@@ -170,14 +158,11 @@ void Galleries::add(string label,cv::Mat img){
       }
       string cel;
       std::stringstream sBufor;
-      //sBufor<<_path<<'/'<<git->label<<'/'<<git->counter++<<".jpg";
        sBufor<<_path<<'/'<<_gal[number].label<<'/'<<_gal[number].counter++
 	     <<".jpg";
       sBufor>>cel;
       cerr<<cel<<endl;
       imwrite(cel,img);
-      //gallery	      
-      // git->photos.push_back(cel);
       _gal[number].photos.push_back(cel);
     }
   }else{
@@ -220,7 +205,7 @@ void Galleries::save(string filename){
   
     {
       fs<<GALLERIES<<"[";
-      for(int i=0;i<_gal.size();++i){
+      for(unsigned i=0;i<_gal.size();++i){
 	fs<<"{"<<LABEL<<_gal[i].label;
 	fs<<COUNTER<<_gal[i].counter;
 	fs<<ADDRESS<<"[";
@@ -242,7 +227,7 @@ void Galleries::save(string filename){
 }
 
 cv::Mat Galleries::getPicture(string label,int number){
-  int i;
+  unsigned i;
   for(i=0;i<_gal.size();++i){
     if(label==_gal[i].label){
       try{
@@ -261,7 +246,6 @@ cv::Mat Galleries::getPicture(string label,int number){
 }
 
 cv::Mat Galleries::getPicture(int galleryNumber,int photoNumber){
-  // cerr<<"cimcirimci"<<endl;
   if(galleryNumber<0||galleryNumber>=_gal.size()){
     cv::Exception ex(INCORRECT_GALLERY_NUMBER,
 		     "exception: incorrect gallery number",
@@ -274,7 +258,7 @@ cv::Mat Galleries::getPicture(int galleryNumber,int photoNumber){
     throw ex;
   }else{
     try{
-      //      cerr<<"tu byłem"<<endl;
+
       cv::Mat img=imread(_gal[galleryNumber].photos[photoNumber]);
       if(img.data==NULL){
 	cv::Exception ex(CANNOT_OPEN_FILE,

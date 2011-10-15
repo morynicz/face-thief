@@ -83,15 +83,33 @@ int main(int argc,char **argv){
 #ifdef PITTPATT_PRESENT
 
    try{
+     cerr<<"PPR initialisng"<<endl;
      PPRec pp;
-     cerr<<"PPR initialised"<<endl;
-     pp.loadGalleries(galleries);
-     cerr<<"PPR gallery loaded"<<endl;
-     pp.compute();
-     cerr<<"PPR computed"<<endl;
+     // cerr<<"PPR initialised"<<endl;
+     // cerr<<"PPR galleries loading"<<endl;
+     // pp.loadGalleries(galleries);
+     // cerr<<"PPR galleries loaded"<<endl;
+     // cerr<<"PPR computing"<<endl;
+     // pp.compute();
+     // cerr<<"PPR computed"<<endl;
+     
+     // pp.savePrecomputedGalleries("PPGallery.ppr");
+     
+
+     // {
+     //   cerr<<"PPR recognising"<<endl;
+     //   std::list<Result> wyniki=pp.recognise(pomiar);
+     //   cerr<<"PPR recognised "<<endl;
+     //   for(std::list<Result>::iterator it=wyniki.begin();it!=wyniki.end();++it){
+     // 	 cout<<galleries.getGalleryLabel(it->label)<<" "<<it->mean
+     // 	     <<" "<<it->max<<" "<<it->min<<endl;
+     //   }
+     // }
+     pp.loadPrecomputedGalleries("PPGallery.ppr");
      {
+       cerr<<"PPR recognising"<<endl;
        std::list<Result> wyniki=pp.recognise(pomiar);
-       
+       cerr<<"PPR recognised "<<endl;
        for(std::list<Result>::iterator it=wyniki.begin();it!=wyniki.end();++it){
 	 cout<<galleries.getGalleryLabel(it->label)<<" "<<it->mean
 	     <<" "<<it->max<<" "<<it->min<<endl;

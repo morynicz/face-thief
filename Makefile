@@ -26,7 +26,7 @@ PP_LIBS= -lpittpatt_ftr_sdk \
 	-lpittpatt_raw_image \
 	-lpittpatt_recognition_core  
 
-CFLAGS=${INCLUDES} -g -O0 -Wall -pedantic
+CFLAGS=${INCLUDES} -g -O0 -Wall -pedantic -Wno-sign-compare
 
 CC=g++
 

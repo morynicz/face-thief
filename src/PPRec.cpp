@@ -6,6 +6,7 @@
 #include <iostream>
 #ifdef PITTPATT_PRESENT
 #include <pittpatt/pittpatt_license.h>
+#include <cstdio>
 
 using namespace cv;
 using std::string;
@@ -79,7 +80,7 @@ PPRec::PPRec(){
   }
   catch(Exception ex){
     cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
-	<<" in fucntion "<<__func__<<endl;
+	<<" in function "<<__func__<<endl;
     throw ex;
   }
     
@@ -90,10 +91,7 @@ void PPRec::loadGalleries(Galleries& galleries){
   ppr_object_list_type oList;
   ppr_template_type pTemplate;
   ppr_object_suitability_type recAble;
-  
-  vector<int> idList;
-  vector<int>lList;
-
+  std::stringstream sbuff;
 
   try{  
     for(int i=0;i<galleries.totalSize();++i){
@@ -113,8 +111,12 @@ void PPRec::loadGalleries(Galleries& galleries){
 	   __func__,__FILE__,__LINE__);
 	eC(ppr_detect_objects(context,pImg,&oList),
 	   __func__,__FILE__,__LINE__);
+	cerr<<"Photo: "<<galleries.getGalleryLabel(i)<<'('<<j<<") ";
+	cerr<<"Objects found: "<<oList.num_objects<<endl;
+
 	for(int k=0;k<oList.num_objects;++k){
 	  int id;
+	  char label[30];
 	  //	  might be unnecessary
 	  // eC(ppr_detect_landmarks_from_object(context,pImg,&oList.objects[k]),
 	  //    __func__,__FILE__,__LINE__); 
@@ -126,19 +128,20 @@ void PPRec::loadGalleries(Galleries& galleries){
 	    eC(ppr_extract_template_from_object(context,pImg,oList.objects[k],
 						&pTemplate),
 	       __func__,__FILE__,__LINE__);
-	    eC(ppr_set_template_string(context,&pTemplate,
-				       galleries.getGalleryLabel(i).c_str()),
+	    sprintf(label,"%s %d",galleries.getGalleryLabel(i).c_str(),i);
+	    eC(ppr_set_template_string(context,&pTemplate,label),
 	       __func__,__FILE__,__LINE__);
 	    eC(ppr_copy_template_to_gallery(context,&pGallery,pTemplate,&id),
 	       __func__,__FILE__,__LINE__);
 	    ppr_free_template(pTemplate);
+	    cerr<<"Template found"<<endl;
 	    idList.push_back(id);
 	    lList.push_back(i);
 	  }
 	}
       }
     }
-    for(int i=1;i<idList.size();++i){
+    for(unsigned i=1;i<idList.size();++i){
       if(lList[i-1]!=lList[i]){
 	eC(ppr_set_template_relationship(context,&pGallery,idList[i-1],idList[i],
 					 PPR_RELATIONSHIP_DIFFERENT_SUBJECTS),
@@ -149,20 +152,60 @@ void PPRec::loadGalleries(Galleries& galleries){
 	   __func__,__FILE__,__LINE__);
       }
     }
+    eC(ppr_cluster_gallery(context,pGallery,0,&sList),
+       __func__,__FILE__,__LINE__);
   }
   catch(Exception ex){
     cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
-	<<" in fucntion "<<__func__<<endl;
+	<<" in function "<<__func__<<endl;
     throw ex;
   }
 }
 
 void PPRec::loadPrecomputedGalleries(const string& path){
+  try{
+    eC(ppr_read_gallery_with_subject_list(context,path.c_str(),&pGallery,
+					  &sList),
+	   __func__,__FILE__,__LINE__);
+    string label;
+    int iLabel;
+    char cLabel[30];
+    char sbuff[30];
+    lList.clear();
+    idList.clear();
+    for(int i=0;i<sList.num_subjects;++i){
+      eC(ppr_get_template_string_by_id(context,pGallery,
+				       sList.subjects[i].
+				       template_ids[0],cLabel),
+	 	   __func__,__FILE__,__LINE__);
   
+      sscanf(cLabel,"%s %d",sbuff,&iLabel);
+      cerr<<sbuff<<" "<<iLabel<<endl;
+      
+      for(int j=0;j<sList.subjects[i].num_template_ids;++j){
+	idList.push_back(sList.subjects[i].template_ids[j]);
+	lList.push_back(iLabel);
+      }
+    }
+  }
+  catch(Exception ex){
+    cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
+	<<" in function "<<__func__<<endl;
+    throw ex;
+  }
 }
   
 void PPRec::savePrecomputedGalleries(const string& path){
-  
+  try{
+    eC(ppr_write_gallery_with_subject_list(context,path.c_str(),pGallery,
+					   sList),
+       	   __func__,__FILE__,__LINE__);
+  }
+    catch(Exception ex){
+    cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
+	<<" in function "<<__func__<<endl;
+    throw ex;
+  }
 }
 
 void PPRec::compute(){
@@ -181,7 +224,7 @@ list<Result> PPRec::recognise(const string& path){
   }
   catch(Exception ex){
     cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
-	<<" in fucntion "<<__func__<<endl;
+	<<" in function "<<__func__<<endl;
     throw ex;
   }
 }
@@ -192,18 +235,28 @@ list<Result> PPRec::recognise(Mat &img){
   ppr_object_list_type oList;
   ppr_template_type pTemplate;
   ppr_object_suitability_type recAble;
-  ppr_score_list_type sList;
+  ppr_score_list_type scList;
+  ppr_gallery_type tGallery;
+  ppr_similarity_matrix_type similarityMatrix;
+  ppr_subject_list_type sTList;
+  ppr_index_list_type iList;
 
-  sList.num_scores=oList.num_objects=0;
-  sList.scores=NULL;
-  oList.objects=NULL;
-  
+  Result result;
 
   list<Result> results;
-
+  
   Mat tmp,eq;
-  try{
+  
+  scList.num_scores=oList.num_objects=0;
+  scList.scores=NULL;
+  oList.objects=NULL;
+  
+  result.min=result.max=result.mean=0;
+  result.label=-1;
 
+  results.clear();
+
+  try{
     if(img.channels()!=1){
       cvtColor(img,tmp,CV_RGB2GRAY);
     }else{
@@ -211,52 +264,109 @@ list<Result> PPRec::recognise(Mat &img){
     }
     equalizeHist(tmp,eq);
 
-    //  eC
     eC(mat2PprImage(eq,pImg,PPR_RAW_IMAGE_GRAY8),
        __func__,__FILE__,__LINE__);
     eC(ppr_detect_objects(context,pImg,&oList),
        __func__,__FILE__,__LINE__);
-    for(int k=0;k<oList.num_objects;++k){
-      int id;
-      //might be unnecessary
-      // eC(ppr_detect_landmarks_from_object(context,pImg,&oList.objects[k]),
-      //    __func__,__FILE__,__LINE__); 
 
-      eC(ppr_is_object_suitable_for_recognition(context,oList.objects[k],
+    cerr<<"Objects found: "<<oList.num_objects<<endl;
+    
+
+    eC(ppr_create_gallery(context,&tGallery),
+       __func__,__FILE__,__LINE__); 
+    
+    if(oList.num_objects==1){
+      eC(ppr_is_object_suitable_for_recognition(context,oList.objects[0],
 						&recAble),
 	 __func__,__FILE__,__LINE__);
       if(PPR_OBJECT_SUITABLE_FOR_RECOGNITION==recAble){
-	eC(ppr_extract_template_from_object(context,pImg,oList.objects[k],
+	int id;
+	eC(ppr_extract_template_from_object(context,pImg,oList.objects[0],
 					    &pTemplate),
 	   __func__,__FILE__,__LINE__);
-	eC(ppr_compare_template_to_gallery(context,pTemplate,pGallery,&sList),
+	eC(ppr_copy_template_to_gallery(context,&tGallery,pTemplate,&id),
 	   __func__,__FILE__,__LINE__);
-      
-      }
-    }
-    Result result;
-    result.min=result.max=result.mean=0;
-    result.label=-1;
-    for(int i=0;i<sList.num_scores;++i){
-      cerr<<sList.scores[i]<<endl;
-      result.mean=sList.scores[i];
-      result.label=lList.at(i);
-      result.min=result.max=0;
-      results.push_back(result);
-    }
+	ppr_free_template(pTemplate);
 
-    //TO DO: wyciągnąć ze scoreów dane do rezultatów, wywalić wektory id i l do
-    //obiektu
-  }  
+	eC(ppr_cluster_gallery(context,tGallery,0,&sTList),
+	   __func__,__FILE__,__LINE__);
+	
+	eC(ppr_compare_galleries(context,tGallery,pGallery,&similarityMatrix),
+	   __func__,__FILE__,__LINE__); 
+
+	eC(ppr_get_ranked_subject_list_for_subject(context,similarityMatrix,
+						   sTList.subjects[0],sList,
+						   1000,-100,&iList,&scList),
+	   __func__,__FILE__,__LINE__); 
+	
+      }else{
+	ppr_free_gallery(tGallery);
+	Exception ex(PITTPATT_ERROR,
+		     "Exception: image not suitable for recognition",
+		     __func__,__FILE__,__LINE__);
+      }
+      
+      Result result;
+      result.min=result.max=result.mean=0;
+      result.label=-1;
+      
+      {
+	char cLabel[30];
+	char sBuff[30];
+	int iLabel;
+      
+	for(int i=0;i<scList.num_scores;++i){
+	  int index=iList.indices[i];
+	  result.mean=scList.scores[index];
+	  
+	  eC(ppr_get_template_string_by_id(context,pGallery,
+					   sList.subjects[index].
+					   template_ids[0],cLabel),
+	     __func__,__FILE__,__LINE__);
+	  
+	  sscanf(cLabel,"%s %d",sBuff,&iLabel);
+	  cerr<<sBuff<<" "<<iLabel<<endl;
+	  result.label=iLabel;
+	  result.min=result.max=0;
+	  results.push_back(result);
+	}
+
+      }
+    }else{
+      ppr_free_object_list(oList);
+      ppr_free_score_list(scList);
+      ppr_free_gallery(tGallery);
+      ppr_free_similarity_matrix(similarityMatrix);
+      ppr_free_subject_list(sTList);
+      ppr_free_index_list(iList);
+    
+      Exception ex(PITTPATT_ERROR,
+		   "Exception: image contains more than one target",
+		   __func__,__FILE__,__LINE__);
+      throw ex;
+    }      
+      
+
+    ppr_free_object_list(oList);
+    ppr_free_score_list(scList);
+    ppr_free_gallery(tGallery);
+    ppr_free_similarity_matrix(similarityMatrix);
+    ppr_free_subject_list(sTList);
+    ppr_free_index_list(iList);
+  }
+    
   catch(Exception ex){
     cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
-	<<" in fucntion "<<__func__<<endl;
+	<<" in function "<<__func__<<endl;
     throw ex;
   }
   return results;
 }
 
 PPRec::~PPRec(){
+  ppr_free_gallery(pGallery);
+  ppr_free_subject_list(sList);
+  ppr_release_context(context);
   ppr_finalize_sdk();
 }
     

@@ -13,15 +13,15 @@ class SVMRec:public Rec{
   cv::PCA _pca;
   std::list<CvSVM> _svms;
   std::list<int> _labelNr;
-  cv::Mat _icovar;
+  //cv::Mat _icovar;
   
   // static std::string DATA;
-  // static std::string VECTORS;
+  static std::string VECTORS;
   // static std::string ICOVAR;
-  // static std::string LABEL_NR;
-  // static std::string EIGENVALUES;
-  // static std::string EIGENVECTORS;
-  // static std::string MEAN;
+  static std::string LABEL_NR;
+  static std::string EIGENVALUES;
+  static std::string EIGENVECTORS;
+  static std::string MEAN;
   static int POSITIVE;
   static int NEGATIVE;
 

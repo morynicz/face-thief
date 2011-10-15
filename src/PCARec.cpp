@@ -34,7 +34,7 @@ void PCARec::loadGalleries(Galleries& galleries){
   for(int i=0;i<galleries.totalSize();++i){
     for(int j=0;j<galleries.gallerySize(i);++j){
       Mat img=galleries.getPicture(i,j);
-      Mat bw; //needed or OCV2.2 would segment fault
+      Mat bw; //without this OCV2.2 would have a segmentation fault
 	 
       if(img.channels()!=1){
 	Mat tmp;
@@ -78,12 +78,10 @@ void PCARec::loadPrecomputedGalleries(const string& path){
     
     
     fs.release();
-    // _pca(_data,Mat(),CV_PCA_DATA_AS_ROW);
-    cerr<<_data.cols<<" "<<_data.rows<<endl;
   }
   catch(Exception ex){
     cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
-	<<" in fucntion "<<__func__<<endl;
+	<<" in function "<<__func__<<endl;
     throw ex;
   }
 }
@@ -98,7 +96,7 @@ void PCARec::savePrecomputedGalleries(const string& path){
       throw err;
     }
   
-    //    cerr<<"data"<<endl;
+
     fs
       <<DATA<<_data
       <<VECTORS<<_vectors
@@ -107,18 +105,15 @@ void PCARec::savePrecomputedGalleries(const string& path){
       <<EIGENVALUES<<_pca.eigenvalues
       <<MEAN<<_pca.mean
       <<LABEL_NR<<"[";
-    //    cerr<<"labels"<<endl;
     for(list<int>::iterator it=_labelNr.begin();
 	it!=_labelNr.end();++it){
       fs<<(*it);
-      //      cerr<<z++<<endl;
     }
     fs<<"]";
-    // cerr<<"post"<<endl;
   }
   catch(Exception ex){
     cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
-	<<" in fucntion "<<__func__<<endl;
+	<<" in function "<<__func__<<endl;
     throw ex;
   } 
 }
@@ -127,7 +122,6 @@ void PCARec::compute(){
   try{
     _pca(_data,Mat(),CV_PCA_DATA_AS_ROW);
     _pca.project(_data,_vectors);
-
 
     Mat covar;
     Mat mean;
@@ -139,7 +133,7 @@ void PCARec::compute(){
   }
   catch(Exception ex){
     cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
-	<<" in fucntion "<<__func__<<endl;
+	<<" in function "<<__func__<<endl;
     throw ex;
   } 
 }
@@ -176,7 +170,6 @@ std::list<Result> PCARec::recognise(cv::Mat& img){
     for(int i=0;i<_vectors.rows;++i){
       int label=*it;
       double distance=Mahalanobis(_vectors.row(i),vec,_icovar);
-      //cerr<<label<<" "<<distance<<endl;
       similarity.mean+=distance;
       if(similarity.min>distance){
 	similarity.min=distance;
@@ -198,7 +191,7 @@ std::list<Result> PCARec::recognise(cv::Mat& img){
   }
   catch(Exception ex){
     cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
-	<<" in fucntion "<<__func__<<endl;
+	<<" in function "<<__func__<<endl;
     throw ex;
   } 
   return results;
@@ -207,112 +200,3 @@ std::list<Result> PCARec::recognise(cv::Mat& img){
 PCARec::~PCARec(){
   
 }
-
-/*  
-  {//PCA
-    { //Odczyt i przejście na tablice wektorow
-      int rows=0;
-      int cols=galleries.getPictureSize().width
-	*galleries.getPictureSize().height;
-      for(int i=0;i<galleries.totalSize();++i){
-	rows+=galleries.gallerySize(i);
-      }
-      
-      Mat input(rows,cols,CV_8U);
-      
-      int y=0;
-      for(int i=0;i<galleries.totalSize();++i){
-	for(int j=0;j<galleries.gallerySize(i);++j){
-	  Mat img=galleries.getPicture(i,j);
-	  Mat bw; //needed or OCV2.2 would segment fault
-
-	  if(img.channels()!=1){
-	    Mat tmp;
-	    cvtColor(img,tmp,CV_RGB2GRAY);
-	    equalizeHist(tmp,bw);
-	  }else{
-	    bw=img;
-	  }
-	  
-	  Mat reshaped=bw.reshape(1,1);
-	  Mat inInput=input.row(y++);
-	  resize(reshaped,inInput,inInput.size(),0,0,CV_INTER_LINEAR);
-	
-	}
-      }
-      
-    
-      int maxComponents=cols*0;
-      cerr<<maxComponents<<endl;
-      PCA pca(input,Mat(),CV_PCA_DATA_AS_ROW,maxComponents);
-   
-      //      Mat compressed(rows,maxComponents,CV_8U);
-      Mat compressed;
-      pca.project(input,compressed);
-
-
-      
-
-	 
-	 cerr<<do_golenia.cols<<do_golenia.rows<<do_golenia.channels()<<endl;
-
-	 Mat ch,ch2;
-	 cvtColor(do_golenia,ch2,CV_RGB2GRAY);
-	 
-      cerr<<ch2.type()<<endl;
-      cerr<<ch2.cols<<" "<<ch2.rows<<endl;
-      cerr<<input.cols<<endl;
-      pca.project(ch2.reshape(1,1),kompresowany);
-
-
-
-      cerr<<compressed.cols<<" "<<compressed.rows<<endl;
-      cerr<<compressed.depth()<<compressed.channels()<<endl;
-      cerr<<pca.eigenvectors.cols<<" "<<pca.eigenvectors.rows<<endl;
-      Mat reconstructed;
-
-      pca.backProject(compressed,reconstructed);
-
-      // 
-      // for(int i=0;i<rows;++i){
-      // 	Mat img=reconstructed.row(i).reshape(0,galleries.getPictureSize().width);
-      // 	Mat umg=input.row(i).reshape(0,galleries.getPictureSize().width);
-      // 	Mat emg=pca.eigenvectors.row(i).reshape(0,galleries.getPictureSize().width);
-	
-      // 	imshow("in",img);
-      // 	imshow("proces",umg);
-      // 	imshow("test",emg*100);
-      // 	waitKey(5100);
-
-      // }
-      // 
-
-      Mat covar;
-      Mat mean;
-      Mat icovar;
-      
-      calcCovarMatrix(compressed,covar,mean,
-		      CV_COVAR_NORMAL|CV_COVAR_ROWS,
-		      compressed.type());
-      invert(covar,icovar,DECOMP_SVD);
-
-      for(int i=0;i<rows;++i){
-	 double dist2=Mahalanobis(compressed.row(i),kompresowany,icovar.t());
-	 cerr<<i<<" "<<dist2<<endl<<endl;
-	for(int j=0;j<rows;++j){
-	  Mat in[2];//coord i , j
-	 
-	  in[0]=compressed.row(i);
-	  in[1]=compressed.row(j);
-	 
-	  double dist=Mahalanobis(in[0],in[1],icovar.t());
-	 
-	  cerr<<i<<" "<<j<<" "<<dist<<endl;
-	
-	
-	}
-      }
-      
-    }
-  }
-*/

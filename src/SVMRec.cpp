@@ -12,6 +12,18 @@ using std::endl;
 int SVMRec::POSITIVE=1;
 int SVMRec::NEGATIVE=-1; 
 
+
+//string SVMRec::DATA="DATA";
+string SVMRec::VECTORS="VECTORS";
+//string SVMRec::ICOVAR="ICOVAR";
+string SVMRec::LABEL_NR="LABEL_NR";
+string SVMRec::EIGENVECTORS="EIGENVECTORS";
+string SVMRec::EIGENVALUES="EIGENVALUES";
+string SVMRec::MEAN="MEAN";
+
+
+
+
 SVMRec::SVMRec(){
 
 }
@@ -49,11 +61,69 @@ void SVMRec::loadGalleries(Galleries& galleries){
 }
 
 void SVMRec::loadPrecomputedGalleries(const string& path){
+  clear();
+  try{
+    FileStorage fs(path,FileStorage::READ);
+    if(!fs.isOpened()){
+      cv::Exception err(CANNOT_OPEN_FILE,
+			"file cannot be opened",
+			__func__,__FILE__,__LINE__);
+      throw err;
+    }
+    
+    // fs[DATA]>>_data;
+    fs[VECTORS]>>_vectors;
+    //fs[ICOVAR]>>_icovar;
+    fs[EIGENVECTORS]>>_pca.eigenvectors;
+    fs[EIGENVALUES]>>_pca.eigenvalues;
+    fs[MEAN]>>_pca.mean;
 
+
+    FileNode fn=fs[LABEL_NR];
+    for(FileNodeIterator it=fn.begin();it!=fn.end();++it){
+      _labelNr.push_back((int)(*it));
+    }
+    
+    
+    fs.release();
+  }
+  catch(Exception ex){
+    cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
+	<<" in function "<<__func__<<endl;
+    throw ex;
+  }
 }
 
 void SVMRec::savePrecomputedGalleries(const string& path){
+  try{
+    FileStorage fs(path,FileStorage::WRITE);
+    if(!fs.isOpened()){
+      cv::Exception err(CANNOT_OPEN_FILE,
+			"file cannot be opened",
+			__func__,__FILE__,__LINE__);
+      throw err;
+    }
+  
 
+    fs
+      //      <<DATA<<_data
+      <<VECTORS<<_vectors
+      //<<ICOVAR<<_icovar
+      <<EIGENVECTORS<<_pca.eigenvectors
+      <<EIGENVALUES<<_pca.eigenvalues
+      <<MEAN<<_pca.mean
+      <<LABEL_NR<<"[";
+    for(list<int>::iterator it=_labelNr.begin();
+	it!=_labelNr.end();++it){
+      fs<<(*it);
+    }
+    fs<<"]";
+  }
+  catch(Exception ex){
+    cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
+	<<" in function "<<__func__<<endl;
+    throw ex;
+  }
 }
 
 void SVMRec::compute(){
