@@ -37,19 +37,18 @@ S_GAL_OBJ=obj/CapToGal.o obj/Lapacz.o obj/Galleries.o
 M_GAL_OBJ= obj/VideoToGal.o obj/Lapacz.o obj/Galleries.o
 VID_OBJ=obj/VideoCap.o obj/Lapacz.o
 
-ifeq (${HOSTNAME}, ${PITTPATT_HOST})
+ifeq ($(shell  ${HOSTNAME}), ${PITTPATT_HOST})
 POR_OBJ=obj/Comparator.o obj/Lapacz.o obj/Galleries.o \
 	obj/PCARec.o obj/SVMRec.o obj/ocv2pit.o obj/PPRec.o
 OBJ= obj/Comparator.o obj/Lapacz.o obj/Galleries.o obj/CapToGal.o   \
 	obj/PCARec.o obj/SVMRec.o obj/VideoCap.o obj/VideoToGal.o \
 	obj/ocv2pit.o obj/PPRec.o
-
+#INCLUDES+= -I ../../pittpatt/pittpatt_sdk/source/utilities
 else
 POR_OBJ=obj/Comparator.o obj/Lapacz.o obj/Galleries.o \
 	obj/PCARec.o obj/SVMRec.o 
 OBJ= obj/CapToGal.o obj/Lapacz.o obj/Galleries.o obj/Comparator.o  \
 	obj/PCARec.o obj/SVMRec.o obj/VideoCap.o obj/VideoToGal.o 
-
 endif
 
 

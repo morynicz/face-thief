@@ -1,5 +1,5 @@
 #include "opencv2/core/core.hpp"
-#include <pittpatt_ftr_sdk.h>
+#include <pittpatt/pittpatt_ftr_sdk.h>
 
 //#include "pittpatt_license.h"
 

@@ -4,7 +4,6 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include <iostream>
-#include "sdk_utils.h"
 #include <pittpatt/pittpatt_license.h>
 
 using namespace cv;

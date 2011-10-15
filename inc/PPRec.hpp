@@ -1,6 +1,6 @@
 #include "Rec.hpp"
 #include <string>
-#include <pittpatt_ftr_sdk.h>
+#include <pittpatt/pittpatt_ftr_sdk.h>
 
 #ifndef __PP_REC__
 #define __PP_REC__
