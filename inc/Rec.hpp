@@ -3,8 +3,8 @@
 #include <string>
 #include <list>
 
-#ifndef __REC__
-#define __REC__
+#ifndef REC_HPP
+#define REC_HPP
 
 ///Structure with results
 struct Result{

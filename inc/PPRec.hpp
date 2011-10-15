@@ -1,15 +1,18 @@
 #include "Rec.hpp"
 #include <string>
+#include "PittpattPresence.hpp"
+#ifdef PITTPATT_PRESENT
 #include <pittpatt/pittpatt_ftr_sdk.h>
 
-#ifndef __PP_REC__
-#define __PP_REC__
+#ifndef PP_REC_HPP
+#define PP_REC_HPP
 
 class PPRec:public Rec{
   string modelPath;
   string galleryFile;
   ppr_precision_type precision;
-  ppr_landmark_detector_type detektor;
+  ppr_landmark_detector_type detector;
+  int detectorMode;
   int threadNumber;
   int threadRecognitionNumber;
   int searchPrunning;
@@ -41,3 +44,4 @@ public:
 };
 
 #endif 
+#endif

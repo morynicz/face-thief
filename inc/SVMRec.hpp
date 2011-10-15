@@ -4,8 +4,8 @@
 #include <list>
 #include <vector>
 
-#ifndef __SVM_REC__
-#define __SVM_REC__
+#ifndef SVM_REC_HPP
+#define SVM_REC_HPP
 
 class SVMRec:public Rec{
   cv::Mat _data;

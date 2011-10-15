@@ -4,6 +4,7 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include <iostream>
+#ifdef PITTPATT_PRESENT
 #include <pittpatt/pittpatt_license.h>
 
 using namespace cv;
@@ -12,11 +13,6 @@ using std::vector;
 using std::list;
 using std::cerr;
 using std::endl;
-// TRY
-// PPR_SUCCESS
-// PPR_REQUIRES_FRONTAL_FACE_OBJECT
-// ppr_error_message(err);
-// exit(EXIT_FAILURE);
 
 void PPRec::eC(ppr_error_type err,string func,string file,int line){
   if(err!= PPR_SUCCESS){
@@ -32,7 +28,8 @@ PPRec::PPRec(){
   modelPath="../../pittpatt/pittpatt_sdk/models/";
   galleryFile="galleries.ppr";
   precision=PPR_FINE_PRECISION;
-  detektor=PPR_NO_LANDMARK_DETECTOR;
+  detector=PPR_DUAL_FRONTAL_LANDMARK_DETECTOR;
+  detectorMode=PPR_AUTOMATIC_LANDMARKS;
   threadNumber=1;
   threadRecognitionNumber=1;
   searchPrunning=PPR_MAX_SEARCH_PRUNING_AGGRESSIVENESS;
@@ -52,9 +49,10 @@ PPRec::PPRec(){
     eC(ppr_set_license(context,my_license_id,my_license_key),
        __func__,__FILE__,__LINE__);
 
-    eC(ppr_enable_tracking(context),__func__,__FILE__,__LINE__);
+    //eC(ppr_enable_detection(context),__func__,__FILE__,__LINE__);
     eC(ppr_enable_recognition(context),__func__,__FILE__,__LINE__);
-  
+    eC(ppr_set_models_path(context,modelPath.c_str()),
+       __func__,__FILE__,__LINE__);
     eC(ppr_set_detection_precision(context,precision),
        __func__,__FILE__,__LINE__);
     eC(ppr_set_num_detection_threads(context,threadNumber),
@@ -69,14 +67,16 @@ PPRec::PPRec(){
        __func__,__FILE__,__LINE__);
     eC(ppr_set_template_extraction_type(context,templateExtractor),
        __func__,__FILE__,__LINE__);
+    
+    eC(ppr_set_landmark_detector_type(context,detector,detectorMode),
+       __func__,__FILE__,__LINE__);
 
-    // eC(ppr_initialize_context(context));
     eC(ppr_initialize_context(context),
        __func__,__FILE__,__LINE__);
  
     eC(ppr_create_gallery(context,&pGallery),
        __func__,__FILE__,__LINE__);
- }
+  }
   catch(Exception ex){
     cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
 	<<" in fucntion "<<__func__<<endl;
@@ -100,28 +100,24 @@ void PPRec::loadGalleries(Galleries& galleries){
       for(int j=0;j<galleries.gallerySize(i);++j){
 	Mat img=galleries.getPicture(i,j);
 	Mat bw; //needed or OCV2.2 would segment fault
-	 
+
 	if(img.channels()!=1){
-		Mat tmp;
-		cvtColor(img,tmp,CV_RGB2GRAY);
-		equalizeHist(tmp,bw);
+	  Mat tmp;
+	  cvtColor(img,tmp,CV_RGB2GRAY);
+	  equalizeHist(tmp,bw);
 	}else{
-		bw=img;
+	  bw=img;
 	}
-	 
-	// Mat reshaped=bw.reshape(1,1);
-	// Mat dataRow=_data.row(y++);
-	// resize(reshaped,dataRow,dataRow.size(),0,0,CV_INTER_LINEAR);
-	// _labelNr.push_back(i);
+
 	eC(mat2PprImage(bw,pImg,PPR_RAW_IMAGE_GRAY8),
-       __func__,__FILE__,__LINE__);
+	   __func__,__FILE__,__LINE__);
 	eC(ppr_detect_objects(context,pImg,&oList),
-       __func__,__FILE__,__LINE__);
+	   __func__,__FILE__,__LINE__);
 	for(int k=0;k<oList.num_objects;++k){
 	  int id;
-	  //might be unnecessary
-	  eC(ppr_detect_landmarks_from_object(context,pImg,&oList.objects[k]),
-	     __func__,__FILE__,__LINE__); 
+	  //	  might be unnecessary
+	  // eC(ppr_detect_landmarks_from_object(context,pImg,&oList.objects[k]),
+	  //    __func__,__FILE__,__LINE__); 
 
 	  eC(ppr_is_object_suitable_for_recognition(context,oList.objects[k],
 						    &recAble),
@@ -192,54 +188,76 @@ list<Result> PPRec::recognise(const string& path){
 
 list<Result> PPRec::recognise(Mat &img){
   ppr_image_type pImg;
-
+  
   ppr_object_list_type oList;
   ppr_template_type pTemplate;
   ppr_object_suitability_type recAble;
   ppr_score_list_type sList;
 
+  sList.num_scores=oList.num_objects=0;
+  sList.scores=NULL;
+  oList.objects=NULL;
   
+
   list<Result> results;
 
-  //  eC
-  eC(mat2PprImage(img,pImg,PPR_RAW_IMAGE_GRAY8),
-       __func__,__FILE__,__LINE__);
-  eC(ppr_detect_objects(context,pImg,&oList),
-       __func__,__FILE__,__LINE__);
-  for(int k=0;k<oList.num_objects;++k){
-    int id;
-    //might be unnecessary
-    eC(ppr_detect_landmarks_from_object(context,pImg,&oList.objects[k]),
-       __func__,__FILE__,__LINE__); 
+  Mat tmp,eq;
+  try{
 
-    eC(ppr_is_object_suitable_for_recognition(context,oList.objects[k],
-					      &recAble),
-       __func__,__FILE__,__LINE__);
-    if(PPR_OBJECT_SUITABLE_FOR_RECOGNITION==recAble){
-      eC(ppr_extract_template_from_object(context,pImg,oList.objects[k],
-					  &pTemplate),
-	 __func__,__FILE__,__LINE__);
-      eC(ppr_compare_template_to_gallery(context,pTemplate,pGallery,&sList),
-       __func__,__FILE__,__LINE__);
-      
+    if(img.channels()!=1){
+      cvtColor(img,tmp,CV_RGB2GRAY);
+    }else{
+      tmp=img;
     }
-  }
+    equalizeHist(tmp,eq);
 
-  for(int i=0;i<sList.num_scores;++i){
+    //  eC
+    eC(mat2PprImage(eq,pImg,PPR_RAW_IMAGE_GRAY8),
+       __func__,__FILE__,__LINE__);
+    eC(ppr_detect_objects(context,pImg,&oList),
+       __func__,__FILE__,__LINE__);
+    for(int k=0;k<oList.num_objects;++k){
+      int id;
+      //might be unnecessary
+      // eC(ppr_detect_landmarks_from_object(context,pImg,&oList.objects[k]),
+      //    __func__,__FILE__,__LINE__); 
+
+      eC(ppr_is_object_suitable_for_recognition(context,oList.objects[k],
+						&recAble),
+	 __func__,__FILE__,__LINE__);
+      if(PPR_OBJECT_SUITABLE_FOR_RECOGNITION==recAble){
+	eC(ppr_extract_template_from_object(context,pImg,oList.objects[k],
+					    &pTemplate),
+	   __func__,__FILE__,__LINE__);
+	eC(ppr_compare_template_to_gallery(context,pTemplate,pGallery,&sList),
+	   __func__,__FILE__,__LINE__);
+      
+      }
+    }
     Result result;
-    cerr<<sList.scores[i]<<endl;
-    result.mean=sList.scores[i];
-    result.label=lList.at(i);
-    result.min=result.max=0;
-    results.push_back(result);
-  }
+    result.min=result.max=result.mean=0;
+    result.label=-1;
+    for(int i=0;i<sList.num_scores;++i){
+      cerr<<sList.scores[i]<<endl;
+      result.mean=sList.scores[i];
+      result.label=lList.at(i);
+      result.min=result.max=0;
+      results.push_back(result);
+    }
 
-  //TO DO: wyciągnąć ze scoreów dane do rezultatów, wywalić wektory id i l do
-  //obiektu
-  
+    //TO DO: wyciągnąć ze scoreów dane do rezultatów, wywalić wektory id i l do
+    //obiektu
+  }  
+  catch(Exception ex){
+    cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
+	<<" in fucntion "<<__func__<<endl;
+    throw ex;
+  }
+  return results;
 }
 
 PPRec::~PPRec(){
   ppr_finalize_sdk();
 }
     
+#endif

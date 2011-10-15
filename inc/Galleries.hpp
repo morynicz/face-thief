@@ -3,8 +3,8 @@
 #include <vector>
 #include "opencv2/core/core.hpp"
 
-#ifndef __GALLERIES__
-#define __GALLERIES__
+#ifndef GALLERIES_HPP
+#define GALLERIES_HPP
 
 using std::string;
 

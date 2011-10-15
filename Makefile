@@ -1,4 +1,6 @@
+SHELL=/bin/bash
 PITPATT_HOST="rab"
+#HOST:=$(shell "/bin/echo ${HOSTNAME}")
 # ifeq (${HOSTNAME}, ${PITTPATT_HOST})
 # INCLUDES= -Iinc \
 # 	-I /usr/local/include/opencv2 \
@@ -36,20 +38,13 @@ VID=videoKreator
 S_GAL_OBJ=obj/CapToGal.o obj/Lapacz.o obj/Galleries.o
 M_GAL_OBJ= obj/VideoToGal.o obj/Lapacz.o obj/Galleries.o
 VID_OBJ=obj/VideoCap.o obj/Lapacz.o
-
-ifeq ($(shell  ${HOSTNAME}), ${PITTPATT_HOST})
 POR_OBJ=obj/Comparator.o obj/Lapacz.o obj/Galleries.o \
 	obj/PCARec.o obj/SVMRec.o obj/ocv2pit.o obj/PPRec.o
-OBJ= obj/Comparator.o obj/Lapacz.o obj/Galleries.o obj/CapToGal.o   \
-	obj/PCARec.o obj/SVMRec.o obj/VideoCap.o obj/VideoToGal.o \
-	obj/ocv2pit.o obj/PPRec.o
-#INCLUDES+= -I ../../pittpatt/pittpatt_sdk/source/utilities
-else
-POR_OBJ=obj/Comparator.o obj/Lapacz.o obj/Galleries.o \
-	obj/PCARec.o obj/SVMRec.o 
+
 OBJ= obj/CapToGal.o obj/Lapacz.o obj/Galleries.o obj/Comparator.o  \
-	obj/PCARec.o obj/SVMRec.o obj/VideoCap.o obj/VideoToGal.o 
-endif
+	obj/PCARec.o obj/SVMRec.o obj/VideoCap.o obj/VideoToGal.o \
+	obj/ocv2pit.o obj/PPRec.o 
+
 
 
 
@@ -61,6 +56,12 @@ endif
 #	galerie
 
 all:  ${S_GAL} ${POR} ${M_GAL} ${VID}
+
+# pittpatt: OBJ+=obj/ocv2pit.o 
+# pittpatt: OBJ+=obj/PPRec.o 
+# pittpatt: POR_OBJ+=obj/ocv2pit.o obj/PPRec.o
+# pittpatt: ${POR}
+
 
 ${S_GAL}: ${S_GAL_OBJ}
 	$(CC) -o ${S_GAL}  ${LIBS} ${S_GAL_OBJ} 

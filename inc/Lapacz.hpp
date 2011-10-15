@@ -3,8 +3,8 @@
 #include "opencv2/highgui/highgui.hpp"
 //#include <iostream>
 
-#ifndef LAPACZ
-#define LAPACZ
+#ifndef LAPACZ_HPP
+#define LAPACZ_HPP
 
 using namespace cv;
 

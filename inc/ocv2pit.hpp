@@ -1,4 +1,6 @@
 #include "opencv2/core/core.hpp"
+#include "PittpattPresence.hpp"
+#ifdef PITTPATT_PRESENT
 #include <pittpatt/pittpatt_ftr_sdk.h>
 
 //#include "pittpatt_license.h"
@@ -12,4 +14,4 @@ ppr_error_type mat2PprImage(cv::Mat& in,
 //will be not, because pittpatt doesn't give a chance to do it.
 //cv::Mat pprImage2Mat(const ppr_image& in);
 
-  
+#endif

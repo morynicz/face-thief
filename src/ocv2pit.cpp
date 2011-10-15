@@ -1,7 +1,7 @@
 #include "ocv2pit.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 using namespace cv;
-
+#ifdef PITTPATT_PRESENT
 ppr_error_type mat2PprImage(cv::Mat& in, 
 			    ppr_image_type& out,
 			    const ppr_raw_image_color_space_type& colorspace){
@@ -72,3 +72,4 @@ ppr_error_type mat2PprImage(cv::Mat& in,
   return ppr_create_image(mid,&out);
 }    
 
+#endif

@@ -1,7 +1,7 @@
 #include "Rec.hpp"
 
-#ifndef __PCA_REC__
-#define __PCA_REC__
+#ifndef PCA_REC_HPP
+#define PCA_REC_HPP
 
 class PCARec:public Rec{
   cv::Mat _data;
