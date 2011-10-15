@@ -11,6 +11,7 @@
 #include "PCARec.hpp"
 #include "SVMRec.hpp"
 
+#include "PittpattPresence.hpp"
 #ifdef PITTPATT_PRESENT
 #include "PPRec.hpp"
 #endif

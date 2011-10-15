@@ -1,15 +1,15 @@
 PITPATT_HOST="rab"
-ifeq (${HOSTNAME}, ${PITTPATT_HOST})
-INCLUDES= -Iinc \
-	-I /usr/local/include/opencv2 \
-	-I /usr/include/boost \
-	-I ../../pittpatt/pittpatt_sdk/source/utilities \
-	-I ../../pittpatt/pittpatt_sdk/include 
-else
+# ifeq (${HOSTNAME}, ${PITTPATT_HOST})
+# INCLUDES= -Iinc \
+# 	-I /usr/local/include/opencv2 \
+# 	-I /usr/include/boost \
+# 	-I ../../pittpatt/pittpatt_sdk/source/utilities \
+# 	-I ../../pittpatt/pittpatt_sdk/include 
+# else
 INCLUDES= -Iinc \
 	-I /usr/local/include/opencv2 \
 	-I /usr/include/boost 
-endif
+#endif
 
 LIBS=-lopencv_core \
 	-lopencv_highgui \
@@ -35,20 +35,27 @@ VID=videoKreator
 
 S_GAL_OBJ=obj/CapToGal.o obj/Lapacz.o obj/Galleries.o
 M_GAL_OBJ= obj/VideoToGal.o obj/Lapacz.o obj/Galleries.o
+VID_OBJ=obj/VideoCap.o obj/Lapacz.o
 
 ifeq (${HOSTNAME}, ${PITTPATT_HOST})
 POR_OBJ=obj/Comparator.o obj/Lapacz.o obj/Galleries.o \
 	obj/PCARec.o obj/SVMRec.o obj/ocv2pit.o obj/PPRec.o
+OBJ= obj/Comparator.o obj/Lapacz.o obj/Galleries.o obj/CapToGal.o   \
+	obj/PCARec.o obj/SVMRec.o obj/VideoCap.o obj/VideoToGal.o \
+	obj/ocv2pit.o obj/PPRec.o
+
 else
 POR_OBJ=obj/Comparator.o obj/Lapacz.o obj/Galleries.o \
 	obj/PCARec.o obj/SVMRec.o 
+OBJ= obj/CapToGal.o obj/Lapacz.o obj/Galleries.o obj/Comparator.o  \
+	obj/PCARec.o obj/SVMRec.o obj/VideoCap.o obj/VideoToGal.o 
+
 endif
-VID_OBJ=obj/VideoCap.o obj/Lapacz.o
 
-# OBJ= obj/CapToGal.o obj/Lapacz.o obj/Galleries.o obj/Comparator.o  \
-# 	obj/PCARec.o obj/SVMRec.o
 
-OBJ= ${POR_OBJ} ${VID_OBJ} ${S_GAL_OBJ} ${M_GAL_OBJ}
+
+
+#OBJ= ${POR_OBJ} ${VID_OBJ} ${S_GAL_OBJ} ${M_GAL_OBJ}
 
 #run: detektor
 #	./detektor kaskady/haarcascade_frontalface_default.xml \
@@ -66,7 +73,7 @@ ${M_GAL}: ${M_GAL_OBJ}
 	$(CC) -o ${M_GAL}  ${LIBS} ${M_GAL_OBJ}
 
 ${VID}: ${VID_OBJ}
-	$(CC) -o ${VID} ${LIBS} obj/VideoCap.o obj/Lapacz.o
+	$(CC) -o ${VID} ${LIBS} ${VID_OBJ}
 
 ${OBJ}: obj/%.o: src/%.cpp inc/*.hpp
 	$(CC) -o $@ $< -c ${CFLAGS} 
