@@ -1,6 +1,7 @@
 SHELL=/bin/bash
 PITPATT_HOST="rab"
 #HOST:=$(shell "/bin/echo ${HOSTNAME}")
+HOST=$${HOSTNAME}
 # ifeq (${HOSTNAME}, ${PITTPATT_HOST})
 # INCLUDES= -Iinc \
 # 	-I /usr/local/include/opencv2 \
@@ -22,10 +23,11 @@ LIBS=-lopencv_core \
 	-lboost_filesystem 
 
 #-L ../../pittpatt/pittpatt_sdk/ 
+ifeq (${HOST}, ${PITTPATT_HOST})
 PP_LIBS= -lpittpatt_ftr_sdk \
 	-lpittpatt_raw_image \
 	-lpittpatt_recognition_core  
-
+endif
 CFLAGS=${INCLUDES} -g -O0 -Wall -pedantic -Wno-sign-compare
 
 CC=g++
@@ -56,6 +58,7 @@ OBJ= obj/CapToGal.o obj/Lapacz.o obj/Galleries.o obj/Comparator.o  \
 #	galerie
 
 all:  ${S_GAL} ${POR} ${M_GAL} ${VID}
+#	$${HOSTNAME}
 
 # pittpatt: OBJ+=obj/ocv2pit.o 
 # pittpatt: OBJ+=obj/PPRec.o 
