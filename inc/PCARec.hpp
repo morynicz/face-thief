@@ -5,8 +5,8 @@
 
 class PCARec:public Rec{
   cv::Mat _data;
-  cv::Mat _vectors;
-  cv::PCA _pca;
+
+
   std::list<int> _labelNr;
   cv::Mat _icovar;
 
@@ -19,6 +19,8 @@ class PCARec:public Rec{
   static std::string MEAN;
 
 public:
+  cv::PCA _pca;
+    cv::Mat _vectors;
   PCARec();
   virtual void loadGalleries(Galleries& galleries);
   virtual void loadPrecomputedGalleries(const std::string& path);

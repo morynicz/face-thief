@@ -62,20 +62,44 @@ void PCARec::loadPrecomputedGalleries(const string& path){
 			__func__,__FILE__,__LINE__);
       throw err;
     }
-    
-    fs[DATA]>>_data;
-    fs[VECTORS]>>_vectors;
-    fs[ICOVAR]>>_icovar;
-    fs[EIGENVECTORS]>>_pca.eigenvectors;
-    fs[EIGENVALUES]>>_pca.eigenvalues;
-    fs[MEAN]>>_pca.mean;
-
-
+    {
+      string path;
+      Mat tmp,tmp2;
+      fs[DATA]>>path;
+      tmp=imread(path);
+      cvtColor(tmp,tmp2,CV_RGB2GRAY);
+      tmp2.convertTo(_data,CV_32F);
+      fs[VECTORS]>>path;
+      tmp=imread(path);
+      cvtColor(tmp,tmp2,CV_RGB2GRAY);
+      tmp2.convertTo(_vectors,CV_32F);
+      fs[ICOVAR]>>path;
+      tmp=imread(path);
+      cvtColor(tmp,tmp2,CV_RGB2GRAY);
+      tmp2.convertTo(_icovar,CV_32F);
+      fs[EIGENVECTORS]>>path;
+      tmp=imread(path);
+      cvtColor(tmp,tmp2,CV_RGB2GRAY);
+      tmp2.convertTo(_pca.eigenvectors,CV_32F);
+      fs[EIGENVALUES]>>path;
+      tmp=imread(path);
+      cvtColor(tmp,tmp2,CV_RGB2GRAY);
+      tmp2.convertTo(_pca.eigenvalues,CV_32F);
+      fs[MEAN]>>_pca.mean;
+      /*path;
+      tmp=imread(path);
+      cvtColor(tmp,tmp2,CV_RGB2GRAY);
+      tmp2.convertTo(_pca.mean,CV_32F);
+      */
+      {
+	Mat covar; //unused
+	calcCovarMatrix(_data,covar,_pca.mean,CV_COVAR_ROWS,CV_32F);
+      }
+    }
     FileNode fn=fs[LABEL_NR];
     for(FileNodeIterator it=fn.begin();it!=fn.end();++it){
       _labelNr.push_back((int)(*it));
     }
-    
     
     fs.release();
   }
@@ -95,16 +119,43 @@ void PCARec::savePrecomputedGalleries(const string& path){
 			__func__,__FILE__,__LINE__);
       throw err;
     }
-  
 
-    fs
-      <<DATA<<_data
-      <<VECTORS<<_vectors
-      <<ICOVAR<<_icovar
-      <<EIGENVECTORS<<_pca.eigenvectors
-      <<EIGENVALUES<<_pca.eigenvalues
-      <<MEAN<<_pca.mean
-      <<LABEL_NR<<"[";
+    {
+      string name;
+      string dir;
+      string ext=".pgm";
+      {      
+	size_t position=path.find_last_of("/");
+	//if(position==string::npos){
+	//   cv::Exception err(CANNOT_FIND_DIRECTORY,
+	// 		    "file cannot be opened",
+	// 		    __func__,__FILE__,__LINE__);
+	//   throw err;
+	// }
+	dir=path.substr(0,position);
+      }
+
+      name=dir+"/"+DATA+ext;
+      imwrite(name,_data);
+      fs<<DATA<<name;
+      name=dir+"/"+VECTORS+ext;
+      imwrite(name,_vectors);
+      fs<<VECTORS<<name;
+      name=dir+"/"+ICOVAR+ext;
+      imwrite(name,_icovar);
+      fs<<ICOVAR<<name;
+      name=dir+"/"+EIGENVECTORS+ext;
+      imwrite(name,_pca.eigenvectors);
+      fs<<EIGENVECTORS<<name;
+      name=dir+"/"+EIGENVALUES+ext;
+      imwrite(name,_pca.eigenvalues);
+      fs<<EIGENVALUES<<name;
+      /*name=dir+"/"+MEAN+ext;
+	imwrite(name,_pca.mean);*/
+      // fs<<MEAN<<name;
+      fs<<MEAN<<_pca.mean;
+      fs<<LABEL_NR<<"[";
+    }    
     for(list<int>::iterator it=_labelNr.begin();
 	it!=_labelNr.end();++it){
       fs<<(*it);

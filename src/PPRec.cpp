@@ -317,6 +317,7 @@ list<Result> PPRec::recognise(Mat &img){
       
 	for(int i=0;i<scList.num_scores;++i){
 	  int index=iList.indices[i];
+	  cerr<<scList.scores[i]<<endl;
 	  result.mean=scList.scores[index];
 	  
 	  eC(ppr_get_template_string_by_id(context,pGallery,
