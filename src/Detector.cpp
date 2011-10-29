@@ -100,8 +100,6 @@ int main(int argc,char **argv){
   {
         
 #ifdef PITTPATT_PRESENT
-
-    try{
       cout<<"PPR initialisng"<<endl;
       time.restart();
       PPRec pp;
@@ -135,24 +133,6 @@ int main(int argc,char **argv){
       pp.loadPrecomputedGalleries("PPGallery.ppr");
       cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
 	  <<fmod(time.elapsed(),60) <<"s"<<endl;
-      {
-	cout<<"PPR recognising"<<endl;
-	time.restart();
-	std::list<Result> wyniki=pp.recognise(pomiar);
-	cout<<"PPR recognised "<<endl;
-	for(std::list<Result>::iterator it=wyniki.begin();it!=wyniki.end();++it){
-	  cout<<galleries.getGalleryLabel(it->label)<<" "<<it->mean
-	      <<" "<<it->max<<" "<<it->min<<endl;
-	}
-      }
-      cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
-	  <<fmod(time.elapsed(),60) <<"s"<<endl;
-    }
-    catch(Exception ex){
-      cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
-	  <<" in function "<<__func__<<endl;
-      throw ex;
-    }
 #endif   
 #endif
  
@@ -333,14 +313,14 @@ int main(int argc,char **argv){
 		  string bestMatch;
 		  cout<<"PPR recognising"<<endl;
 		  time.restart();
-		  std::list<Result> wyniki=pp.recognise(pomiar);
+		  std::list<Result> wyniki=pp.recognise(midPt);
 		  cout<<"PPR recognised "<<endl;
-		  for(std::list<Result>::iterator it=wyniki.begin();
-		      it!=wyniki.end();++it){
-		    cout<<galleries.getGalleryLabel(it->label)<<" "<<it->mean
-			<<" "<<it->max<<" "<<it->min<<endl;
+		  for(std::list<Result>::iterator sit=wyniki.begin();
+		      sit!=wyniki.end();++sit){
+		    cout<<galleries.getGalleryLabel(sit->label)<<" "<<sit->mean
+			<<" "<<sit->max<<" "<<sit->min<<endl;
 		  }
-		  bestMatch=it.front.label;
+		  bestMatch=wyniki.front().label;
 		    
       
 		  putText(gemben,"PPR: "+bestMatch,

@@ -14,11 +14,11 @@ LIBS=-lopencv_core \
 	-lboost_thread \
 	-lboost_filesystem 
 
-ifeq (${HOST}, ${PITTPATT_HOST})
+#ifeq (${HOST}, ${PITTPATT_HOST})
 PP_LIBS= -lpittpatt_ftr_sdk \
 	-lpittpatt_raw_image \
 	-lpittpatt_recognition_core  
-endif
+#endif
 
 CFLAGS=${INCLUDES} -g -O0 -Wall -pedantic -Wno-sign-compare
 
@@ -57,7 +57,7 @@ ${VID}: ${VID_OBJ}
 	$(CC) -o ${VID} ${LIBS} ${VID_OBJ}
 
 ${DET}: ${DET_OBJ}
-	$(CC) -o ${DET} ${LIBS} ${DET_OBJ}
+	$(CC) -o ${DET} ${LIBS} ${DET_OBJ} ${PP_LIBS}
 
 ${OBJ}: obj/%.o: src/%.cpp inc/*.hpp
 	$(CC) -o $@ $< -c ${CFLAGS} 

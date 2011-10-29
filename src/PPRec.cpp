@@ -92,7 +92,7 @@ void PPRec::loadGalleries(Galleries& galleries){
   ppr_template_type pTemplate;
   ppr_object_suitability_type recAble;
   std::stringstream sbuff;
-
+  // cerr<<galleries.totalSize()<<endl;
   try{  
     for(int i=0;i<galleries.totalSize();++i){
       for(int j=0;j<galleries.gallerySize(i);++j){
@@ -112,7 +112,7 @@ void PPRec::loadGalleries(Galleries& galleries){
 	eC(ppr_detect_objects(context,pImg,&oList),
 	   __func__,__FILE__,__LINE__);
 	cerr<<"Photo: "<<galleries.getGalleryLabel(i)<<'('<<j<<") ";
-	cerr<<"Objects found: "<<oList.num_objects<<endl;
+	cerr<<"Objects found: "<<oList.num_objects;
 
 	for(int k=0;k<oList.num_objects;++k){
 	  int id;
@@ -134,11 +134,12 @@ void PPRec::loadGalleries(Galleries& galleries){
 	    eC(ppr_copy_template_to_gallery(context,&pGallery,pTemplate,&id),
 	       __func__,__FILE__,__LINE__);
 	    ppr_free_template(pTemplate);
-	    cerr<<"Template found"<<endl;
+	    cerr<<" Template found";
 	    idList.push_back(id);
 	    lList.push_back(i);
 	  }
 	}
+	cerr<<endl;
       }
     }
     for(unsigned i=1;i<idList.size();++i){
@@ -326,8 +327,9 @@ list<Result> PPRec::recognise(Mat &img){
 	     __func__,__FILE__,__LINE__);
 	  
 	  sscanf(cLabel,"%s %d",sBuff,&iLabel);
-	  cerr<<sBuff<<" "<<iLabel<<endl;
+	  //  cerr<<sBuff<<" "<<iLabel<<endl;
 	  result.label=iLabel;
+	  // cerr<<result.label<<" "<<result.mean<<endl;
 	  result.min=result.max=0;
 	  results.push_back(result);
 	}
