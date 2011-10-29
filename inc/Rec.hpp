@@ -14,6 +14,9 @@ struct Result{
   double max;
 };
 
+inline bool compareMeanResults(Result &a,Result &b){return a.mean>b.mean;}
+
+
 ///
 class Rec{
 protected:

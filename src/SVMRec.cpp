@@ -210,7 +210,8 @@ list<Result> SVMRec::recognise(Mat& img){
 	<<" in fucntion "<<__func__<<endl;
     throw ex;
   } 
-  return results;
+  results.sort(compareMeanResults);
+ return results;
 }
   
 SVMRec::~SVMRec(){

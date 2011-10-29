@@ -3,7 +3,9 @@
 #include "opencv2/highgui/highgui.hpp"
 #include <iostream>
 #include <fstream>
-#include <new>
+//#include <new>
+//#include <algorithm>
+
 using std::string;
 using std::list;
 using std::cerr;
@@ -77,7 +79,7 @@ void PCARec::readFromBinary(cv::Mat &data,const string& path,Size size,int type)
     char *buff=new char[length];
     in.read(buff,length);
     {
-      cerr<<path<<" "<<size.width<<" "<<size.height<<endl;
+      //      cerr<<path<<" "<<size.width<<" "<<size.height<<endl;
       Mat tmp(size,type,buff);
       data=tmp.clone();
     }    
@@ -123,7 +125,7 @@ void PCARec::loadPrecomputedGalleries(const string& path){
       fs[MEAN]>>path;
       fs[MEAN_COLS]>>cols;
       fs[MEAN_TYPE]>>type;
-      cerr<<"cols "<<cols<<endl;
+      // cerr<<"cols "<<cols<<endl;
       readFromBinary(_pca.mean,path,Size(cols,1),type);
       /*path;
       tmp=imread(path);
@@ -148,7 +150,7 @@ void PCARec::loadPrecomputedGalleries(const string& path){
 
 void PCARec::writeToBinary(Mat &data,const string& path){
   std::ofstream out(path.c_str(),std::ofstream::binary);
-  cerr<<path<<" "<<data.type()<<endl;
+  //  cerr<<path<<" "<<data.type()<<endl;
   int bytes;
   switch(data.depth()){
   case CV_8U:
@@ -331,6 +333,7 @@ std::list<Result> PCARec::recognise(cv::Mat& img){
 	<<" in function "<<__func__<<endl;
     throw ex;
   } 
+  results.sort(compareMeanResults);
   return results;
 }
 
