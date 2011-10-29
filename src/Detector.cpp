@@ -98,56 +98,7 @@ int main(int argc,char **argv){
   
   boost::timer time;
   {
-    
-  
-
-   
-
-//     cout<<"Starting PCA"<<endl;
-//     PCARec pca;
-
-//     cout<<"finished in "<<time.elapsed()<<"s"<<endl;
-//     cout<<"PCA: Loading galleries"<<endl;
-//     pca.loadGalleries(galleries);
-//     timeElapsed(time);
-     
-//     cout<<"PCA: Computing"<<endl;
-//     time.restart();
-//     pca.compute();
-//     timeElapsed(time);
-
-
-//     cout<<"PCA: saving"<<endl;
-//     time.restart();
-//     pca.savePrecomputedGalleries("PCAdata/PCA.xml");
-//     timeElapsed(time);
-
-//     PCARec pca2;
-//     cout<<"PCA: Loading precomputed galleries"<<endl;
-//     time.restart();
-//     pca2.loadPrecomputedGalleries("PCAdata/PCA.xml");
-//     timeElapsed(time);
-
-//     cerr<<"mean: "<<sum(abs(pca2._pca.mean-pca._pca.mean))[0]<<endl;
-//     cerr<<"eigenvectors: "<<sum(abs(pca2._pca.eigenvectors-pca._pca.eigenvectors))[0]<<endl;
-//     cerr<<"eigenvalues: "<<sum(abs(pca2._pca.eigenvalues-pca._pca.eigenvalues))[0]<<endl;
-//     cerr<<"vectors: "<<sum(abs(pca2._vectors-pca._vectors))[0]<<endl;
-
-//     // imshow("pca1",pca._pca.mean.reshape(1,260));
-//     // imshow("pca2",pca2._pca.mean.reshape(1,260));
-//     // Mat abes;
-//     // absdiff(pca2._pca.eigenvectors,pca._pca.eigenvectors,abes);
-//     // imshow("diff",abes.reshape(1,260));
-//     // //cerr<<sum(abes)[0]<<endl;
-//     // waitKey(50000);
-//     //cerr<<abes<<endl;
-//     //    cerr<<    (pca2._pca.mean==pca._pca.mean)<<endl;
-// //    cerr<<pca2._pca.mean<<endl;
-//     // cerr<<pca._pca.mean<<endl;
-
-//   return 0;
-// }
-    
+        
 #ifdef PITTPATT_PRESENT
 
     try{
