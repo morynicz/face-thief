@@ -5,19 +5,34 @@
 
 class PCARec:public Rec{
   cv::Mat _data;
-
-
   std::list<int> _labelNr;
   cv::Mat _icovar;
 
   static std::string DATA;
+  static std::string DATA_ROWS;
+  static std::string DATA_COLS;
+  static std::string DATA_TYPE;
+
   static std::string VECTORS;
   static std::string ICOVAR;
+  static std::string VEC_ROWS;
+  static std::string VEC_COLS;
+  static std::string VEC_TYPE;
+
   static std::string LABEL_NR;
+
   static std::string EIGENVALUES;
   static std::string EIGENVECTORS;
-  static std::string MEAN;
+  static std::string EIGEN_ROWS;
+  static std::string EIGEN_COLS;
+  static std::string EIGEN_TYPE;
 
+  static std::string MEAN;
+  static std::string MEAN_COLS;
+  static std::string MEAN_TYPE;
+  
+  void readFromBinary(cv::Mat &data,const string& path,cv::Size size,int type);
+  void writeToBinary(cv::Mat &data,const string& path);
 public:
   cv::PCA _pca;
     cv::Mat _vectors;

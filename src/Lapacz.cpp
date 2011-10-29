@@ -16,9 +16,12 @@ Lapacz::Kamera::Kamera(int nr,
 }
 
 void Lapacz::Kamera::operator()(){
+  // namedWindow("raw_capture",CV_WINDOW_NORMAL);
   while(!boost::this_thread::interruption_requested()){
     mut->lock();
     kam>>(*kl);
+    //    imshow("raw_capture",(*kl));
+    // waitKey(100);
     mut->unlock();
   }
 }

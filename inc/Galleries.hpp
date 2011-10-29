@@ -27,6 +27,7 @@ const int NON_UNIFORM_GALLERY=7;
 const int WRONG_PICTURE_SIZE=8;
 const int WRONG_PICTURE_TYPE=9;
 const int PITTPATT_ERROR=10;
+const int UNKNOWN_MAT_TYPE=11;
 const int INITIAL_SIZE=-2;
 
 class Galleries{

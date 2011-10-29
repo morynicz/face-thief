@@ -2,6 +2,8 @@
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include <iostream>
+#include <fstream>
+#include <new>
 using std::string;
 using std::list;
 using std::cerr;
@@ -9,15 +11,26 @@ using std::endl;
 using namespace cv;
 
 string PCARec::DATA="DATA";
+string PCARec::DATA_ROWS="DATA_ROWS";
+string PCARec::DATA_COLS="DATA_COLS";
+string PCARec::DATA_TYPE="DATA_TYPE";
 string PCARec::VECTORS="VECTORS";
 string PCARec::ICOVAR="ICOVAR";
+string PCARec::VEC_ROWS="VECTORS_ROWS";
+string PCARec::VEC_COLS="VECTORS_COLS";
+string PCARec::VEC_TYPE="VECTORS_TYPE";
 string PCARec::LABEL_NR="LABEL_NR";
 string PCARec::EIGENVECTORS="EIGENVECTORS";
 string PCARec::EIGENVALUES="EIGENVALUES";
+string PCARec::EIGEN_ROWS="EIGEN_ROWS";
+string PCARec::EIGEN_COLS="EIGEN_COLS";
+string PCARec::EIGEN_TYPE="EIGEN_TYPE";
 string PCARec::MEAN="MEAN";
+string PCARec::MEAN_COLS="MEAN_COLS";
+string PCARec::MEAN_TYPE="MEAN_TYPE";
 
 PCARec::PCARec(){
- 
+  
 }
 
 void PCARec::loadGalleries(Galleries& galleries){
@@ -52,6 +65,27 @@ void PCARec::loadGalleries(Galleries& galleries){
   }    
 }
 
+void PCARec::readFromBinary(cv::Mat &data,const string& path,Size size,int type){
+  
+    std::ifstream in(path.c_str(),std::ifstream::binary);
+    
+    //check size of file
+    in.seekg(0,std::ifstream::end);
+    int length=in.tellg();
+    in.seekg(0);
+      	//allocate
+    char *buff=new char[length];
+    in.read(buff,length);
+    {
+      cerr<<path<<" "<<size.width<<" "<<size.height<<endl;
+      Mat tmp(size,type,buff);
+      data=tmp.clone();
+    }    
+    delete buff;
+    in.close();
+  
+}
+
 void PCARec::loadPrecomputedGalleries(const string& path){
   clear();
   try{
@@ -65,36 +99,38 @@ void PCARec::loadPrecomputedGalleries(const string& path){
     {
       string path;
       Mat tmp,tmp2;
+
+      int rows,cols,type;
       fs[DATA]>>path;
-      tmp=imread(path);
-      cvtColor(tmp,tmp2,CV_RGB2GRAY);
-      tmp2.convertTo(_data,CV_32F);
+      fs[DATA_ROWS]>>rows;
+      fs[DATA_COLS]>>cols;
+      fs[DATA_TYPE]>>type;
+      readFromBinary(_data,path,Size(cols,rows),type);
       fs[VECTORS]>>path;
-      tmp=imread(path);
-      cvtColor(tmp,tmp2,CV_RGB2GRAY);
-      tmp2.convertTo(_vectors,CV_32F);
+      fs[VEC_ROWS]>>rows;
+      fs[VEC_COLS]>>cols;
+      fs[VEC_TYPE]>>type;
+      readFromBinary(_vectors,path,Size(cols,rows),type);
       fs[ICOVAR]>>path;
-      tmp=imread(path);
-      cvtColor(tmp,tmp2,CV_RGB2GRAY);
-      tmp2.convertTo(_icovar,CV_32F);
+      readFromBinary(_icovar,path,Size(cols,rows),type);
       fs[EIGENVECTORS]>>path;
-      tmp=imread(path);
-      cvtColor(tmp,tmp2,CV_RGB2GRAY);
-      tmp2.convertTo(_pca.eigenvectors,CV_32F);
+      fs[EIGEN_ROWS]>>rows;
+      fs[EIGEN_COLS]>>cols;
+      fs[EIGEN_TYPE]>>type;
+      readFromBinary(_pca.eigenvectors,path,Size(cols,rows),type);
       fs[EIGENVALUES]>>path;
-      tmp=imread(path);
-      cvtColor(tmp,tmp2,CV_RGB2GRAY);
-      tmp2.convertTo(_pca.eigenvalues,CV_32F);
-      fs[MEAN]>>_pca.mean;
+      readFromBinary(_pca.eigenvalues,path,Size(1,rows),type);
+      fs[MEAN]>>path;
+      fs[MEAN_COLS]>>cols;
+      fs[MEAN_TYPE]>>type;
+      cerr<<"cols "<<cols<<endl;
+      readFromBinary(_pca.mean,path,Size(cols,1),type);
       /*path;
       tmp=imread(path);
       cvtColor(tmp,tmp2,CV_RGB2GRAY);
       tmp2.convertTo(_pca.mean,CV_32F);
       */
-      {
-	Mat covar; //unused
-	calcCovarMatrix(_data,covar,_pca.mean,CV_COVAR_ROWS,CV_32F);
-      }
+      
     }
     FileNode fn=fs[LABEL_NR];
     for(FileNodeIterator it=fn.begin();it!=fn.end();++it){
@@ -110,6 +146,37 @@ void PCARec::loadPrecomputedGalleries(const string& path){
   }
 }
 
+void PCARec::writeToBinary(Mat &data,const string& path){
+  std::ofstream out(path.c_str(),std::ofstream::binary);
+  cerr<<path<<" "<<data.type()<<endl;
+  int bytes;
+  switch(data.depth()){
+  case CV_8U:
+  case CV_8S:
+    bytes=1;
+    break;
+  case CV_16U:
+  case CV_16S:
+    bytes=2;
+    break;
+  case CV_32F:
+  case CV_32S:
+    bytes=4;
+    break;
+  case CV_64F:
+    bytes=8;
+    break;
+  default:
+     cv::Exception err(UNKNOWN_MAT_TYPE,
+			"Unknown Mat type, cannot write",
+			__func__,__FILE__,__LINE__);
+      throw err;
+  }
+  out.write((const char*)data.data,data.rows*data.cols*bytes
+	    /*CV_32F->4*CV_8U*/);
+  out.close();
+}
+
 void PCARec::savePrecomputedGalleries(const string& path){
   try{
     FileStorage fs(path,FileStorage::WRITE);
@@ -119,11 +186,22 @@ void PCARec::savePrecomputedGalleries(const string& path){
 			__func__,__FILE__,__LINE__);
       throw err;
     }
-
+    fs
+      <<DATA_ROWS<<_data.rows
+      <<DATA_COLS<<_data.cols
+      <<DATA_TYPE<<_data.type()
+      <<VEC_ROWS<<_vectors.rows
+      <<VEC_COLS<<_vectors.cols
+      <<VEC_TYPE<<_vectors.type()
+      <<EIGEN_ROWS<<_pca.eigenvectors.rows
+      <<EIGEN_COLS<<_pca.eigenvectors.cols
+      <<EIGEN_TYPE<<_pca.eigenvectors.type()
+      <<MEAN_COLS<<_pca.mean.cols
+      <<MEAN_TYPE<<_pca.mean.type();
     {
       string name;
       string dir;
-      string ext=".pgm";
+      string ext=".dat";
       {      
 	size_t position=path.find_last_of("/");
 	//if(position==string::npos){
@@ -136,24 +214,32 @@ void PCARec::savePrecomputedGalleries(const string& path){
       }
 
       name=dir+"/"+DATA+ext;
-      imwrite(name,_data);
+      //imwrite(name,_data);
+      writeToBinary(_data,name);
       fs<<DATA<<name;
       name=dir+"/"+VECTORS+ext;
-      imwrite(name,_vectors);
+      //      imwrite(name,_vectors);
+      writeToBinary(_vectors,name);
       fs<<VECTORS<<name;
       name=dir+"/"+ICOVAR+ext;
-      imwrite(name,_icovar);
+      //      imwrite(name,_icovar);
+      writeToBinary(_icovar,name);
       fs<<ICOVAR<<name;
       name=dir+"/"+EIGENVECTORS+ext;
-      imwrite(name,_pca.eigenvectors);
+      //      imwrite(name,_pca.eigenvectors);
+      writeToBinary(_pca.eigenvectors,name);
       fs<<EIGENVECTORS<<name;
       name=dir+"/"+EIGENVALUES+ext;
-      imwrite(name,_pca.eigenvalues);
+      //      imwrite(name,_pca.eigenvalues);
+      writeToBinary(_pca.eigenvalues,name);
       fs<<EIGENVALUES<<name;
-      /*name=dir+"/"+MEAN+ext;
-	imwrite(name,_pca.mean);*/
-      // fs<<MEAN<<name;
-      fs<<MEAN<<_pca.mean;
+      name=dir+"/"+MEAN+ext;
+      // 	imwrite(name,_pca.mean);
+      writeToBinary(_pca.mean,name);
+       // std::ofstream out(name.c_str(),std::ofstream::binary);
+       // out.write((const char*)_pca.mean.data,_pca.mean.rows*_pca.mean.cols*4/*CV_32F->4*CV_8U*/);
+      fs<<MEAN<<name;
+      //fs<<MEAN<<_pca.mean;
       fs<<LABEL_NR<<"[";
     }    
     for(list<int>::iterator it=_labelNr.begin();

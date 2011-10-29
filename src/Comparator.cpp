@@ -138,7 +138,7 @@ int main(int argc,char **argv){
     }
   }
   //  pca.savePrecomputedGalleries("PCA.xml");
-
+  */
 
   SVMRec svm;
   svm.loadGalleries(galleries);
@@ -151,7 +151,7 @@ int main(int argc,char **argv){
 	  <<" "<<it->max<<" "<<it->min<<endl;
     }
   }
-  */
+  
 
   // pca.loadPrecomputedGalleries("PCA.xml");
 
