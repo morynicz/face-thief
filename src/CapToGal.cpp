@@ -8,6 +8,7 @@
 #include <string>
 #include "filesystem.hpp"
 #include "Galleries.hpp"
+#include "FaceFactor.hpp"
 
 #include <sstream> //do nazw plików
 
@@ -16,7 +17,7 @@
 using namespace cv;
 using namespace std;
 
-const float FACE_FACTOR=0.0;
+//const float FACE_FACTOR=0.0;
 
 
     
@@ -50,7 +51,8 @@ int main(int argc,char **argv){
   vector<Rect> lOka;
   vector<Rect> pOka;
 
-  Lapacz kam(0);
+  Lapacz kam;
+  kam.init(0);
 
   CascadeClassifier szukacz;
   CascadeClassifier lewe;

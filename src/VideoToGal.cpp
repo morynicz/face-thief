@@ -8,7 +8,7 @@
 #include <string>
 #include "filesystem.hpp"
 #include "Galleries.hpp"
-
+#include "faceFactor.hpp"
 #include <sstream> //do nazw plików
 
 #include "Lapacz.hpp"
@@ -16,7 +16,7 @@
 using namespace cv;
 using namespace std;
 
-const float FACE_FACTOR=0.3;
+//const float FACE_FACTOR=0.3;
 
 
     

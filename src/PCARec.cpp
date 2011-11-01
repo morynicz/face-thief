@@ -32,7 +32,7 @@ string PCARec::MEAN_COLS="MEAN_COLS";
 string PCARec::MEAN_TYPE="MEAN_TYPE";
 
 PCARec::PCARec(){
-  
+  name="PCA";
 }
 
 void PCARec::loadGalleries(Galleries& galleries){
@@ -125,14 +125,7 @@ void PCARec::loadPrecomputedGalleries(const string& path){
       fs[MEAN]>>path;
       fs[MEAN_COLS]>>cols;
       fs[MEAN_TYPE]>>type;
-      // cerr<<"cols "<<cols<<endl;
-      readFromBinary(_pca.mean,path,Size(cols,1),type);
-      /*path;
-      tmp=imread(path);
-      cvtColor(tmp,tmp2,CV_RGB2GRAY);
-      tmp2.convertTo(_pca.mean,CV_32F);
-      */
-      
+      readFromBinary(_pca.mean,path,Size(cols,1),type);  
     }
     FileNode fn=fs[LABEL_NR];
     for(FileNodeIterator it=fn.begin();it!=fn.end();++it){
@@ -150,7 +143,6 @@ void PCARec::loadPrecomputedGalleries(const string& path){
 
 void PCARec::writeToBinary(Mat &data,const string& path){
   std::ofstream out(path.c_str(),std::ofstream::binary);
-  //  cerr<<path<<" "<<data.type()<<endl;
   int bytes;
   switch(data.depth()){
   case CV_8U:
@@ -216,32 +208,29 @@ void PCARec::savePrecomputedGalleries(const string& path){
       }
 
       name=dir+"/"+DATA+ext;
-      //imwrite(name,_data);
       writeToBinary(_data,name);
       fs<<DATA<<name;
+
       name=dir+"/"+VECTORS+ext;
-      //      imwrite(name,_vectors);
       writeToBinary(_vectors,name);
       fs<<VECTORS<<name;
+
       name=dir+"/"+ICOVAR+ext;
-      //      imwrite(name,_icovar);
       writeToBinary(_icovar,name);
       fs<<ICOVAR<<name;
+
       name=dir+"/"+EIGENVECTORS+ext;
-      //      imwrite(name,_pca.eigenvectors);
       writeToBinary(_pca.eigenvectors,name);
       fs<<EIGENVECTORS<<name;
+
       name=dir+"/"+EIGENVALUES+ext;
-      //      imwrite(name,_pca.eigenvalues);
       writeToBinary(_pca.eigenvalues,name);
       fs<<EIGENVALUES<<name;
+
       name=dir+"/"+MEAN+ext;
-      // 	imwrite(name,_pca.mean);
       writeToBinary(_pca.mean,name);
-       // std::ofstream out(name.c_str(),std::ofstream::binary);
-       // out.write((const char*)_pca.mean.data,_pca.mean.rows*_pca.mean.cols*4/*CV_32F->4*CV_8U*/);
       fs<<MEAN<<name;
-      //fs<<MEAN<<_pca.mean;
+
       fs<<LABEL_NR<<"[";
     }    
     for(list<int>::iterator it=_labelNr.begin();

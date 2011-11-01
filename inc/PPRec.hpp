@@ -32,6 +32,7 @@ class PPRec:public Rec{
   void eC(ppr_error_type err,std::string func,std::string file,int line);
 public:
   PPRec();
+  virtual void initialise();
   virtual void loadGalleries(Galleries& galleries);
   virtual void loadPrecomputedGalleries(const std::string& path);
   virtual void savePrecomputedGalleries(const std::string& path);
