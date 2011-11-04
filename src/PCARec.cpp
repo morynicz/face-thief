@@ -3,6 +3,7 @@
 #include "opencv2/highgui/highgui.hpp"
 #include <iostream>
 #include <fstream>
+#include <cstdlib>
 //#include <new>
 //#include <algorithm>
 
@@ -126,6 +127,20 @@ void PCARec::loadPrecomputedGalleries(const string& path){
       fs[MEAN_COLS]>>cols;
       fs[MEAN_TYPE]>>type;
       readFromBinary(_pca.mean,path,Size(cols,1),type);  
+      {
+	Mat eigen;
+	eigen.create(260*2,200*5,_pca.eigenvectors.type());
+	for(int i=0;i<2;++i)
+	  for(int j=0;j<5;++j){
+	    Mat eigenface=eigen(Rect(j*200,i*260,200,260));
+	    resize(_pca.eigenvectors.row(i*5+j).reshape(1,260),eigenface,
+		   eigenface.size(),0,0,INTER_LINEAR);
+	  }
+	imwrite("eigenfaces.jpg",eigen*10000);
+	imwrite("mean.jpg",_pca.mean.reshape(1,260));
+      }
+      
+      
     }
     FileNode fn=fs[LABEL_NR];
     for(FileNodeIterator it=fn.begin();it!=fn.end();++it){
@@ -322,7 +337,7 @@ std::list<Result> PCARec::recognise(cv::Mat& img){
 	<<" in function "<<__func__<<endl;
     throw ex;
   } 
-  results.sort(compareMeanResults);
+  results.sort(compareMinResults);
   return results;
 }
 

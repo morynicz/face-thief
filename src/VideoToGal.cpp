@@ -8,7 +8,7 @@
 #include <string>
 #include "filesystem.hpp"
 #include "Galleries.hpp"
-#include "faceFactor.hpp"
+#include "FaceFactor.hpp"
 #include <sstream> //do nazw plików
 
 #include "Lapacz.hpp"

@@ -3,6 +3,7 @@
 #include "opencv2/highgui/highgui.hpp"
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 using namespace cv;
 using std::string;
@@ -33,8 +34,9 @@ string SVMRec::EIGEN_TYPE="EIGEN_TYPE";
 string SVMRec::MEAN="MEAN";
 string SVMRec::MEAN_COLS="MEAN_COLS";
 string SVMRec::MEAN_TYPE="MEAN_TYPE";
-
-
+string SVMRec::SVMS="SVMS";
+string SVMRec::SVMS_QUANTITY="SVMS_QUANTITY";
+string SVMRec::SVM="SVM";
 
 
 SVMRec::SVMRec(){
@@ -199,26 +201,39 @@ void SVMRec::loadPrecomputedGalleries(const string& path){
       fs[MEAN_TYPE]>>type;
       readFromBinary(_pca.mean,path,Size(cols,1),type);  
     }
-    FileNode fn=fs[LABEL_NR];
-    for(FileNodeIterator it=fn.begin();it!=fn.end();++it){
-      _labelNr.push_back((int)(*it));
+    {
+      FileNode fn=fs[LABEL_NR];
+      for(FileNodeIterator it=fn.begin();it!=fn.end();++it){
+	_labelNr.push_back((int)(*it));
+      }
     }
-    
+    // {
+    //   FileNode fn=fs[SVMS];
+    //   string name;
+    //   for(FileNodeIterator it=fn.begin();it!=fn.end();++it){
+    // 	_svms.push_back(CvSVM());
+    // 	name=(string)(*it);
+    // 	_svms.back().load(name.c_str());
+    //   }
+    // }
     fs.release();
     
     {//SVM training
       for(int i=0;i<=_labelNr.back();++i){
-	vector<int> res;
-	for(list<int>::iterator it=_labelNr.begin();
-	    it!=_labelNr.end();++it){
-	  if((*it)==i){
-	    res.push_back(NEGATIVE);
-	  }else{
-	    res.push_back(POSITIVE);
-	  }
-	}
-	_svms.push_back(CvSVM());
-	_svms.back().train(_vectors,Mat(res));
+    	vector<int> res;
+    	for(list<int>::iterator it=_labelNr.begin();
+    	    it!=_labelNr.end();++it){
+    	  if((*it)==i){
+    	    res.push_back(NEGATIVE);
+    	  }else{
+    	    res.push_back(POSITIVE);
+    	  }
+    	}
+    	_svms.push_back(CvSVM());
+    	_svms.back().train(_vectors,Mat(res));
+    	//cerr<<_svms.length()<<endl;
+    	//_svms.back().train_auto(_vectors,Mat(res),Mat(),Mat(),CvSVMParams());
+	
       }
     }
 
@@ -321,14 +336,34 @@ void SVMRec::savePrecomputedGalleries(const string& path){
       writeToBinary(_pca.mean,name);
       fs<<MEAN<<name;
 
-      fs<<LABEL_NR<<"[";
+
+
+      {
+	int size=_svms.size();
+	std::stringstream buff;
+	fs<<SVMS_QUANTITY<<size
+	  <<SVMS<<"[";
+	list<CvSVM>::iterator iter=_svms.begin();
+	for(int i=0;i<_svms.size();++i,++iter){
+	  buff<<dir<<"/"<<SVM<<i<<".xml";
+	  //	  name=dir+"/"+SVM+".xml";
+	  buff>>name;
+	  buff.clear();
+	  cerr<<name<<endl;
+	  iter->save(name.c_str());
+	  fs<<name;
+	}
+	fs<<"]";
+      }
     }    
-    for(list<int>::iterator it=_labelNr.begin();
-	it!=_labelNr.end();++it){
-      fs<<(*it);
+    {
+      fs<<LABEL_NR<<"[";
+      for(list<int>::iterator it=_labelNr.begin();
+	  it!=_labelNr.end();++it){
+	fs<<(*it);
     }
-    fs<<"]";
-    
+      fs<<"]";
+    }
     
     
   }
@@ -364,6 +399,8 @@ void SVMRec::compute(){
       }
       _svms.push_back(CvSVM());
       _svms.back().train(_vectors,Mat(res));
+      //cerr<<_svms.size()<<endl;
+      //_svms.back().train_auto(_vectors,Mat(res),Mat(),Mat(),CvSVMParams());
     }
   }
   catch(Exception ex){
@@ -382,6 +419,7 @@ list<Result> SVMRec::recognise(const string& path){
   return recognise(img);
 }
   
+
 list<Result> SVMRec::recognise(Mat& img){
 
   Mat tmp,eq,vec,in;

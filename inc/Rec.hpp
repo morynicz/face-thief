@@ -14,8 +14,13 @@ struct Result{
   double max;
 };
 
-inline bool compareMeanResults(Result &a,Result &b){return a.mean>b.mean;}
+inline bool compareMeanResults(const Result &a,const Result &b){
+  return a.mean>b.mean;
+}
 
+inline bool compareMinResults(const Result &a,const Result &b){
+  return a.min < b.min;
+}
 
 ///
 class Rec{

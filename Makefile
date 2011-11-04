@@ -29,6 +29,7 @@ M_GAL=masGalKreator
 POR=porownywacz
 VID=videoKreator
 DET=detektor
+COMP=computer
 
 S_GAL_OBJ=obj/CapToGal.o obj/Lapacz.o obj/Galleries.o
 M_GAL_OBJ= obj/VideoToGal.o obj/Lapacz.o obj/Galleries.o
@@ -37,12 +38,14 @@ POR_OBJ=obj/Comparator.o obj/Lapacz.o obj/Galleries.o \
 	obj/PCARec.o obj/SVMRec.o obj/ocv2pit.o obj/PPRec.o
 DET_OBJ=obj/Detector.o obj/Lapacz.o obj/Galleries.o \
 	obj/PCARec.o obj/SVMRec.o obj/ocv2pit.o obj/PPRec.o
+COMP_OBJ=obj/PCARec.o obj/SVMRec.o obj/PPRec.o obj/Computer.o \
+	obj/Galleries.o
 
 OBJ= obj/CapToGal.o obj/Lapacz.o obj/Galleries.o obj/Comparator.o  \
 	obj/PCARec.o obj/SVMRec.o obj/VideoCap.o obj/VideoToGal.o \
-	obj/ocv2pit.o obj/PPRec.o obj/Detector.o
+	obj/ocv2pit.o obj/PPRec.o obj/Detector.o obj/Computer.o
 
-all:  ${S_GAL} ${POR} ${M_GAL} ${VID} ${DET}
+all:  ${S_GAL} ${POR} ${M_GAL} ${VID} ${DET} ${COMP}
 
 ${S_GAL}: ${S_GAL_OBJ}
 	$(CC) -o ${S_GAL}  ${LIBS} ${S_GAL_OBJ} 
@@ -58,6 +61,9 @@ ${VID}: ${VID_OBJ}
 
 ${DET}: ${DET_OBJ}
 	$(CC) -o ${DET} ${LIBS} ${DET_OBJ} ${PP_LIBS}
+
+${COMP}: ${COMP_OBJ}
+	$(CC) -o ${COMP} ${LIBS} ${COMP_OBJ} ${PP_LIBS}
 
 ${OBJ}: obj/%.o: src/%.cpp inc/*.hpp
 	$(CC) -o $@ $< -c ${CFLAGS} 

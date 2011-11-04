@@ -34,10 +34,6 @@ using namespace cv;
 using namespace std;
 
 //const float FACE_FACTOR=0.0;
-
-
-    
-
 int main(int argc,char **argv){
 
 
@@ -97,7 +93,7 @@ int main(int argc,char **argv){
 
    boost::timer time;
 
-        
+   
 #ifdef PITTPATT_PRESENT
       cout<<"PPR initialisng"<<endl;
       time.restart();
@@ -124,14 +120,16 @@ int main(int argc,char **argv){
       	   <<fmod(time.elapsed(),60) <<"s"<<endl;
       time.restart();
       cout<<"PPR saving precomputed galleries"<<endl;
-      	  alg.back()->savePrecomputedGalleries("PPGallery.ppr");
+      	  alg.back()->savePrecomputedGalleries((alg.back()->getName()+"Data")
+				       +"/"+alg.back()->getName()+".xml");
       cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
       	  <<fmod(time.elapsed(),60) <<"s"<<endl;
 
 #elseif
       cout<<"PPR loading precomputed galleries"<<endl;
       time.restart();
-      alg.back()->loadPrecomputedGalleries("PPGallery.ppr");
+      alg.back()->loadPrecomputedGalleries((alg.back()->getName()+"Data")
+				       +"/"+alg.back()->getName()+".xml");
       cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
 	  <<fmod(time.elapsed(),60) <<"s"<<endl;
 #endif   
@@ -160,13 +158,15 @@ int main(int argc,char **argv){
 
     cout<<"PCA: saving"<<endl;
     time.restart();
-    alg.back()->savePrecomputedGalleries("PCAdata/PCA.xml");
+    alg.back()->savePrecomputedGalleries((alg.back()->getName()+"Data")
+				       +"/"+alg.back()->getName()+".xml");
     cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
 	<<fmod(time.elapsed(),60) <<"s"<<endl;
 #else
     cout<<"PCA: Loading precomputed galleries"<<endl;
     time.restart();
-    alg.back()->loadPrecomputedGalleries("PCAdata/PCA.xml");
+    alg.back()->loadPrecomputedGalleries((alg.back()->getName()+"Data")
+				       +"/"+alg.back()->getName()+".xml");
     cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
 	<<fmod(time.elapsed(),60) <<"s"<<endl;
 
@@ -197,13 +197,15 @@ int main(int argc,char **argv){
 
     cout<<"SVM: saving"<<endl;
     time.restart();
-    alg.back()->savePrecomputedGalleries("SVMdata/SVM.xml");
+    alg.back()->savePrecomputedGalleries((alg.back()->getName()+"Data")
+				       +"/"+alg.back()->getName()+".xml");
     cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
 	<<fmod(time.elapsed(),60) <<"s"<<endl;
 #else    
     cout<<"SVM: Loading precomputed galleries"<<endl;
     time.restart();
-    alg.back()->loadPrecomputedGalleries("SVMdata/SVM.xml");
+    alg.back()->loadPrecomputedGalleries((alg.back()->getName()+"Data")
+				       +"/"+alg.back()->getName()+".xml");
     cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
 	<<fmod(time.elapsed(),60) <<"s"<<endl;
 #endif
@@ -284,7 +286,7 @@ int main(int argc,char **argv){
 		      <<endl<<endl;
 		    
 		  putText(gemben,alg[z]->getName()+" "+bestMatch,
-			  Point(it->x,it->y+it->height+(z*2+2)*15),
+			  Point(it->x,it->y+it->height+(z*2.5+2)*10),
 			  FONT_HERSHEY_SIMPLEX,
 			  1,Scalar(0,255,0),2);
 		  cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
