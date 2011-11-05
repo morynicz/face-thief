@@ -113,8 +113,8 @@ void PPRec::loadGalleries(Galleries& galleries){
 	   __func__,__FILE__,__LINE__);
 	eC(ppr_detect_objects(context,pImg,&oList),
 	   __func__,__FILE__,__LINE__);
-	cerr<<"Photo: "<<galleries.getGalleryLabel(i)<<'('<<j<<") ";
-	cerr<<"Objects found: "<<oList.num_objects;
+	// cerr<<"Photo: "<<galleries.getGalleryLabel(i)<<'('<<j<<") ";
+	// cerr<<"Objects found: "<<oList.num_objects;
 
 	for(int k=0;k<oList.num_objects;++k){
 	  int id;
@@ -136,12 +136,12 @@ void PPRec::loadGalleries(Galleries& galleries){
 	    eC(ppr_copy_template_to_gallery(context,&pGallery,pTemplate,&id),
 	       __func__,__FILE__,__LINE__);
 	    ppr_free_template(pTemplate);
-	    cerr<<" Template found";
+	    //	    cerr<<" Template found";
 	    idList.push_back(id);
 	    lList.push_back(i);
 	  }
 	}
-	cerr<<endl;
+	//	cerr<<endl;
       }
     }
     for(unsigned i=1;i<idList.size();++i){
