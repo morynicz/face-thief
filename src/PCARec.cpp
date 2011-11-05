@@ -131,13 +131,15 @@ void PCARec::loadPrecomputedGalleries(const string& path){
       {
 	//	cerr<<_pca.eigenvectors.rows<<" "<<_pca.eigenvectors.cols<<endl;
 	Mat eigen;
-	int width=_pca.eigenvectors.cols/(1+FACE_FACTOR);
-	int heigth=width*(1+FACE_FACTOR);
-	eigen.create(260*2,200*5,_pca.eigenvectors.type());
+	int width=sqrt(_pca.eigenvectors.cols/(1+FACE_FACTOR));
+	int height=width*(1+FACE_FACTOR);
+	cerr<<width<<" "<<height<<endl;
+	//	eigen.create(260*2,200*5,_pca.eigenvectors.type());
+	eigen.create(height*2,width*5,_pca.eigenvectors.type());
 	for(int i=0;i<2;++i)
 	  for(int j=0;j<5;++j){
-	    Mat eigenface=eigen(Rect(j*200,i*260,200,260));
-	    resize(_pca.eigenvectors.row(i*5+j).reshape(1,260),eigenface,
+	    Mat eigenface=eigen(Rect(j*width,i*height,width,height));
+	    resize(_pca.eigenvectors.row(i*5+j).reshape(1,height),eigenface,
 		   eigenface.size(),0,0,INTER_LINEAR);
 	  }
 	imwrite("eigenfaces.jpg",eigen*10000);
