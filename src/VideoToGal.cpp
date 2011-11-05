@@ -33,8 +33,8 @@ int main(int argc,char **argv){
   int outHeight=static_cast<int>(outWidth+FACE_FACTOR*outWidth);
 
   Size rozm(outWidth,outHeight);
-  
   string adres,label;
+
   Galleries galleries;
 
   int m,n;
@@ -104,7 +104,7 @@ int main(int argc,char **argv){
 	if(!twarze.empty()){
 	  m=floor(sqrt(twarze.size()));
 	  n=ceil(sqrt(twarze.size()));
-	  mid.create(rozm.width*m*(1+FACE_FACTOR),rozm.width*n,eq.type());
+	  mid.create(rozm.height*m,rozm.width*n,eq.type());
 	  int i=0;
 	    
 	  for(vector<Rect>::iterator it=twarze.begin();
@@ -118,8 +118,8 @@ int main(int argc,char **argv){
 		      Scalar(255,0,0));
 	    
 	    Mat midPt=mid(Rect(rozm.width*(i/n),
-			       rozm.width*(i%m)*(1+FACE_FACTOR),
-			       rozm.width,rozm.width*(1+FACE_FACTOR)));
+			       rozm.height*(i%m),
+			       rozm.width,rozm.height));
 	    resize(Mat(eq,(*it)),midPt,midPt.size(),0,0,CV_INTER_LINEAR);
 	    if(twarze.size()==1){
 	      galleries.add(label,midPt);

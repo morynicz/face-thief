@@ -52,7 +52,7 @@ int main(int argc,char **argv){
 
   int outWidth=200;
   int outHeight=outWidth+FACE_FACTOR*outWidth;
-
+  
   string zdjecie;
 
   Size rozm(outWidth,outHeight);

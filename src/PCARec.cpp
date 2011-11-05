@@ -133,7 +133,7 @@ void PCARec::loadPrecomputedGalleries(const string& path){
 	cerr<<FACE_FACTOR<<endl;
 	Mat eigen;
 	int width=sqrt(_pca.eigenvectors.cols/(1+FACE_FACTOR));
-	int height=width*(1+FACE_FACTOR);
+	int height=width+FACE_FACTOR*width;
 	cerr<<width<<" "<<height<<endl;
 	//	eigen.create(260*2,200*5,_pca.eigenvectors.type());
 	eigen.create(height*2,width*5,_pca.eigenvectors.type());

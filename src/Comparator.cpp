@@ -215,7 +215,7 @@ int main(int argc,char **argv){
       int m,n;
       char control;
       if(argc==3)
-	control='n';
+	control='\000';
       else
 	control='u';
 
@@ -226,7 +226,7 @@ int main(int argc,char **argv){
     while(control!='n'){
        
 	try{
-	  if(control!='r'&&control!='n'){
+	  if(control!='r'&&control!='\000'){
 	    cout<<"podaj nazwe zdjęcia do wczytania: "<<endl;
 	    cin>>zdjecie;
 	  }
@@ -250,7 +250,7 @@ int main(int argc,char **argv){
 	  if(!twarze.empty()){
 	    m=floor(sqrt(twarze.size()));
 	    n=ceil(sqrt(twarze.size()));
-	    mid.create(rozm.width*m*(1+FACE_FACTOR),rozm.width*n,eq.type());
+	    mid.create(rozm.height*m,rozm.width*n,eq.type());
 	    int i=0;
 	 
 	    for(vector<Rect>::iterator it=twarze.begin();
@@ -263,38 +263,45 @@ int main(int argc,char **argv){
 			Scalar(255,0,0));
 
 	      Mat midPt=mid(Rect(rozm.width*(i/n),
-				 rozm.width*(i%m)*(1+FACE_FACTOR),
-				 rozm.width,rozm.width*(1+FACE_FACTOR)));
+				 rozm.height*(i%m),
+				 rozm.width,rozm.height));
 	      resize(Mat(eq,(*it)),midPt,midPt.size(),0,0,CV_INTER_LINEAR);
 	      //	      imshow("gemba",midPt);
 
 	      {
 		string bestMatch;
 		for(int z=0;z<alg.size();++z){
-		  cout<<alg[z]->getName()<<" recognising"<<endl;
-		  time.restart();
-		  std::list<Result> wyniki=alg[z]->recognise(midPt);
-		  cout<<alg[z]->getName()<<" recognised "<<endl;
-		  for(std::list<Result>::iterator sit=wyniki.begin();
-		      sit!=wyniki.end();++sit){
-		    cout<<galleries.getGalleryLabel(sit->label)<<" "<<sit->mean
-			<<" "<<sit->max<<" "<<sit->min<<endl;
+		  try{
+		    cout<<alg[z]->getName()<<" recognising"<<endl;
+		    time.restart();
+		    std::list<Result> wyniki=alg[z]->recognise(midPt);
+		    cout<<alg[z]->getName()<<" recognised "<<endl;
+		    for(std::list<Result>::iterator sit=wyniki.begin();
+			sit!=wyniki.end();++sit){
+		      //  cerr<<sit->label<<endl;
+		      cout<<galleries.getGalleryLabel(sit->label)<<" "<<sit->mean
+			  <<" "<<sit->max<<" "<<sit->min<<endl;
+		    }
+		   
+		    if(!wyniki.empty()){
+		      bestMatch=galleries.getGalleryLabel(wyniki.front().label);
+		      cerr<<endl<<alg[z]->getName()+" "+bestMatch
+			  <<endl<<endl;
+		    }		    
+		    putText(gemben,alg[z]->getName()+" "+bestMatch,
+			    Point(it->x,it->y+it->height+(z*2.5+2)*10),
+			    FONT_HERSHEY_SIMPLEX,
+			    1,Scalar(0,255,0),2);
+		    cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
+			<<fmod(time.elapsed(),60) <<"s"<<endl;
 		  }
-		  bestMatch=galleries.getGalleryLabel(wyniki.front().label);
-		  cerr<<endl<<alg[z]->getName()+" "+bestMatch
-		      <<endl<<endl;
-		    
-		  putText(gemben,alg[z]->getName()+" "+bestMatch,
-			  Point(it->x,it->y+it->height+(z*2.5+2)*10),
-			  FONT_HERSHEY_SIMPLEX,
-			  1,Scalar(0,255,0),2);
-		  cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
-		      <<fmod(time.elapsed(),60) <<"s"<<endl;
+		  catch(Exception ex){
+		    cerr<<ex.code<<" "<<ex.err<<endl
+			<<ex.func<<endl<<ex.line<<endl;
+		  }
+		
 		}
 	      }
-
-
-
 	      imshow("skanowane",gemben);
 	      imshow("znalezione",mid);
 	    }
@@ -314,30 +321,32 @@ int main(int argc,char **argv){
 	}
 	
      	waitKey(100);
-	if(control!='n'){
+	if(control!='\000'){
 	  cout<<"Wczytać kolejne zdjęcie (n-nie/r-powtórz to \
 samo/cokolwiek-tak): "<<endl;
 	  cin>>control;
+	}else{
+	  break;
 	}
       }
     }
-    	      {
-		string bestMatch;
-		for(int z=0;z<alg.size();++z){
-		  cout<<alg[z]->getName()<<" recognising"<<endl;
-		  time.restart();
-		  std::list<Result> wyniki=alg[z]->recognise(do_golenia);
-		  cout<<alg[z]->getName()<<" recognised "<<endl;
-		  for(std::list<Result>::iterator sit=wyniki.begin();
-		      sit!=wyniki.end();++sit){
-		    cout<<galleries.getGalleryLabel(sit->label)<<" "<<sit->mean
-			<<" "<<sit->max<<" "<<sit->min<<endl;
-		  }
-		  bestMatch=galleries.getGalleryLabel(wyniki.front().label);
-		  cerr<<endl<<alg[z]->getName()+" "+bestMatch
-		      <<endl<<endl;
-		}
-	      }
+    	      // {
+	      // 	string bestMatch;
+	      // 	for(int z=0;z<alg.size();++z){
+	      // 	  cout<<alg[z]->getName()<<" recognising"<<endl;
+	      // 	  time.restart();
+	      // 	  std::list<Result> wyniki=alg[z]->recognise(do_golenia);
+	      // 	  cout<<alg[z]->getName()<<" recognised "<<endl;
+	      // 	  for(std::list<Result>::iterator sit=wyniki.begin();
+	      // 	      sit!=wyniki.end();++sit){
+	      // 	    cout<<galleries.getGalleryLabel(sit->label)<<" "<<sit->mean
+	      // 		<<" "<<sit->max<<" "<<sit->min<<endl;
+	      // 	  }
+	      // 	  bestMatch=galleries.getGalleryLabel(wyniki.front().label);
+	      // 	  cerr<<endl<<alg[z]->getName()+" "+bestMatch
+	      // 	      <<endl<<endl;
+	      // 	}
+	      // }
     return 0;
 }
 
