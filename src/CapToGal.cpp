@@ -58,9 +58,10 @@ int main(int argc,char **argv){
   CascadeClassifier lewe;
   CascadeClassifier prawe;
 
-  szukacz.load(argv[1]);
-  adres=argv[2];
-  label=argv[3];
+  // szukacz.load(argv[1]);
+  szukacz.load("kaskady/haarcascade_frontalface_alt_tree.xml");
+  adres=argv[1];
+  label=argv[2];
   // wczytywanie galerii zdjęć
   try{
     galleries.setPath(adres);

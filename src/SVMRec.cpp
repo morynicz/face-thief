@@ -207,35 +207,36 @@ void SVMRec::loadPrecomputedGalleries(const string& path){
 	_labelNr.push_back((int)(*it));
       }
     }
-    // {
-    //   FileNode fn=fs[SVMS];
-    //   string name;
-    //   for(FileNodeIterator it=fn.begin();it!=fn.end();++it){
-    // 	_svms.push_back(CvSVM());
-    // 	name=(string)(*it);
-    // 	_svms.back().load(name.c_str());
-    //   }
-    // }
-    fs.release();
-    
-    {//SVM training
-      for(int i=0;i<=_labelNr.back();++i){
-    	vector<int> res;
-    	for(list<int>::iterator it=_labelNr.begin();
-    	    it!=_labelNr.end();++it){
-    	  if((*it)==i){
-    	    res.push_back(NEGATIVE);
-    	  }else{
-    	    res.push_back(POSITIVE);
-    	  }
-    	}
+    {
+      FileNode fn=fs[SVMS];
+      string name;
+      for(FileNodeIterator it=fn.begin();it!=fn.end();++it){
     	_svms.push_back(CvSVM());
-    	_svms.back().train(_vectors,Mat(res));
-    	//cerr<<_svms.length()<<endl;
-    	//_svms.back().train_auto(_vectors,Mat(res),Mat(),Mat(),CvSVMParams());
-	
+    	name=(string)(*it);
+    	_svms.back().load(name.c_str());
       }
     }
+    fs.release();
+    
+    // {//SVM training
+    //   for(int i=0;i<=_labelNr.back();++i){
+    // 	vector<int> res;
+    // 	for(list<int>::iterator it=_labelNr.begin();
+    // 	    it!=_labelNr.end();++it){
+    // 	  if((*it)==i){
+    // 	    res.push_back(NEGATIVE);
+    // 	  }else{
+    // 	    res.push_back(POSITIVE);
+    // 	  }
+    // 	}
+
+    // 	_svms.push_back(CvSVM());
+    // 	_svms.back().train(_vectors,Mat(res));
+    // 	cerr<<_svms.length()<<endl;
+    // 	//_svms.back().train_auto(_vectors,Mat(res),Mat(),Mat(),CvSVMParams());
+	
+    //   }
+    // }
 
 
   }
@@ -387,21 +388,30 @@ void SVMRec::compute(){
     _pca.project(_data,_vectors);
 
     cerr<<_data.cols<<" "<<_data.rows<<endl;
-
-    for(int i=0;i<=_labelNr.back();++i){
-      vector<int> res;
-      for(list<int>::iterator it=_labelNr.begin();
-	  it!=_labelNr.end();++it){
-	if((*it)==i){
-	  res.push_back(POSITIVE);
-	}else{
-	  res.push_back(NEGATIVE);
+    {
+      CvSVMParams params;
+      params.svm_type=CvSVM::C_SVC;
+      params.kernel_type=CvSVM::RBF;
+      params.C=2;
+      params.gamma=2;
+      //      params.term_crit=
+      for(int i=0;i<=_labelNr.back();++i){
+	vector<int> res;
+	for(list<int>::iterator it=_labelNr.begin();
+	    it!=_labelNr.end();++it){
+	  if((*it)==i){
+	    res.push_back(POSITIVE);
+	  }else{
+	    res.push_back(NEGATIVE);
+	  }
 	}
+	//      	cerr<<_vectors<<endl;
+	_svms.push_back(CvSVM());
+	//_svms.back().train(_vectors,Mat(res));
+	cerr<<_svms.size()<<endl;
+	_svms.back().train_auto(_vectors,Mat(res),Mat(),Mat(),params);
+	_svms.back().train(_vectors,Mat(res),params);
       }
-      _svms.push_back(CvSVM());
-      _svms.back().train(_vectors,Mat(res));
-      //cerr<<_svms.size()<<endl;
-      //_svms.back().train_auto(_vectors,Mat(res),Mat(),Mat(),CvSVMParams());
     }
   }
   catch(Exception ex){

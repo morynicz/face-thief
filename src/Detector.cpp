@@ -25,8 +25,8 @@
 #include <sstream> //do nazw plików
 
 #include "Lapacz.hpp"
-
-#define PCAREC
+ 
+//#define PCAREC
 //#define PCAREC_PRECOMPUTED
 #define SVMREC
 //#define SVMREC_PRECOMPUTED

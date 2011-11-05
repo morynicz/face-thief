@@ -25,10 +25,10 @@
 #include "Lapacz.hpp"
 
 
-#define PCAREC
-#define PCAREC_PRECOMPUTED
+//#define PCAREC
+//#define PCAREC_PRECOMPUTED
 #define SVMREC
-#define SVMREC_PRECOMPUTED
+//#define SVMREC_PRECOMPUTED
 
 using namespace cv;
 using namespace std;
@@ -215,7 +215,7 @@ int main(int argc,char **argv){
       int m,n;
       char control;
       if(argc==3)
-	control='r';
+	control='n';
       else
 	control='u';
 
@@ -226,7 +226,7 @@ int main(int argc,char **argv){
     while(control!='n'){
        
 	try{
-	  if(control!='r'){
+	  if(control!='r'&&control!='n'){
 	    cout<<"podaj nazwe zdjęcia do wczytania: "<<endl;
 	    cin>>zdjecie;
 	  }
@@ -314,11 +314,30 @@ int main(int argc,char **argv){
 	}
 	
      	waitKey(100);
-	cout<<"Wczytać kolejne zdjęcie (n-nie/r-powtórz to samo/cokolwiek-tak): "
-	    <<endl;
-	cin>>control;
+	if(control!='n'){
+	  cout<<"Wczytać kolejne zdjęcie (n-nie/r-powtórz to \
+samo/cokolwiek-tak): "<<endl;
+	  cin>>control;
+	}
       }
     }
+    	      {
+		string bestMatch;
+		for(int z=0;z<alg.size();++z){
+		  cout<<alg[z]->getName()<<" recognising"<<endl;
+		  time.restart();
+		  std::list<Result> wyniki=alg[z]->recognise(do_golenia);
+		  cout<<alg[z]->getName()<<" recognised "<<endl;
+		  for(std::list<Result>::iterator sit=wyniki.begin();
+		      sit!=wyniki.end();++sit){
+		    cout<<galleries.getGalleryLabel(sit->label)<<" "<<sit->mean
+			<<" "<<sit->max<<" "<<sit->min<<endl;
+		  }
+		  bestMatch=galleries.getGalleryLabel(wyniki.front().label);
+		  cerr<<endl<<alg[z]->getName()+" "+bestMatch
+		      <<endl<<endl;
+		}
+	      }
     return 0;
 }
 

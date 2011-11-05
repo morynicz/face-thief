@@ -1,6 +1,6 @@
 SHELL=/bin/bash
 #PITPATT_HOST="rab"
-#HOST=$(shell `HOSTNAME`)
+HOST=$(shell hostname)
 
 INCLUDES= -Iinc \
 	-I /usr/local/include/opencv2 \
@@ -73,3 +73,14 @@ ${OBJ}: obj/%.o: src/%.cpp inc/*.hpp
 clean:
 	rm obj/* ${VID} ${M_GAL} ${S_GAL} ${POR}
 
+GAL_FOLD=galleries
+VID_FOLD=video
+VIDS:=$(wildcard $(VID_FOLD)/*.avi)
+GALERIE:=$(addprefix $(GAL_FOLD)/, $(notdir $(basename $(VIDS))))
+buildFromVids: $(GALERIE) PRECOMPUTE
+
+$(GALERIE): $(GAL_FOLD)/%: $(VID_FOLD)/%.avi
+	./${M_GAL} $(GAL_FOLD) $(notdir $@) $<
+
+PRECOMPUTE: $(GALERIE)
+	./${COMP} $(GAL_FOLD)
