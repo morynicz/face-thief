@@ -30,8 +30,11 @@ int main(int argc,char **argv){
   Mat gemben;
 
   int outWidth=200;
-  int outHeight=outWidth*(1+FACE_FACTOR);
+  int outHeight=static_cast<int>(outWidth+FACE_FACTOR*outWidth);
 
+  cerr<<(int)(((double)outWidth)*(1+FACE_FACTOR))<<endl;
+  cerr<<outHeight<<endl;
+  return 0;
 
   Size rozm(outWidth,outHeight);
   
@@ -50,16 +53,17 @@ int main(int argc,char **argv){
   CascadeClassifier lewe;
   CascadeClassifier prawe;
   
-  if(argc<5){
+  if(argc<4){
     cerr<<"Error: not enough parameters."<<endl<<argv[0]
-	<<" haarcascade galleries_folder label input_source"<<endl;
+	<<" galleries_folder label input_source"<<endl;
     return 1;
   }
 
-  szukacz.load(argv[1]);
-  adres=argv[2];
-  label=argv[3];
-  kam.open(argv[4]);
+  //  szukacz.load(argv[1]);
+  szukacz.load("kaskady/haarcascade_frontalface_alt_tree.xml");
+  adres=argv[1];
+  label=argv[2];
+  kam.open(argv[3]);
   // wczytywanie galerii zdjęć
   try{
     galleries.setPath(adres);
@@ -111,6 +115,7 @@ int main(int argc,char **argv){
 	      it!=twarze.end();++it,++i){
 	    it->y-=(it->height)*FACE_FACTOR/2;
 	    it->height*=(1+FACE_FACTOR);
+	    cerr<<rozm.width<<" "<<rozm.height<<endl;
 	    rectangle(gemben,
 		      Point(it->x,it->y),
 		      Point(it->x+it->width,it->y+it->height),
