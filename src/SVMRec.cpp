@@ -386,15 +386,16 @@ void SVMRec::compute(){
     _pca(_data,Mat(),CV_PCA_DATA_AS_ROW);
     _pca.project(_data,_vectors);
 
-  
+    cerr<<_data.cols<<" "<<_data.rows<<endl;
+
     for(int i=0;i<=_labelNr.back();++i){
       vector<int> res;
       for(list<int>::iterator it=_labelNr.begin();
 	  it!=_labelNr.end();++it){
 	if((*it)==i){
-	  res.push_back(NEGATIVE);
-	}else{
 	  res.push_back(POSITIVE);
+	}else{
+	  res.push_back(NEGATIVE);
 	}
       }
       _svms.push_back(CvSVM());
@@ -452,7 +453,7 @@ list<Result> SVMRec::recognise(Mat& img){
       similarity.label=cnt;
       results.push_back(similarity);
       similarity.mean=0;
-      similarity.min=100;
+      similarity.min=0;
       similarity.max=0;
       similarity.label=-1;
     }

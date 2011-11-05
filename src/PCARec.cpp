@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstdlib>
+#include "FaceFactor.hpp"
 //#include <new>
 //#include <algorithm>
 
@@ -104,11 +105,11 @@ void PCARec::loadPrecomputedGalleries(const string& path){
       Mat tmp,tmp2;
 
       int rows,cols,type;
-      fs[DATA]>>path;
-      fs[DATA_ROWS]>>rows;
-      fs[DATA_COLS]>>cols;
-      fs[DATA_TYPE]>>type;
-      readFromBinary(_data,path,Size(cols,rows),type);
+      // fs[DATA]>>path;
+      // fs[DATA_ROWS]>>rows;
+      // fs[DATA_COLS]>>cols;
+      // fs[DATA_TYPE]>>type;
+      // readFromBinary(_data,path,Size(cols,rows),type);
       fs[VECTORS]>>path;
       fs[VEC_ROWS]>>rows;
       fs[VEC_COLS]>>cols;
@@ -128,7 +129,10 @@ void PCARec::loadPrecomputedGalleries(const string& path){
       fs[MEAN_TYPE]>>type;
       readFromBinary(_pca.mean,path,Size(cols,1),type);  
       {
+	//	cerr<<_pca.eigenvectors.rows<<" "<<_pca.eigenvectors.cols<<endl;
 	Mat eigen;
+	int width=_pca.eigenvectors.cols/(1+FACE_FACTOR);
+	int heigth=width*(1+FACE_FACTOR);
 	eigen.create(260*2,200*5,_pca.eigenvectors.type());
 	for(int i=0;i<2;++i)
 	  for(int j=0;j<5;++j){
@@ -196,9 +200,9 @@ void PCARec::savePrecomputedGalleries(const string& path){
       throw err;
     }
     fs
-      <<DATA_ROWS<<_data.rows
-      <<DATA_COLS<<_data.cols
-      <<DATA_TYPE<<_data.type()
+      // <<DATA_ROWS<<_data.rows
+      // <<DATA_COLS<<_data.cols
+      // <<DATA_TYPE<<_data.type()
       <<VEC_ROWS<<_vectors.rows
       <<VEC_COLS<<_vectors.cols
       <<VEC_TYPE<<_vectors.type()
@@ -222,9 +226,9 @@ void PCARec::savePrecomputedGalleries(const string& path){
 	dir=path.substr(0,position);
       }
 
-      name=dir+"/"+DATA+ext;
-      writeToBinary(_data,name);
-      fs<<DATA<<name;
+      // name=dir+"/"+DATA+ext;
+      // writeToBinary(_data,name);
+      // fs<<DATA<<name;
 
       name=dir+"/"+VECTORS+ext;
       writeToBinary(_vectors,name);
