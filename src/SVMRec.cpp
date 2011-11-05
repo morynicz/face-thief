@@ -405,12 +405,12 @@ void SVMRec::compute(){
 	    res.push_back(NEGATIVE);
 	  }
 	}
-	//      	cerr<<_vectors<<endl;
+	//    	cerr<<_vectors<<endl;
 	_svms.push_back(CvSVM());
 	//_svms.back().train(_vectors,Mat(res));
 	cerr<<_svms.size()<<endl;
 	_svms.back().train_auto(_vectors,Mat(res),Mat(),Mat(),params);
-	_svms.back().train(_vectors,Mat(res),params);
+	_svms.back().train(_vectors,Mat(res),Mat(),Mat(),params);
       }
     }
   }
