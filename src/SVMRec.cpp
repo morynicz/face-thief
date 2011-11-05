@@ -387,7 +387,7 @@ void SVMRec::compute(){
     _pca(_data,Mat(),CV_PCA_DATA_AS_ROW);
     _pca.project(_data,_vectors);
 
-    cerr<<_data.cols<<" "<<_data.rows<<endl;
+    //    cerr<<_data.cols<<" "<<_data.rows<<endl;
     {
       CvSVMParams params;
       params.svm_type=CvSVM::C_SVC;
@@ -410,7 +410,7 @@ void SVMRec::compute(){
 	//_svms.back().train(_vectors,Mat(res));
 	cerr<<_svms.size()<<endl;
 	_svms.back().train_auto(_vectors,Mat(res),Mat(),Mat(),params);
-	_svms.back().train(_vectors,Mat(res),Mat(),Mat(),params);
+	//	_svms.back().train(_vectors,Mat(res),Mat(),Mat(),params);
       }
     }
   }
