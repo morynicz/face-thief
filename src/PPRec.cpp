@@ -241,7 +241,7 @@ list<Result> PPRec::recognise(Mat &img){
   ppr_score_list_type scList;
   ppr_gallery_type tGallery;
   ppr_similarity_matrix_type similarityMatrix;
-   ppr_subject_list_type sTList;
+  ppr_subject_list_type sTList;
   ppr_index_list_type iList;
 
   Result result;
@@ -275,103 +275,89 @@ list<Result> PPRec::recognise(Mat &img){
     cerr<<"Objects found: "<<oList.num_objects<<endl;
     
 
-  
-    // if(oList.num_objects==1){
-    for(int i=0;i<oList.num_objects;++i){
-      try{
-	eC(ppr_create_gallery(context,&tGallery),
+    eC(ppr_create_gallery(context,&tGallery),
+       __func__,__FILE__,__LINE__); 
+    
+    if(oList.num_objects==1){
+      eC(ppr_is_object_suitable_for_recognition(context,oList.objects[0],
+						&recAble),
+	 __func__,__FILE__,__LINE__);
+      if(PPR_OBJECT_SUITABLE_FOR_RECOGNITION==recAble){
+	int id;
+	eC(ppr_extract_template_from_object(context,pImg,oList.objects[0],
+					    &pTemplate),
+	   __func__,__FILE__,__LINE__);
+	eC(ppr_copy_template_to_gallery(context,&tGallery,pTemplate,&id),
+	   __func__,__FILE__,__LINE__);
+	ppr_free_template(pTemplate);
+
+	eC(ppr_cluster_gallery(context,tGallery,0,&sTList),
+	   __func__,__FILE__,__LINE__);
+	
+	eC(ppr_compare_galleries(context,tGallery,pGallery,&similarityMatrix),
 	   __func__,__FILE__,__LINE__); 
 
-
-	eC(ppr_is_object_suitable_for_recognition(context,oList.objects[i],
-						  &recAble),
-	   __func__,__FILE__,__LINE__);
-	if(PPR_OBJECT_SUITABLE_FOR_RECOGNITION==recAble){
-	  int id;
-	  eC(ppr_extract_template_from_object(context,pImg,oList.objects[i],
-					      &pTemplate),
-	     __func__,__FILE__,__LINE__);
-	  eC(ppr_copy_template_to_gallery(context,&tGallery,pTemplate,&id),
-	     __func__,__FILE__,__LINE__);
-	  ppr_free_template(pTemplate);
-
-	  eC(ppr_cluster_gallery(context,tGallery,0,&sTList),
-	     __func__,__FILE__,__LINE__);
+	eC(ppr_get_ranked_subject_list_for_subject(context,similarityMatrix,
+						   sTList.subjects[0],sList,
+						   1000,-100,&iList,&scList),
+	   __func__,__FILE__,__LINE__); 
 	
-	  eC(ppr_compare_galleries(context,tGallery,pGallery,&similarityMatrix),
-	     __func__,__FILE__,__LINE__); 
-
-	  eC(ppr_get_ranked_subject_list_for_subject(context,similarityMatrix,
-						     sTList.subjects[0],sList,
-						     1000,-100,&iList,&scList),
-	     __func__,__FILE__,__LINE__); 
-	
-	}else{
-	  ppr_free_gallery(tGallery);
-	  Exception ex(PITTPATT_ERROR,
-		       "Exception: image not suitable for recognition",
-		       __func__,__FILE__,__LINE__);
-	}
-      
-	Result result;
-	result.min=result.max=result.mean=0;
-	result.label=-1;
-      
-	{
-	  char cLabel[30];
-	  char sBuff[30];
-	  int iLabel;
-      
-	  for(int i=0;i<scList.num_scores;++i){
-	    int index=iList.indices[i];
-	    cerr<<scList.scores[i]<<endl;
-	    result.mean=scList.scores[index];
-	  
-	    eC(ppr_get_template_string_by_id(context,pGallery,
-					     sList.subjects[index].
-					     template_ids[0],cLabel),
-	       __func__,__FILE__,__LINE__);
-	  
-	    sscanf(cLabel,"%s %d",sBuff,&iLabel);
-	    //  cerr<<sBuff<<" "<<iLabel<<endl;
-	    result.label=iLabel;
-	    // cerr<<result.label<<" "<<result.mean<<endl;
-	    result.min=result.max=0;
-	    results.push_back(result);
-	  }
-
-	}
+      }else{
+	ppr_free_gallery(tGallery);
+	Exception ex(PITTPATT_ERROR,
+		     "Exception: image not suitable for recognition",
+		     __func__,__FILE__,__LINE__);
       }
-      catch(Exception ex){
-	cerr<<ex.code<<" "<<ex.err<<endl<<ex.func<<" "<<ex.line<<endl;
+      
+      Result result;
+      result.min=result.max=result.mean=0;
+      result.label=-1;
+      
+      {
+	char cLabel[30];
+	char sBuff[30];
+	int iLabel;
+      
+	for(int i=0;i<scList.num_scores;++i){
+	  int index=iList.indices[i];
+	  cerr<<scList.scores[i]<<endl;
+	  result.mean=scList.scores[index];
+	  
+	  eC(ppr_get_template_string_by_id(context,pGallery,
+					   sList.subjects[index].
+					   template_ids[0],cLabel),
+	     __func__,__FILE__,__LINE__);
+	  
+	  sscanf(cLabel,"%s %d",sBuff,&iLabel);
+	  //  cerr<<sBuff<<" "<<iLabel<<endl;
+	  result.label=iLabel;
+	  // cerr<<result.label<<" "<<result.mean<<endl;
+	  result.min=result.max=0;
+	  results.push_back(result);
+	}
+
       }
-      ppr_free_score_list(scList);
+    }else{
+      ppr_free_object_list(oList);
+      // ppr_free_score_list(scList);
       ppr_free_gallery(tGallery);
-      ppr_free_similarity_matrix(similarityMatrix);
-      ppr_free_subject_list(sTList);
-      ppr_free_index_list(iList);
-    }
-    // }else{
-    //   ppr_free_object_list(oList);
-    //   ppr_free_score_list(scList);
-    //   ppr_free_gallery(tGallery);
-    //   //  ppr_free_similarity_matrix(similarityMatrix);
-    //   //    ppr_free_subject_list(sTList);
-    //   // ppr_free_index_list(iList);
+      // ppr_free_similarity_matrix(similarityMatrix);
+      // ppr_free_subject_list(sTList);
+      //      ppr_free_index_list(iList);
     
-    //   Exception ex(PITTPATT_ERROR,
-    // 		   "Exception: image contains more than one target",
-    // 		   __func__,__FILE__,__LINE__);
-    //   throw ex;
-    // }      
+      Exception ex(PITTPATT_ERROR,
+		   "Exception: image contains more than one target",
+		   __func__,__FILE__,__LINE__);
+      throw ex;
+    }      
       
 
     ppr_free_object_list(oList);
-    // ppr_free_score_list(scList);
-    // ppr_free_gallery(tGallery);
-    // ppr_free_similarity_matrix(similarityMatrix);
-    // ppr_free_subject_list(sTList);
-    // ppr_free_index_list(iList);
+    ppr_free_score_list(scList);
+    ppr_free_gallery(tGallery);
+    ppr_free_similarity_matrix(similarityMatrix);
+    ppr_free_subject_list(sTList);
+    ppr_free_index_list(iList);
   }
     
   catch(Exception ex){
