@@ -41,4 +41,7 @@ public:
   virtual ~Rec(){}
 };
 
+void readFromBinary(cv::Mat &data,const string& path,cv::Size size,int type);
+void writeToBinary(cv::Mat &data,const string& path);
+
 #endif

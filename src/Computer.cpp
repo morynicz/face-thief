@@ -1,3 +1,7 @@
+///\file
+/// \brief Main function file for galleries precomputing program
+///
+
 #include <iostream>
 #include "thread.hpp"
 #include "opencv2/opencv.hpp"
@@ -34,7 +38,11 @@
 using namespace cv;
 using namespace std;
 
-
+/*!
+ * \brief Function printing how much time it took to finish a task
+ *
+ * \param time - timer to compute time elapsed
+ */
 void timeElapsed(const boost::timer &time){
   cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
       <<fmod(time.elapsed(),60) <<"s"<<endl;
@@ -42,7 +50,7 @@ void timeElapsed(const boost::timer &time){
 
 int main(int argc,char **argv){
 
-  string adres;
+  string address;
 
   Galleries galleries;
 
@@ -54,10 +62,10 @@ int main(int argc,char **argv){
     return 1;
   }
 
-  adres=argv[1];
+  address=argv[1];
 
   try{
-    galleries.setPath(adres);
+    galleries.setPath(address);
     galleries.load("galeria.xml");
   }
   catch(Exception ex){

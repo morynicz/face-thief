@@ -42,9 +42,6 @@ class SVMRec:public Rec{
   static std::string SVMS;
   static std::string SVM;
 
-  void readFromBinary(cv::Mat &data,const string& path,cv::Size size,int type);
-  void writeToBinary(cv::Mat &data,const string& path);
-
 public:
   SVMRec();
   virtual void loadGalleries(Galleries& galleries);

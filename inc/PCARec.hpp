@@ -31,8 +31,6 @@ class PCARec:public Rec{
   static std::string MEAN_COLS;
   static std::string MEAN_TYPE;
   
-  void readFromBinary(cv::Mat &data,const string& path,cv::Size size,int type);
-  void writeToBinary(cv::Mat &data,const string& path);
 public:
   cv::PCA _pca;
     cv::Mat _vectors;

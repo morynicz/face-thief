@@ -16,12 +16,7 @@ int SVMRec::POSITIVE=1;
 int SVMRec::NEGATIVE=-1; 
 
 
-// string SVMRec::DATA="DATA";
-// string SVMRec::DATA_ROWS="DATA_ROWS";
-// string SVMRec::DATA_COLS="DATA_COLS";
-// string SVMRec::DATA_TYPE="DATA_TYPE";
 string SVMRec::VECTORS="VECTORS";
-//string SVMRec::ICOVAR="ICOVAR";
 string SVMRec::VEC_ROWS="VECTORS_ROWS";
 string SVMRec::VEC_COLS="VECTORS_COLS";
 string SVMRec::VEC_TYPE="VECTORS_TYPE";
@@ -38,10 +33,28 @@ string SVMRec::SVMS="SVMS";
 string SVMRec::SVMS_QUANTITY="SVMS_QUANTITY";
 string SVMRec::SVM="SVM";
 
-
+/*!
+ * \brief Constructor initialising name field
+ */
 SVMRec::SVMRec(){
   name="SVM";
 }
+
+
+/*!
+ * Function initialising the whole structure, separate from constructor to let 
+ * the initialisation moment be delayed
+ *
+ */
+
+/*!
+ * Method loading galleries of images to internal structures of object
+ *
+ * \param galleries - object containing images that will be saved in this 
+ * object
+ *
+ * \post Method compute may be used safely now
+ */
 
 void SVMRec::loadGalleries(Galleries& galleries){
   int rows=0;
@@ -141,26 +154,15 @@ void SVMRec::loadGalleries(Galleries& galleries){
 //   }
 // }
 
-void SVMRec::readFromBinary(cv::Mat &data,const string& path,Size size,int type){
-  
-    std::ifstream in(path.c_str(),std::ifstream::binary);
-    
-    //check size of file
-    in.seekg(0,std::ifstream::end);
-    int length=in.tellg();
-    in.seekg(0);
-      	//allocate
-    char *buff=new char[length];
-    in.read(buff,length);
-    {
-  
-      Mat tmp(size,type,buff);
-      data=tmp.clone();
-    }    
-    delete buff;
-    in.close();
-  
-}
+
+/*!
+ * Method allowing to load previously computed SVMs 
+ *
+ * \param path - path to xml file containing prevoiusly saved SVMs
+ *
+ * \pre path points to a file created with SVMRec::savePrecomputedGalleries or
+ * containig the informations contained by previously mentioned
+ */
 
 void SVMRec::loadPrecomputedGalleries(const string& path){
   clear();
@@ -247,39 +249,19 @@ void SVMRec::loadPrecomputedGalleries(const string& path){
   }
 }
 
-void SVMRec::writeToBinary(Mat &data,const string& path){
-  std::ofstream out(path.c_str(),std::ofstream::binary);
-  int bytes;
-  switch(data.depth()){
-  case CV_8U:
-  case CV_8S:
-    bytes=1;
-    break;
-  case CV_16U:
-  case CV_16S:
-    bytes=2;
-    break;
-  case CV_32F:
-  case CV_32S:
-    bytes=4;
-    break;
-  case CV_64F:
-    bytes=8;
-    break;
-  default:
-     cv::Exception err(UNKNOWN_MAT_TYPE,
-			"Unknown Mat type, cannot write",
-			__func__,__FILE__,__LINE__);
-      throw err;
-  }
-  out.write((const char*)data.data,data.rows*data.cols*bytes
-	    /*CV_32F->4*CV_8U*/);
-  out.close();
-}
 
-void SVMRec::savePrecomputedGalleries(const string& path){
+/*!
+ * Method allowing to save computed SVMs to files
+ *
+ * \param target - path and name of main SVMs xml file
+ *
+ * \post Mean, eigenvectors, eigenvalues of PCA space and SVMs saved in 
+ * directory pointed by target
+ */
+
+void SVMRec::savePrecomputedGalleries(const string& target){
   try{
-    FileStorage fs(path,FileStorage::WRITE);
+    FileStorage fs(target,FileStorage::WRITE);
     if(!fs.isOpened()){
       cv::Exception err(CANNOT_OPEN_FILE,
 			"file cannot be opened",
@@ -303,14 +285,14 @@ void SVMRec::savePrecomputedGalleries(const string& path){
       string dir;
       string ext=".dat";
       {      
-	size_t position=path.find_last_of("/");
+	size_t position=target.find_last_of("/");
 	//if(position==string::npos){
 	//   cv::Exception err(CANNOT_FIND_DIRECTORY,
 	// 		    "file cannot be opened",
 	// 		    __func__,__FILE__,__LINE__);
 	//   throw err;
 	// }
-	dir=path.substr(0,position);
+	dir=target.substr(0,position);
       }
 
       // name=dir+"/"+DATA+ext;
@@ -376,6 +358,16 @@ void SVMRec::savePrecomputedGalleries(const string& path){
 }
 
 
+/*!
+ * Method executes computations needed for projection int PCA space and 
+ * training SVMs
+ *
+ * \pre Method loadGalleries was succesfully used to load galleries of images
+ * to this object
+ *
+ * \post Object is ready to recognise
+ */
+
 void SVMRec::compute(){
   try{
     {
@@ -421,24 +413,52 @@ void SVMRec::compute(){
   } 
 }
 
+
+/*!
+ * Method allowing to wipe data from object
+ */
+
 void SVMRec::clear(){
   _svms.clear();
 }
 
-list<Result> SVMRec::recognise(const string& path){
-  Mat img=imread(path);
+/*!
+ * Method allows to use SVMRec to classify pattern on image pointed by target
+ * 
+ * \param target - image to be classified
+ *
+ * \return Ranked list of Result objects, sorted descending by mean value
+ *
+ * \pre Image pointed by target has the same number of pixels as images from 
+ * galleries used for computing SVMs and PCA. Compute, or 
+ * loadPrecomputedGalleries method was succcesfully used
+ */
+
+list<Result> SVMRec::recognise(const string& target){
+  Mat img=imread(target);
   return recognise(img);
 }
   
+
+/*!
+ * Method allows to use SVMRec to recognise data in img object
+ *
+ * \param img - object containing data to be classified
+ *
+ * \return Ranked list of Result objects, sorted descending by mean value
+ *
+ * \pre Img contains the same number of values as images from 
+ * galleries used for computing PCA and SVMs. Compute, or 
+ * loadPrecomputedGalleries method was succcesfully used
+ */
 
 list<Result> SVMRec::recognise(Mat& img){
 
   Mat tmp,eq,vec,in;
   std::list<Result> results;
   std::list<int>::iterator it=_labelNr.begin();
-  //int counter=0;
     
-  try{
+  try{//image preprocessing
     if(img.channels()!=1){
       cvtColor(img,tmp,CV_RGB2GRAY);
     }else{
@@ -450,13 +470,11 @@ list<Result> SVMRec::recognise(Mat& img){
     similarity.min=0;
     similarity.max=0;
     similarity.label=-1;
-   
+    // image projection
     _pca.project(eq.reshape(1,1),vec);
     vec.convertTo(in,CV_32FC1);
 
-    //cerr<<in.cols<<" "<<in.rows<<" "<<in.depth()<<" "<<in.channels()<<endl;
-    //cerr<<_data.cols<<" "<<_data.rows<<" "<<_data.depth()<<" "<<_data.channels()<<endl;
-    int cnt=0;
+    int cnt=0; //querying SVMs with the image
     for(list<CvSVM>::iterator it=_svms.begin();
 	it!=_svms.end();++it,++cnt){
       similarity.mean=it->predict(in.reshape(1,1),true);
@@ -473,10 +491,15 @@ list<Result> SVMRec::recognise(Mat& img){
 	<<" in fucntion "<<__func__<<endl;
     throw ex;
   } 
-  results.sort(compareMeanResults);
+  results.sort(compareMeanResults); //sorting results in descending order by
+  // mean value
  return results;
 }
   
+/*!
+ * Destructor. Does nothing
+ */
+
 SVMRec::~SVMRec(){
 
 }
