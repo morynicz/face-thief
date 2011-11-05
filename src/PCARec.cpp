@@ -129,7 +129,8 @@ void PCARec::loadPrecomputedGalleries(const string& path){
       fs[MEAN_TYPE]>>type;
       readFromBinary(_pca.mean,path,Size(cols,1),type);  
       {
-	//	cerr<<_pca.eigenvectors.rows<<" "<<_pca.eigenvectors.cols<<endl;
+	cerr<<_pca.eigenvectors.rows<<" "<<_pca.eigenvectors.cols<<endl;
+	cerr<<FACE_FACTOR<<endl;
 	Mat eigen;
 	int width=sqrt(_pca.eigenvectors.cols/(1+FACE_FACTOR));
 	int height=width*(1+FACE_FACTOR);
