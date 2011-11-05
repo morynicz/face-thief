@@ -44,8 +44,7 @@ int main(int argc,char **argv){
   Mat gemben;
 
   int outWidth=200;
-  int outHeight=outWidth*(1+FACE_FACTOR);
-
+  int outHeight=outWidth+FACE_FACTOR*outWidth;
   string zdjecie;
 
   Size rozm(outWidth,outHeight);

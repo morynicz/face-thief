@@ -32,10 +32,6 @@ int main(int argc,char **argv){
   int outWidth=200;
   int outHeight=static_cast<int>(outWidth+FACE_FACTOR*outWidth);
 
-  cerr<<(int)(((double)outWidth)*(1+FACE_FACTOR))<<endl;
-  cerr<<outHeight<<endl;
-  return 0;
-
   Size rozm(outWidth,outHeight);
   
   string adres,label;
