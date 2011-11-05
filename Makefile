@@ -1,6 +1,6 @@
 SHELL=/bin/bash
-PITPATT_HOST="rab"
-HOST=$${HOSTNAME}
+#PITPATT_HOST="rab"
+#HOST=$(shell `HOSTNAME`)
 
 INCLUDES= -Iinc \
 	-I /usr/local/include/opencv2 \
@@ -14,11 +14,13 @@ LIBS=-lopencv_core \
 	-lboost_thread \
 	-lboost_filesystem 
 
-ifeq (${HOST}, ${PITTPATT_HOST})
-PP_LIBS= -lpittpatt_ftr_sdk \
-	-lpittpatt_raw_image \
-	-lpittpatt_recognition_core  
-endif
+-include makefile.local
+
+# ifeq (${HOST}, ${PITTPATT_HOST})
+# PP_LIBS= -lpittpatt_ftr_sdk \
+# 	-lpittpatt_raw_image \
+# 	-lpittpatt_recognition_core  
+# endif
 
 CFLAGS=${INCLUDES} -g -O0 -Wall -pedantic -Wno-sign-compare
 
@@ -67,8 +69,6 @@ ${COMP}: ${COMP_OBJ}
 
 ${OBJ}: obj/%.o: src/%.cpp inc/*.hpp
 	$(CC) -o $@ $< -c ${CFLAGS} 
-
-
 
 clean:
 	rm obj/* ${VID} ${M_GAL} ${S_GAL} ${POR}
