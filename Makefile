@@ -1,6 +1,6 @@
 SHELL=/bin/bash
 PITPATT_HOST="rab"
-HOST=$(shell $${HOSTNAME})
+HOST=$${HOSTNAME}
 
 INCLUDES= -Iinc \
 	-I /usr/local/include/opencv2 \
@@ -45,10 +45,7 @@ OBJ= obj/CapToGal.o obj/Lapacz.o obj/Galleries.o obj/Comparator.o  \
 	obj/PCARec.o obj/SVMRec.o obj/VideoCap.o obj/VideoToGal.o \
 	obj/ocv2pit.o obj/PPRec.o obj/Detector.o obj/Computer.o
 
-all:  kom ${S_GAL} ${POR} ${M_GAL} ${VID} ${DET} ${COMP}
-
-kom:
-	@echo ${HOST}
+all:  ${S_GAL} ${POR} ${M_GAL} ${VID} ${DET} ${COMP}
 
 ${S_GAL}: ${S_GAL_OBJ}
 	$(CC) -o ${S_GAL}  ${LIBS} ${S_GAL_OBJ} 
