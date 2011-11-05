@@ -27,7 +27,7 @@ void PPRec::eC(ppr_error_type err,string func,string file,int line){
 
 PPRec::PPRec(){name="PPR";}
 
-void PPRec::initialise();
+void PPRec::initialise(){
   modelPath="../../pittpatt/pittpatt_sdk/models/";
   galleryFile="galleries.ppr";
   precision=PPR_FINE_PRECISION;
