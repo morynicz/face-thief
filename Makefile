@@ -1,6 +1,8 @@
 SHELL=/bin/bash
 #PITPATT_HOST="rab"
 HOST=$(shell hostname)
+HUST=$(HOSTNAME)
+
 
 INCLUDES= -Iinc \
 	-I /usr/local/include/opencv2 \
@@ -49,6 +51,9 @@ OBJ= obj/CapToGal.o obj/Lapacz.o obj/Galleries.o obj/Comparator.o  \
 
 all:  ${S_GAL} ${POR} ${M_GAL} ${VID} ${DET} ${COMP}
 
+hoste:
+	@echo $(HUST)
+
 ${S_GAL}: ${S_GAL_OBJ}
 	$(CC) -o ${S_GAL}  ${LIBS} ${S_GAL_OBJ} 
 
@@ -75,12 +80,13 @@ clean:
 
 GAL_FOLD=galleries
 VID_FOLD=video
+GAL_LIMIT=100
 VIDS:=$(wildcard $(VID_FOLD)/*.avi)
 GALERIE:=$(addprefix $(GAL_FOLD)/, $(notdir $(basename $(VIDS))))
 buildFromVids: $(GALERIE) PRECOMPUTE
 
 $(GALERIE): $(GAL_FOLD)/%: $(VID_FOLD)/%.avi
-	./${M_GAL} $(GAL_FOLD) $(notdir $@) $<
+	./${M_GAL} $(GAL_FOLD) $(notdir $@) $< $(GAL_LIMIT)
 
 PRECOMPUTE: $(GALERIE)
-	./${COMP} $(GAL_FOLD)
+	./${COMP} $(GAL_FOLD) 

@@ -19,15 +19,13 @@ using namespace std;
 //const float FACE_FACTOR=0.3;
 
 
-    
-
 int main(int argc,char **argv){
 
-  Mat obr,eq;
+  Mat img,eq;
   char ster='1';
   Mat mid;
   Mat bw;
-  Mat gemben;
+  Mat facePics;
 
   int outWidth=200;
   int outHeight=static_cast<int>(outWidth+FACE_FACTOR*outWidth);
@@ -39,28 +37,28 @@ int main(int argc,char **argv){
 
   int m,n;
 
-  vector<Rect> twarze; 
-  vector<Rect> lOka;
-  vector<Rect> pOka;
+  vector<Rect> faces; 
 
-  VideoCapture kam;
+  VideoCapture cap;
 
-  CascadeClassifier szukacz;
-  CascadeClassifier lewe;
-  CascadeClassifier prawe;
-  
+  CascadeClassifier finder;
+  int limit=1000;
+  int counter=0;
+
   if(argc<4){
     cerr<<"Error: not enough parameters."<<endl<<argv[0]
-	<<" galleries_folder label input_source"<<endl;
+	<<" galleries_folder label input_source [number_of_photos_to_extract]"<<endl;
     return 1;
   }
 
-  //  szukacz.load(argv[1]);
-  szukacz.load("kaskady/haarcascade_frontalface_alt_tree.xml");
+  finder.load("kaskady/haarcascade_frontalface_alt_tree.xml");
   adres=argv[1];
   label=argv[2];
-  kam.open(argv[3]);
-  // wczytywanie galerii zdjęć
+  cap.open(argv[3]);
+  if(argc>=4){
+    limit=atoi(argv[4]);
+  }
+
   try{
     galleries.setPath(adres);
     galleries.load("galeria.xml");
@@ -70,22 +68,19 @@ int main(int argc,char **argv){
 	<<" in fucntion "<<__func__;
     cerr<<ex.code<<endl<<ex.err<<endl<<ex.func<<endl<<ex.line<<endl;
   }
-  
-  cout<<"hi thar"<<endl;
 
   namedWindow("faces",CV_WINDOW_NORMAL);
   namedWindow("input",CV_WINDOW_NORMAL);
   
-  while(ster!='q'){
+  while(ster!='q' && counter<limit){
     try{
-      //      kam.stopKlatka(obr);
-      kam>>obr;
-      if(obr.data==NULL){
+      cap>>img;
+      if(img.data==NULL){
 	break;
       }
-      obr.copyTo(gemben);
+      img.copyTo(facePics);
       
-      cvtColor(obr,bw,CV_RGB2GRAY);
+      cvtColor(img,bw,CV_RGB2GRAY);
       equalizeHist(bw,eq);
     }
 
@@ -100,19 +95,19 @@ int main(int argc,char **argv){
       {
 	stringstream sBufor;
 	string cel,buff;
-	szukacz.detectMultiScale(eq,twarze,1.3);
-	if(!twarze.empty()){
-	  m=floor(sqrt(twarze.size()));
-	  n=ceil(sqrt(twarze.size()));
+	finder.detectMultiScale(eq,faces,1.3);
+	if(!faces.empty()){
+	  m=floor(sqrt(faces.size()));
+	  n=ceil(sqrt(faces.size()));
 	  mid.create(rozm.height*m,rozm.width*n,eq.type());
 	  int i=0;
 	    
-	  for(vector<Rect>::iterator it=twarze.begin();
-	      it!=twarze.end();++it,++i){
+	  for(vector<Rect>::iterator it=faces.begin();
+	      it!=faces.end();++it,++i){
 	    it->y-=(it->height)*FACE_FACTOR/2;
 	    it->height*=(1+FACE_FACTOR);
-	    cerr<<rozm.width<<" "<<rozm.height<<endl;
-	    rectangle(gemben,
+	    //	    cerr<<rozm.width<<" "<<rozm.height<<endl;
+	    rectangle(facePics,
 		      Point(it->x,it->y),
 		      Point(it->x+it->width,it->y+it->height),
 		      Scalar(255,0,0));
@@ -121,14 +116,15 @@ int main(int argc,char **argv){
 			       rozm.height*(i%m),
 			       rozm.width,rozm.height));
 	    resize(Mat(eq,(*it)),midPt,midPt.size(),0,0,CV_INTER_LINEAR);
-	    if(twarze.size()==1){
+	    if(faces.size()==1){
 	      galleries.add(label,midPt);
+	      cerr<<++counter<<endl;
 	    }
 	  }
 	}
 	if(ster!='q'){
-	   if(!twarze.empty()){
-	    imshow("input",gemben);
+	   if(!faces.empty()){
+	    imshow("input",facePics);
 	    imshow("faces",mid);
 	  }
 	  ster=waitKey(10);
