@@ -42,12 +42,6 @@ SVMRec::SVMRec(){
 
 
 /*!
- * Function initialising the whole structure, separate from constructor to let 
- * the initialisation moment be delayed
- *
- */
-
-/*!
  * Method loading galleries of images to internal structures of object
  *
  * \param galleries - object containing images that will be saved in this 
@@ -88,86 +82,19 @@ void SVMRec::loadGalleries(Galleries& galleries){
   }
 }
 
-// void SVMRec::loadPrecomputedGalleries(const string& path){
-//   clear();
-//   try{
-//     FileStorage fs(path,FileStorage::READ);
-//     if(!fs.isOpened()){
-//       cv::Exception err(CANNOT_OPEN_FILE,
-// 			"file cannot be opened",
-// 			__func__,__FILE__,__LINE__);
-//       throw err;
-//     }
-    
-//     // fs[DATA]>>_data;
-//     fs[VECTORS]>>_vectors;
-//     //fs[ICOVAR]>>_icovar;
-//     fs[EIGENVECTORS]>>_pca.eigenvectors;
-//     fs[EIGENVALUES]>>_pca.eigenvalues;
-//     fs[MEAN]>>_pca.mean;
-
-
-//     FileNode fn=fs[LABEL_NR];
-//     for(FileNodeIterator it=fn.begin();it!=fn.end();++it){
-//       _labelNr.push_back((int)(*it));
-//     }
-    
-    
-//     fs.release();
-//   }
-//   catch(Exception ex){
-//     cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
-// 	<<" in function "<<__func__<<endl;
-//     throw ex;
-//   }
-// }
-
-// void SVMRec::savePrecomputedGalleries(const string& path){
-//   try{
-//     FileStorage fs(path,FileStorage::WRITE);
-//     if(!fs.isOpened()){
-//       cv::Exception err(CANNOT_OPEN_FILE,
-// 			"file cannot be opened",
-// 			__func__,__FILE__,__LINE__);
-//       throw err;
-//     }
-  
-
-//     fs
-//       //      <<DATA<<_data
-//       <<VECTORS<<_vectors
-//       //<<ICOVAR<<_icovar
-//       <<EIGENVECTORS<<_pca.eigenvectors
-//       <<EIGENVALUES<<_pca.eigenvalues
-//       <<MEAN<<_pca.mean
-//       <<LABEL_NR<<"[";
-//     for(list<int>::iterator it=_labelNr.begin();
-// 	it!=_labelNr.end();++it){
-//       fs<<(*it);
-//     }
-//     fs<<"]";
-//   }
-//   catch(Exception ex){
-//     cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
-// 	<<" in function "<<__func__<<endl;
-//     throw ex;
-//   }
-// }
-
-
 /*!
  * Method allowing to load previously computed SVMs 
  *
- * \param path - path to xml file containing prevoiusly saved SVMs
+ * \param target - target to xml file containing prevoiusly saved SVMs
  *
- * \pre path points to a file created with SVMRec::savePrecomputedGalleries or
+ * \pre target points to a file created with SVMRec::savePrecomputedGalleries or
  * containig the informations contained by previously mentioned
  */
 
-void SVMRec::loadPrecomputedGalleries(const string& path){
+void SVMRec::loadPrecomputedGalleries(const string& target){
   clear();
   try{
-    FileStorage fs(path,FileStorage::READ);
+    FileStorage fs(target,FileStorage::READ);
     if(!fs.isOpened()){
       cv::Exception err(CANNOT_OPEN_FILE,
 			"file cannot be opened",
@@ -179,18 +106,11 @@ void SVMRec::loadPrecomputedGalleries(const string& path){
       Mat tmp,tmp2;
 
       int rows,cols,type;
-      // fs[DATA]>>path;
-      // fs[DATA_ROWS]>>rows;
-      // fs[DATA_COLS]>>cols;
-      // fs[DATA_TYPE]>>type;
-      // readFromBinary(_data,path,Size(cols,rows),type);
       fs[VECTORS]>>path;
       fs[VEC_ROWS]>>rows;
       fs[VEC_COLS]>>cols;
       fs[VEC_TYPE]>>type;
       readFromBinary(_vectors,path,Size(cols,rows),type);
-      // fs[ICOVAR]>>path;
-      // readFromBinary(_icovar,path,Size(cols,rows),type);
       fs[EIGENVECTORS]>>path;
       fs[EIGEN_ROWS]>>rows;
       fs[EIGEN_COLS]>>cols;
@@ -220,27 +140,6 @@ void SVMRec::loadPrecomputedGalleries(const string& path){
     }
     fs.release();
     
-    // {//SVM training
-    //   for(int i=0;i<=_labelNr.back();++i){
-    // 	vector<int> res;
-    // 	for(list<int>::iterator it=_labelNr.begin();
-    // 	    it!=_labelNr.end();++it){
-    // 	  if((*it)==i){
-    // 	    res.push_back(NEGATIVE);
-    // 	  }else{
-    // 	    res.push_back(POSITIVE);
-    // 	  }
-    // 	}
-
-    // 	_svms.push_back(CvSVM());
-    // 	_svms.back().train(_vectors,Mat(res));
-    // 	cerr<<_svms.length()<<endl;
-    // 	//_svms.back().train_auto(_vectors,Mat(res),Mat(),Mat(),CvSVMParams());
-	
-    //   }
-    // }
-
-
   }
   catch(Exception ex){
     cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
@@ -434,7 +333,7 @@ void SVMRec::clear(){
  * loadPrecomputedGalleries method was succcesfully used
  */
 
-list<Result> SVMRec::recognise(const string& target){
+std::list<Result> SVMRec::recognise(const string& target){
   Mat img=imread(target);
   return recognise(img);
 }
@@ -452,7 +351,7 @@ list<Result> SVMRec::recognise(const string& target){
  * loadPrecomputedGalleries method was succcesfully used
  */
 
-list<Result> SVMRec::recognise(Mat& img){
+std::list<Result> SVMRec::recognise(cv::Mat& img){
 
   Mat tmp,eq,vec,in;
   std::list<Result> results;

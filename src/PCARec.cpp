@@ -39,12 +39,6 @@ PCARec::PCARec(){
   name="PCA";
 }
 
-/*!
- * Function initialising the whole structure, separate from constructor to let 
- * the initialisation moment be delayed
- *
- */
-
 
 /*!
  * Method loading galleries of images to internal structures of object
@@ -90,16 +84,16 @@ void PCARec::loadGalleries(Galleries& galleries){
 /*!
  * Method allowing to load previously computed PCA 
  *
- * \param path - path to xml file containing prevoiusly saved PCA
+ * \param target - target to xml file containing prevoiusly saved PCA
  *
- * \pre path points to a file created with PCARec::savePrecomputedGalleries or
+ * \pre target points to a file created with PCARec::savePrecomputedGalleries or
  * containig the informations contained by previously mentioned
  */
 
-void PCARec::loadPrecomputedGalleries(const string& path){
+void PCARec::loadPrecomputedGalleries(const string& target){
   clear();
   try{
-    FileStorage fs(path,FileStorage::READ);
+    FileStorage fs(target,FileStorage::READ);
     if(!fs.isOpened()){
       cv::Exception err(CANNOT_OPEN_FILE,
 			"file cannot be opened",

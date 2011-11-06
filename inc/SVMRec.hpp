@@ -45,11 +45,11 @@ class SVMRec:public Rec{
 public:
   SVMRec();
   virtual void loadGalleries(Galleries& galleries);
-  virtual void loadPrecomputedGalleries(const std::string& path);
-  virtual void savePrecomputedGalleries(const std::string& path);
+  virtual void loadPrecomputedGalleries(const std::string& target);
+  virtual void savePrecomputedGalleries(const std::string& target);
   virtual void compute();
   virtual void clear();
-  virtual std::list<Result> recognise(const std::string& path);
+  virtual std::list<Result> recognise(const std::string& target);
   virtual std::list<Result> recognise(cv::Mat& img);
   virtual ~SVMRec();
 };

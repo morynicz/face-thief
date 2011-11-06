@@ -15,6 +15,20 @@ using std::list;
 using std::cerr;
 using std::endl;
 
+/*!
+ * Assertion method. If ppr operation was not succesfull, throws proper
+ * exception
+ *
+ * \param err - value returned by ppr function
+ * \param func - meant to recieve __func__
+ * \param file - meant to recieve __FILE__
+ * \param line - meant to recieve __LINE__
+ *
+ * By using func, file and line, exception thrown contains information about
+ * function in which unsuccesfull operation ocured, not about this function.
+ *
+ */
+
 void PPRec::eC(ppr_error_type err,string func,string file,int line){
   if(err!= PPR_SUCCESS){
     Exception ex(PITTPATT_ERROR,ppr_error_message(err),func,file,line);
@@ -23,9 +37,17 @@ void PPRec::eC(ppr_error_type err,string func,string file,int line){
 }
 
 
-
+/*!
+ * Constructor initialising name field
+ */
 
 PPRec::PPRec(){name="PPR";}
+
+/*!
+ * Function initialising the whole structure, separate from constructor to let 
+ * the initialisation moment be delayed
+ *
+ */
 
 void PPRec::initialise(){
   modelPath="../../pittpatt/pittpatt_sdk/models/";
@@ -88,13 +110,22 @@ void PPRec::initialise(){
     
 }
 
+/*!
+ * Method loading galleries of images to internal structures of object
+ * and creating ppr gallery for recognition
+ *
+ * \param galleries - object containing images that will be saved in this 
+ * object
+ *
+ * \post Method recognise may be used safely now
+ */
+
 void PPRec::loadGalleries(Galleries& galleries){
   ppr_image_type pImg;
   ppr_object_list_type oList;
   ppr_template_type pTemplate;
   ppr_object_suitability_type recAble;
   std::stringstream sbuff;
-  // cerr<<galleries.totalSize()<<endl;
   try{  
     for(int i=0;i<galleries.totalSize();++i){
       for(int j=0;j<galleries.gallerySize(i);++j){
@@ -165,9 +196,21 @@ void PPRec::loadGalleries(Galleries& galleries){
   }
 }
 
-void PPRec::loadPrecomputedGalleries(const string& path){
+
+/*!
+ * Method allowing to load previously computed galleries
+ *
+ * \param target - target to file containing prevoiusly saved ppr galleries 
+ *
+ * \pre target points to a file created with PPRec::savePrecomputedGalleries or
+ * containig the informations contained by previously mentioned
+ *
+ * \post Method recognise may be used safely now
+ */
+
+void PPRec::loadPrecomputedGalleries(const string& target){
   try{
-    eC(ppr_read_gallery_with_subject_list(context,path.c_str(),&pGallery,
+    eC(ppr_read_gallery_with_subject_list(context,target.c_str(),&pGallery,
 					  &sList),
 	   __func__,__FILE__,__LINE__);
     string label;
@@ -197,10 +240,17 @@ void PPRec::loadPrecomputedGalleries(const string& path){
     throw ex;
   }
 }
+
+/*!
+ * Method allowing to save computed ppr gallery to file
+ *
+ * \param target - path and name of ppr gallery file
+ *
+ */
   
-void PPRec::savePrecomputedGalleries(const string& path){
+void PPRec::savePrecomputedGalleries(const string& target){
   try{
-    eC(ppr_write_gallery_with_subject_list(context,path.c_str(),pGallery,
+    eC(ppr_write_gallery_with_subject_list(context,target.c_str(),pGallery,
 					   sList),
        	   __func__,__FILE__,__LINE__);
   }
@@ -211,13 +261,34 @@ void PPRec::savePrecomputedGalleries(const string& path){
   }
 }
 
+/*!
+ * This method does nothing, because all computing is done in method
+ * load galleries
+ */
+
 void PPRec::compute(){
   //all is done in load gallery
 }
 
+/*!
+ * Method meant to clear up the object. Right now does nothing
+ */
+
 void PPRec::clear(){
 
 }
+
+/*!
+ * Method allows to use PPRec to classify pattern on image pointed by target
+ * 
+ * \param target - image to be classified
+ *
+ * \return Ranked list of Result objects, sorted descending by mean value
+ *
+ * \pre Image pointed by target has the same number of pixels as images from 
+ * galleries used for computing ppr galleries. loadGalleries, or 
+ * loadPrecomputedGalleries method was succcesfully used
+ */
 
 list<Result> PPRec::recognise(const string& path){
   try{
@@ -231,6 +302,19 @@ list<Result> PPRec::recognise(const string& path){
     throw ex;
   }
 }
+
+/*!
+ * Method allows to use PPRec to recognise data in img object
+ *
+ * \param img - object containing data to be classified
+ *
+ * \return Ranked list of Result objects, sorted descending by mean value
+ *
+ * \pre Img contains the same number of values as images from 
+ * galleries used for computing ppr galleries. loadGalleries, or 
+ * loadPrecomputedGalleries method was succcesfully used
+ */
+
 
 list<Result> PPRec::recognise(Mat &img){
   ppr_image_type pImg;
@@ -367,6 +451,10 @@ list<Result> PPRec::recognise(Mat &img){
   }
   return results;
 }
+
+/*!
+ * Destructor. Cleans up objects created by PittPatt 
+ */
 
 PPRec::~PPRec(){
   ppr_free_gallery(pGallery);

@@ -1,7 +1,6 @@
 SHELL=/bin/bash
-#PITPATT_HOST="rab"
-HOST=$(shell hostname)
-HUST=$(HOSTNAME)
+# HOST=$(shell hostname)
+# HUST=$(HOSTNAME)
 
 
 INCLUDES= -Iinc \
@@ -17,12 +16,6 @@ LIBS=-lopencv_core \
 	-lboost_filesystem 
 
 -include makefile.local
-
-# ifeq (${HOST}, ${PITTPATT_HOST})
-# PP_LIBS= -lpittpatt_ftr_sdk \
-# 	-lpittpatt_raw_image \
-# 	-lpittpatt_recognition_core  
-# endif
 
 CFLAGS=${INCLUDES} -g -O0 -Wall -pedantic -Wno-sign-compare
 
@@ -76,7 +69,8 @@ ${OBJ}: obj/%.o: src/%.cpp inc/*.hpp
 	$(CC) -o $@ $< -c ${CFLAGS} 
 
 clean:
-	rm obj/* ${VID} ${M_GAL} ${S_GAL} ${POR}
+	rm -f obj/* ${VID} ${M_GAL} ${S_GAL} ${POR} ${M_GAL} ${COMP}
+	make -C doc clean
 
 GAL_FOLD=galleries
 VID_FOLD=video
@@ -90,3 +84,6 @@ $(GALERIE): $(GAL_FOLD)/%: $(VID_FOLD)/%.avi
 
 PRECOMPUTE: $(GALERIE)
 	./${COMP} $(GAL_FOLD) 
+
+documentation:
+	make -C doc
