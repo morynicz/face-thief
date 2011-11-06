@@ -1,61 +1,61 @@
-#include "Lapacz.hpp"
+#include "Catcher.hpp"
 
 #include <iostream>
 
 using namespace std;
 
-Lapacz::Kamera::Kamera(const int &nr,
+Catcher::Camera::Camera(const int &nr,
 		       cv::Mat *mat,
-		       boost::mutex *mtx):kam(nr){
+		       boost::mutex *mtx):cam(nr){
  
-  if(!kam.isOpened()){
+  if(!cam.isOpened()){
     cv::Exception err(CATCH_CANNOT_OPEN_DEVICE,
 		      "file cannot be opened",
 		      __func__,__FILE__,__LINE__);
     throw err;
   }
-  kl=mat;
+  fr=mat;
   mut=mtx;
   frameRate=0;
 }
 
-Lapacz::Kamera::Kamera(const std::string &name,
+Catcher::Camera::Camera(const std::string &name,
 		       cv::Mat *mat,
-		       boost::mutex *mtx):kam(name){
+		       boost::mutex *mtx):cam(name){
   
-  if(!kam.isOpened()){
+  if(!cam.isOpened()){
     cv::Exception err(CATCH_CANNOT_OPEN_FILE,
 		      "file cannot be opened",
 		      __func__,__FILE__,__LINE__);
     throw err;
   }
-  kl=mat;
+  fr=mat;
   mut=mtx;
-  frameRate=kam.get(CV_CAP_PROP_FPS);
+  frameRate=cam.get(CV_CAP_PROP_FPS);
   cerr<<frameRate<<endl;
   if(frameRate<=0){
     frameRate=30;
   }
 }
 
-Lapacz::Kamera::~Kamera(){
+Catcher::Camera::~Camera(){
 }
 
 
-void Lapacz::Kamera::operator()(){
+void Catcher::Camera::operator()(){
   // namedWindow("raw_capture",CV_WINDOW_NORMAL);
   if(frameRate>0){
-    int waitTime=1000/frameRate;
+    //   int waitTime=1000/frameRate;
     while(!boost::this_thread::interruption_requested()){
       mut->lock();
       //     waitKey(waitTime);
-      kam>>(*kl);
+      cam>>(*fr);
       mut->unlock();
     }
   }else{
     while(!boost::this_thread::interruption_requested()){
       mut->lock();
-      kam>>(*kl);
+      cam>>(*fr);
       mut->unlock();
     }
   }
@@ -63,56 +63,56 @@ void Lapacz::Kamera::operator()(){
 
 
     
-Lapacz::Lapacz(){
+Catcher::Catcher(){
   mut=NULL;
-  wat=NULL;
+  thr=NULL;
 }
 
-void Lapacz::init(const int &nr){
-  if(wat!=NULL){
-    wat->interrupt();
-    wat->join();
-    delete wat;
-    wat=NULL;
+void Catcher::init(const int &nr){
+  if(thr!=NULL){
+    thr->interrupt();
+    thr->join();
+    delete thr;
+    thr=NULL;
   }
   if(mut!=NULL){
     delete mut;
   }
   mut=new boost::mutex;
-  kam=Kamera(nr,&kl,mut);
-  wat=new boost::thread(boost::ref(kam));
+  cam=Camera(nr,&fr,mut);
+  thr=new boost::thread(boost::ref(cam));
 }
 
-void Lapacz::init(const std::string& name){
-  if(wat!=NULL){
-    wat->interrupt();
-    wat->join();
-    delete wat;
-    wat=NULL;
+void Catcher::init(const std::string& name){
+  if(thr!=NULL){
+    thr->interrupt();
+    thr->join();
+    delete thr;
+    thr=NULL;
   }
   if(mut!=NULL){
     delete mut;
   }
   mut=new boost::mutex;
-  kam=Kamera(name,&kl,mut);
-  wat=new boost::thread(boost::ref(kam));
+  cam=Camera(name,&fr,mut);
+  thr=new boost::thread(boost::ref(cam));
 }
 
 
-Lapacz::~Lapacz(void){
-  if(wat){
-    wat->interrupt();
-    wat->join();
-    delete wat;
+Catcher::~Catcher(void){
+  if(thr){
+    thr->interrupt();
+    thr->join();
+    delete thr;
   }
   if(mut){
     delete mut;
   }
 }
 
-void Lapacz::stopKlatka(cv::Mat& klatka){
+void Catcher::catchFrame(cv::Mat& frame){
   mut->lock();
-  klatka=kl.clone();
+  frame=fr.clone();
   mut->unlock();
 }
 

@@ -278,14 +278,12 @@ void SVMRec::compute(){
     _pca(_data,Mat(),CV_PCA_DATA_AS_ROW);
     _pca.project(_data,_vectors);
 
-    //    cerr<<_data.cols<<" "<<_data.rows<<endl;
     {
       CvSVMParams params;
       params.svm_type=CvSVM::C_SVC;
       params.kernel_type=CvSVM::RBF;
       params.C=2;
       params.gamma=2;
-      //      params.term_crit=
       for(int i=0;i<=_labelNr.back();++i){
 	vector<int> res;
 	for(list<int>::iterator it=_labelNr.begin();
@@ -301,13 +299,12 @@ void SVMRec::compute(){
 	//_svms.back().train(_vectors,Mat(res));
 	cerr<<_svms.size()<<endl;
 	_svms.back().train_auto(_vectors,Mat(res),Mat(),Mat(),params);
-	//	_svms.back().train(_vectors,Mat(res),Mat(),Mat(),params);
       }
     }
   }
   catch(Exception ex){
     cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
-	<<" in fucntion "<<__func__<<endl;
+	<<" in function "<<__func__<<endl;
     throw ex;
   } 
 }
@@ -355,7 +352,7 @@ std::list<Result> SVMRec::recognise(cv::Mat& img){
 
   Mat tmp,eq,vec,in;
   std::list<Result> results;
-  std::list<int>::iterator it=_labelNr.begin();
+  std::list<int>::iterator lit=_labelNr.begin();
     
   try{//image preprocessing
     if(img.channels()!=1){

@@ -1,8 +1,12 @@
 #include <iostream>
 #include "thread.hpp"
-#include "opencv2/opencv.hpp"
-#include "opencv2/gpu/gpu.hpp"
+// #include "opencv2/opencv.hpp"
+// #include "opencv2/gpu/gpu.hpp"
+// #include "opencv2/highgui/highgui.hpp"
+#include "opencv2/core/core.hpp"
+#include "opencv2/objdetect/objdetect.hpp"
 #include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
 #include <vector>
 #include <list>
 #include <cmath>
@@ -24,7 +28,7 @@
 #endif
 #include <sstream> //do nazw plików
 
-#include "Lapacz.hpp"
+#include "Catcher.hpp"
  
 //#define PCAREC
 //#define PCAREC_PRECOMPUTED
@@ -76,7 +80,7 @@ int main(int argc,char **argv){
     return 1;
   }
   string option=argv[2];
-  Lapacz kam;
+  Catcher kam;
   VideoCapture vid;
   int vc;
   // return 0;
@@ -258,7 +262,7 @@ int main(int argc,char **argv){
        
 	try{
 	  if(-1==vc){
-	  kam.stopKlatka(obr);
+	  kam.catchFrame(obr);
 	  }else if(1==vc){
 	    vid>>obr;
 	  }else{

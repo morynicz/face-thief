@@ -28,7 +28,7 @@
 #endif
 #include <sstream> //do nazw plików
 
-#include "Lapacz.hpp"
+//#include "Lapacz.hpp"
 
 #define PCAREC
 //#define PCAREC_PRECOMPUTED

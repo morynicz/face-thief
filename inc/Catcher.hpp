@@ -3,44 +3,44 @@
 #include "opencv2/highgui/highgui.hpp"
 //#include <iostream>
 #include <string>
-#ifndef LAPACZ_HPP
-#define LAPACZ_HPP
+#ifndef CATCHER_HPP
+#define CATCHER_HPP
 
 using namespace cv;
 
 static const int CATCH_CANNOT_OPEN_DEVICE=-1;
 static const int CATCH_CANNOT_OPEN_FILE=-2;
 
-class Lapacz{
-  cv::Mat kl;
+class Catcher{
+  cv::Mat fr;
   boost::mutex *mut;
-  boost::thread* wat;
+  boost::thread* thr;
 
-  class Kamera{
+  class Camera{
     int frameRate;
-    cv::VideoCapture kam;
-    cv::Mat *kl;
+    cv::VideoCapture cam;
+    cv::Mat *fr;
     boost::mutex *mut;
   public:
-      Kamera(){ 
+      Camera(){ 
 	mut=NULL;
       }
-    Kamera(const int &nr,
+    Camera(const int &nr,
 	   cv::Mat *mat,
 	   boost::mutex *mtx);
-    Kamera(const std::string &name,
+    Camera(const std::string &name,
 	   cv::Mat *mat,
 	   boost::mutex *mtx);
     void  operator()();
-    ~Kamera();
+    ~Camera();
   };
-  Kamera kam;
+  Camera cam;
 public:
-  Lapacz();
+  Catcher();
   void init(const int &nr);
   void init(const std::string &name);
-  ~Lapacz(void);
-  void stopKlatka(cv::Mat& klatka);
+  ~Catcher(void);
+  void catchFrame(cv::Mat& frame);
 };
 
 #endif

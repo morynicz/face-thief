@@ -1,6 +1,6 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/core/core.hpp"
-#include "Lapacz.hpp"
+//#include "Lapacz.hpp"
 #include <iostream>
 #include <cstdlib>
 

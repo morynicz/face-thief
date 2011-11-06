@@ -13,6 +13,14 @@ struct Result{
   double min;
   double max;
 };
+/// Function returning if a is greater than b i tearms of Mean
+
+/*!
+ * \param a - first component
+ * \param b- second component
+ *
+ * return a.mean>b.mean 
+*/
 
 inline bool compareMeanResults(const Result &a,const Result &b){
   return a.mean>b.mean;
@@ -25,7 +33,6 @@ inline bool compareMinResults(const Result &a,const Result &b){
 ///
 class Rec{
 protected:
-  Galleries _gal;
   std::string name;
 public:
   Rec(){}

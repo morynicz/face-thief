@@ -28,17 +28,17 @@ VID=videoKreator
 DET=detektor
 COMP=computer
 
-S_GAL_OBJ=obj/CapToGal.o obj/Lapacz.o obj/Galleries.o
-M_GAL_OBJ= obj/VideoToGal.o obj/Lapacz.o obj/Galleries.o
-VID_OBJ=obj/VideoCap.o obj/Lapacz.o
-POR_OBJ=obj/Comparator.o obj/Lapacz.o obj/Galleries.o \
+S_GAL_OBJ=obj/CapToGal.o obj/Catcher.o obj/Galleries.o
+M_GAL_OBJ= obj/VideoToGal.o obj/Catcher.o obj/Galleries.o
+VID_OBJ=obj/VideoCap.o obj/Catcher.o
+POR_OBJ=obj/Comparator.o obj/Catcher.o obj/Galleries.o \
 	obj/PCARec.o obj/SVMRec.o obj/ocv2pit.o obj/PPRec.o obj/Rec.o
-DET_OBJ=obj/Detector.o obj/Lapacz.o obj/Galleries.o \
+DET_OBJ=obj/Detector.o obj/Catcher.o obj/Galleries.o \
 	obj/PCARec.o obj/SVMRec.o obj/ocv2pit.o obj/PPRec.o obj/Rec.o
 COMP_OBJ=obj/PCARec.o obj/SVMRec.o obj/PPRec.o obj/Computer.o \
 	obj/Galleries.o obj/ocv2pit.o obj/Rec.o
 
-OBJ= obj/CapToGal.o obj/Lapacz.o obj/Galleries.o obj/Comparator.o  \
+OBJ= obj/CapToGal.o obj/Catcher.o obj/Galleries.o obj/Comparator.o  \
 	obj/PCARec.o obj/SVMRec.o obj/VideoCap.o obj/VideoToGal.o \
 	obj/ocv2pit.o obj/PPRec.o obj/Detector.o obj/Computer.o obj/Rec.o
 

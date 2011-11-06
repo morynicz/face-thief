@@ -12,7 +12,7 @@
 
 #include <sstream> //do nazw plików
 
-#include "Lapacz.hpp"
+#include "Catcher.hpp"
 
 using namespace cv;
 using namespace std;
@@ -49,7 +49,7 @@ int main(int argc,char **argv){
 
   vector<Rect> faces; 
 
-  Lapacz cap;
+  Catcher cap;
   cap.init(0);
 
   CascadeClassifier finder;
@@ -79,7 +79,7 @@ int main(int argc,char **argv){
   
    while(control!='q'){
     try{
-      cap.stopKlatka(img);
+      cap.catchFrame(img);
       img.copyTo(facePics);
       cvtColor(img,bw,CV_RGB2GRAY);
       equalizeHist(bw,eq);
