@@ -34,7 +34,7 @@ int main(int argc,char **argv){
   int outWidth=200;
   int outHeight=static_cast<int>(outWidth+FACE_FACTOR*outWidth);
 
-  Size rozm(outWidth,outHeight);
+  Size rozm(OUT_WIDTH,OUT_HEIGHT);
   string adres,label;
 
   Galleries galleries;

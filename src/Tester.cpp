@@ -1,7 +1,4 @@
 #include <iostream>
-//#include "thread.hpp"
-//#include "opencv2/opencv.hpp"
-//#include "opencv2/gpu/gpu.hpp"
 #include "opencv2/core/core.hpp"
 #include "opencv2/objdetect/objdetect.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -25,7 +22,7 @@
 
 #endif
 #include <sstream> //do nazw plików
-
+#include <algorithm>
 
 
 
@@ -46,60 +43,177 @@ int main(int argc,char **argv){
   Mat bw;
   Mat gemben;
 
-  int outWidth=200;
-  int outHeight=outWidth+FACE_FACTOR*outWidth;
   string zdjecie;
 
   Size rozm(OUT_WIDTH,OUT_HEIGHT);
   
-  string adres;
+  string trainAddress;
+  string validAddress;
 
-  Galleries galleries;
-  //long counter=1;
+  Galleries mainGalleries;
+  Galleries trainGalleries;
+  Galleries validGalleries;
 
   vector<Rect> twarze; 
-  vector<Rec*> alg;
-  //  Lapacz kam(0);
-
-  CascadeClassifier szukacz;
   
-  // szukacz.load(argv[1]);
+  vector<string> galAddresses;
+
+  int noOfSubsets;
+
  
-  if(argc<2){
+  if(argc!=3){
     cerr<<"Error: incorrect number of arguments. Correct invocation:"<<endl
-	<<argv[0]<<" galleries_folder [photo_for_recognition]"<<endl;
+	<<argv[0]<<" galleries_folder no_of_subsets"<<endl;
     return 1;
   }
-  adres=argv[1];
-  szukacz.load("kaskady/haarcascade_frontalface_alt_tree.xml");
-  if(argc==3){
-    zdjecie=argv[2];
-  }
-  Mat do_golenia;
-  //  Mat kompresowany;
-  do_golenia=imread(zdjecie);
-  // wczytywanie galerii zdjęć
+
+  //  noOfSubsets=atoi(argv[2]);
+  noOfSubsets=3;
   try{
-    galleries.setPath(adres);
-    galleries.load("galeria.xml");
+    trainGalleries.setPath(argv[1]);
+    trainGalleries.load("galeria.xml");
+    trainGalleries.createKSubsets(noOfSubsets,"sub",galAddresses);
   }
   catch(Exception ex){
     cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
-	<<" in fucntion "<<__func__;
+	<<" in fucntion "<<__func__<<endl;
     cerr<<ex.code<<endl<<ex.err<<endl<<ex.func<<endl<<ex.line<<endl;
   }
   
   cout<<"hi thar"<<endl;
-  //  Mat pomiar=imread(zdjecie);
 
 
    boost::timer time;
-
    
+   // vector<bool> selector;
+   // selector.resize(noOfSubsets);
+
+   double score=0;
+
+   for(int i=0;i<noOfSubsets;++i){
+    
+     double ptScore=0;
+     Galleries validation;
+     Galleries training;
+     validation.setPath(argv[1]);
+     training.setPath(argv[1]);
+     for(int j=0;j<noOfSubsets;++j){
+       if(i==j){
+	 validation.load(galAddresses[j]);
+       }else{
+	 training.load(galAddresses[j]);
+       }
+     }
+
+     vector<Rec*> alg;
+
+
+ 
+#ifdef PITTPATT_PRESENT
+     alg.push_back(new PPRec);
+#endif
+     
+#ifdef PCAREC
+    alg.push_back(new PCARec);
+#endif
+#ifdef SVMREC
+    alg.push_back(new SVMRec);
+#endif
+    
+    for(int z=0;z<alg.size();++z){
+      cout<<alg[z]->getName()<<" initialisng"<<endl;
+      time.restart();
+      alg[z]->initialise();
+      cout<<alg[z]->getName()<<" initialised"<<endl;
+      cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
+	  <<fmod(time.elapsed(),60) <<"s"<<endl;
+      cout<<alg[z]->getName()<<" galleries loading"<<endl;
+      time.restart();
+      alg[z]->loadGalleries(training);
+      cout<<alg[z]->getName()<<" galleries loaded"<<endl;
+      cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
+      	  <<fmod(time.elapsed(),60) <<"s"<<endl;
+
+      cout<<alg[z]->getName()<<" computing"<<endl;
+      time.restart();
+      alg[z]->compute();
+      cout<<alg[z]->getName()<<" computed"<<endl;
+      
+      cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
+      	   <<fmod(time.elapsed(),60) <<"s"<<endl;
+      time.restart();
+    } 
+    
+    {
+      int numberOfPhotos=0;
+      for(int j=0;j<validation.totalSize();++j){
+	numberOfPhotos+=validation.gallerySize(j);
+      }
+
+      for(int j=0;j<validation.totalSize();++j){
+	string label=validation.getGalleryLabel(j);
+	for(int k=0;k<validation.gallerySize(j);++k){
+	  Mat image=validation.getPicture(j,k);
+	  try{
+	    string bestMatch;
+	    for(int z=0;z<alg.size();++z){
+	      try{
+		cout<<alg[z]->getName()<<" recognising"<<endl;
+		time.restart();
+		Mat tmp=eq.clone();
+		std::list<Result> wyniki=alg[z]->recognise(image);
+		cout<<alg[z]->getName()<<" recognised "<<endl;
+		for(std::list<Result>::iterator sit=wyniki.begin();
+		    sit!=wyniki.end();++sit){
+		  
+		  cout<<training.getGalleryLabel(sit->label)<<" "<<sit->mean
+		      <<" "<<sit->max<<" "<<sit->min<<endl;
+		}
+	    
+		if(!wyniki.empty()){
+		  bestMatch=training.getGalleryLabel(wyniki.front().label);
+		  cerr<<endl<<alg[z]->getName()+" "+bestMatch
+		      <<endl<<endl;
+		  if(bestMatch==label){
+		    ptScore+=1;
+		  }
+		}	
+		cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
+		    <<fmod(time.elapsed(),60) <<"s"<<endl;
+	      }
+	      catch(Exception ex){
+		cerr<<ex.code<<" "<<ex.err<<endl
+		    <<ex.func<<endl<<ex.line<<endl;
+	      }
+	    }
+	  }
+	  catch(Exception ex){
+	    cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
+		<<" in function "<<__func__;
+	    cerr<<ex.code<<endl<<ex.err<<endl<<ex.func<<endl<<ex.line<<endl;
+	  }
+	}
+      }
+      ptScore/=numberOfPhotos;
+      cout<<"ptScore: "<<ptScore;
+      score+=ptScore;
+    }
+    for(int k=0;k<alg.size();++k){
+      delete alg[k];
+    }
+   }
+
+   score/=noOfSubsets;
+   
+   cout<<"Recognition score: "<<score*100<<"%"<<endl;
+   
+   return 0;
+}
+   /*
 #ifdef PITTPATT_PRESENT
       cout<<"PPR initialisng"<<endl;
       time.restart();
-      //      PPRec pp;
+    
       alg.push_back(new PPRec);
       alg.back()->initialise();
       cout<<"PPR initialised"<<endl;
@@ -210,126 +324,4 @@ int main(int argc,char **argv){
 	<<fmod(time.elapsed(),60) <<"s"<<endl;
 #endif
 #endif
-
-    {//Control loop
-      Mat obr;
-      int m,n;
-      char control;
-      if(argc==3)
-	control='\000';
-      else
-	control='u';
-
-      namedWindow("skanowane",CV_WINDOW_NORMAL|CV_WINDOW_KEEPRATIO);
-      namedWindow("in",CV_WINDOW_NORMAL);
-      namedWindow("znalezione",CV_WINDOW_NORMAL);
-      long counter=0;
-    while(control!='n'){
-       
-	try{
-	  if(control!='r'&&control!='\000'){
-	    cout<<"podaj nazwe zdjęcia do wczytania: "<<endl;
-	    cin>>zdjecie;
-	  }
-	  obr=imread(zdjecie);
-	  if(obr.empty()){
-	    cerr<<"nie ma takiego zdjęcia!"<<endl;
-	    continue;
-	  }
-	  obr.copyTo(gemben);
-	  cvtColor(obr,bw,CV_RGB2GRAY);
-	  equalizeHist(bw,eq);
-	  imshow("in",obr);
-	}
-	catch(Exception ex){
-	  cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
-	      <<" in function "<<__func__<<endl;
-	  throw ex;
-	}   
-	try{
-	  szukacz.detectMultiScale(eq,twarze,1.3);
-	  if(!twarze.empty()){
-	    m=floor(sqrt(twarze.size()));
-	    n=ceil(sqrt(twarze.size()));
-	    mid.create(rozm.height*m,rozm.width*n,eq.type());
-	    int i=0;
-	 
-	    for(vector<Rect>::iterator it=twarze.begin();
-		it!=twarze.end();++it,++i){
-	      it->y-=(it->height)*FACE_FACTOR/2;
-	      it->height*=(1+FACE_FACTOR);
-	      rectangle(gemben,
-			Point(it->x,it->y),
-			Point(it->x+it->width,it->y+it->height),
-			Scalar(255,0,0));
-
-	      Mat midPt=mid(Rect(rozm.width*(i/n),
-				 rozm.height*(i%m),
-				 rozm.width,rozm.height));
-	      resize(Mat(eq,(*it)),midPt,midPt.size(),0,0,CV_INTER_LINEAR);
-	  
-	      {
-		string bestMatch;
-		for(int z=0;z<alg.size();++z){
-		  try{
-		    cout<<alg[z]->getName()<<" recognising"<<endl;
-		    time.restart();
-		    Mat tmp=eq.clone();
-		    std::list<Result> wyniki=alg[z]->recognise(tmp);
-		    cout<<alg[z]->getName()<<" recognised "<<endl;
-		    for(std::list<Result>::iterator sit=wyniki.begin();
-			sit!=wyniki.end();++sit){
-		      //  cerr<<sit->label<<endl;
-		      cout<<galleries.getGalleryLabel(sit->label)<<" "<<sit->mean
-			  <<" "<<sit->max<<" "<<sit->min<<endl;
-		    }
-		   
-		    if(!wyniki.empty()){
-		      bestMatch=galleries.getGalleryLabel(wyniki.front().label);
-		      cerr<<endl<<alg[z]->getName()+" "+bestMatch
-			  <<endl<<endl;
-		    }		    
-		    putText(gemben,alg[z]->getName()+" "+bestMatch,
-		    	    Point(it->x,it->y+it->height+(z*2.5+2)*10),
-		    	    FONT_HERSHEY_SIMPLEX,
-		    	    1,Scalar(0,255,0),2);
-		    cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
-			<<fmod(time.elapsed(),60) <<"s"<<endl;
-		  }
-		  catch(Exception ex){
-		    cerr<<ex.code<<" "<<ex.err<<endl
-			<<ex.func<<endl<<ex.line<<endl;
-		  }
-		
-		}
-		}
-	      imshow("skanowane",gemben);
-	      imshow("znalezione",mid);
-	    }
-	    {
-		string name;
-		std::stringstream buff;
-		buff<<"out"<<counter++<<".jpg";
-		buff>>name;
-		imwrite(name,gemben);
-		}
-	    }
-	}
-	catch(Exception ex){
-	  cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
-	      <<" in function "<<__func__;
-	  cerr<<ex.code<<endl<<ex.err<<endl<<ex.func<<endl<<ex.line<<endl;
-	}
-	
-     	waitKey(100);
-	if(control!='\000'){
-	  cout<<"Wczytać kolejne zdjęcie (n-nie/r-powtórz to \
-samo/cokolwiek-tak): "<<endl;
-	  cin>>control;
-	}else{
-	  break;
-	}
-      }
-    }
-    return 0;
-}
+    */

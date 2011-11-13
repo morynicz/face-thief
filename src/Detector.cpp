@@ -30,10 +30,10 @@
 
 #include "Catcher.hpp"
  
-//#define PCAREC
-//#define PCAREC_PRECOMPUTED
+#define PCAREC
+#define PCAREC_PRECOMPUTED
 #define SVMREC
-//#define SVMREC_PRECOMPUTED
+#define SVMREC_PRECOMPUTED
 
 using namespace cv;
 using namespace std;
@@ -59,7 +59,7 @@ int main(int argc,char **argv){
 
   string zdjecie;
 
-  Size rozm(outWidth,outHeight);
+  Size rozm(OUT_WIDTH,OUT_HEIGHT);
   
   string adres;
 
@@ -306,11 +306,12 @@ int main(int argc,char **argv){
 		imshow("gemba",midPt);
 
 		{
+		  Mat temp=midPt.clone();
 		  string bestMatch;
 		  for(int z=0;z<alg.size();++z){
 		    cout<<alg[z]->getName()<<" recognising"<<endl;
 		    time.restart();
-		    std::list<Result> wyniki=alg[z]->recognise(midPt);
+		    std::list<Result> wyniki=alg[z]->recognise(temp);
 		    cout<<alg[z]->getName()<<" recognised "<<endl;
 		    for(std::list<Result>::iterator sit=wyniki.begin();
 			sit!=wyniki.end();++sit){
@@ -329,9 +330,6 @@ int main(int argc,char **argv){
 			<<fmod(time.elapsed(),60) <<"s"<<endl;
 		  }
 		}
-
-
-
 		imshow("skanowane",gemben);
 		
 	    }

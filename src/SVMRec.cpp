@@ -12,8 +12,8 @@ using std::list;
 using std::cerr;
 using std::endl;
 
-int SVMRec::POSITIVE=1;
-int SVMRec::NEGATIVE=-1; 
+int SVMRec::POSITIVE=-1;
+int SVMRec::NEGATIVE=1; 
 
 
 string SVMRec::VECTORS="VECTORS";
@@ -294,10 +294,13 @@ void SVMRec::compute(){
 	    res.push_back(NEGATIVE);
 	  }
 	}
+	//	cerr<<Mat(res)<<endl;
 	//    	cerr<<_vectors<<endl;
+	Mat tmp=_vectors.clone();
 	_svms.push_back(CvSVM());
-	//_svms.back().train(_vectors,Mat(res));
+	//q_svms.back().train(tmp,Mat(res));
 	cerr<<_svms.size()<<endl;
+	//cerr<<tmp<<endl;
 	_svms.back().train_auto(_vectors,Mat(res),Mat(),Mat(),params);
       }
     }
@@ -367,13 +370,15 @@ std::list<Result> SVMRec::recognise(cv::Mat& img){
     similarity.max=0;
     similarity.label=-1;
     // image projection
+    imshow("lost_one",eq);
+    //waitKey(2000);
     _pca.project(eq.reshape(1,1),vec);
-    vec.convertTo(in,CV_32FC1);
-
+    //    vec.convertTo(in,CV_32FC1);
+    cerr<<vec.cols<<" "<<vec.rows<<endl;
     int cnt=0; //querying SVMs with the image
     for(list<CvSVM>::iterator it=_svms.begin();
 	it!=_svms.end();++it,++cnt){
-      similarity.mean=it->predict(in.reshape(1,1),true);
+      similarity.mean=it->predict(vec,true);
       similarity.label=cnt;
       results.push_back(similarity);
       similarity.mean=0;

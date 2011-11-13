@@ -62,6 +62,11 @@ public:
   int gallerySize(string label);
   int gallerySize(int galleryNumber);
   std::string getGalleryLabel(int galleryNumber);
+  int getGalleryNumber(std::string label);
+
+  void createKSubsets(const int &K,const std::string &nameStub,
+		      std::vector<string> &galleriesAddresses);
+
   ~Galleries(){};
 };
 

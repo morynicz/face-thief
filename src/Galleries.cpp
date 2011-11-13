@@ -3,6 +3,7 @@
 #include <sstream>
 #include <boost/filesystem.hpp>
 #include "opencv2/highgui/highgui.hpp"
+#include <cstdlib>
 
 using std::cerr;
 using std::endl;
@@ -24,6 +25,22 @@ Galleries::Galleries(string path, string filename){
   setPath(path);
   load(filename);
 }
+
+int Galleries::getGalleryNumber(string label){
+  int number=-1;
+  for(number=0;number<_gal.size();++number){
+    cerr<<"szuka "<<label<<" == "<<_gal[number].label<<'?'<<endl;
+    if(_gal[number].label==label)
+      break;
+  }
+  if(number==_gal.size()){
+    return -1;
+  }else{
+    return number;
+  }
+}
+  
+
 
 /*!
  * Method loadnig galleries based on file pointed by filename
@@ -58,38 +75,48 @@ void Galleries::load(string filename){
 
       for(;it!=galleries.end();++it){
 	Gallery gallery;
-      
-	(*it)[LABEL]>>gallery.label;
-	(*it)[COUNTER]>>gallery.counter;
-
-#if CV_MINOR_VERSION > 3
-	(*it)[ADDRESS]>>gallery.photos;
-	//	cerr<<_gal.label<<endl<<_gal.counter<<endl;
-	{ //size check
-	  unsigned i=0;
-	  if(_picSize.width==INITIAL_SIZE && _picSize.height==INITIAL_SIZE){
-	    cv::Mat img=imread(gallery.photos.front());
-	    _picSize=img.size();
-	    ++i;
-	  }
-	  for(;i<gallery.photos.size();++i){
-	    cv::Mat img=imread(gallery.photos[i]);
-	    if(img.size()!=_picSize){
-	      Exception ex(NON_UNIFORM_GALLERY,
-			   "exception: all images in the gallery must have the same dimensions",
-			   __func__,__FILE__,__LINE__);
-	      throw ex;
-	    }
-	  }
+	string label;
+	(*it)[LABEL]>>label;
+	int galNumber;
+	
+	galNumber=getGalleryNumber(label);
+	
+	if(galNumber<0){
+	  galNumber=_gal.size();
+	  _gal.push_back(Gallery());
+	  (*it)[COUNTER]>>_gal.back().counter;
+	  _gal.back().label=label;
+	}else{
+	  int cnt;
+	  (*it)[COUNTER]>>cnt;
+	  _gal[galNumber].counter+=cnt;
 	}
-#else
+// #if CV_MINOR_VERSION > 3
+// 	(*it)[ADDRESS]>>gallery.photos;
+// 	//	cerr<<_gal.label<<endl<<_gal.counter<<endl;
+// 	{ //size check
+// 	  unsigned i=0;
+// 	  if(_picSize.width==INITIAL_SIZE && _picSize.height==INITIAL_SIZE){
+// 	    cv::Mat img=imread(gallery.photos.front());
+// 	    _picSize=img.size();
+// 	    ++i;
+// 	  }
+// 	  for(;i<gallery.photos.size();++i){
+// 	    cv::Mat img=imread(gallery.photos[i]);
+// 	    if(img.size()!=_picSize){
+// 	      Exception ex(NON_UNIFORM_GALLERY,
+// 			   "exception: all images in the gallery must have the same dimensions",
+// 			   __func__,__FILE__,__LINE__);
+// 	      throw ex;
+// 	    }
+// 	  }
+// 	}
+// #else
 	FileNode gfn=(*it)[ADDRESS];
 	FileNodeIterator git=gfn.begin();
 	for(;git!=gfn.end();++git){
-	  
-	  gallery.photos.push_back((string)(*git));
-	  //cerr<<gallery.photos.back()<<endl;
-	  cv::Mat img=imread(gallery.photos.back());
+	  _gal[galNumber].photos.push_back((string)(*git));
+	  cv::Mat img=imread(_gal[galNumber].photos.back());
 	  if(_picSize.width==INITIAL_SIZE && _picSize.height==INITIAL_SIZE){
 	    _picSize=img.size();
 	  }else{
@@ -102,10 +129,10 @@ void Galleries::load(string filename){
 	  }
 	}
     
-#endif
+	//#endif
 
 	
-	_gal.push_back(gallery);
+
     
       }
       fs.release();   
@@ -368,4 +395,68 @@ std::string Galleries::getGalleryLabel(int galleryNumber){
 			__func__,__FILE__,__LINE__);
   }
   return _gal[galleryNumber].label;
+}
+
+/*!
+ * Method allows to randomly divide gallery into K roughly equal in numbers
+ * subsets. The subsets are saved in xml files named "stub%", where % 
+ * is a number. All photos will be distributed, and each photo will 
+ * be part of only one subset. Usefull for cross validation tests.
+ *
+ * \param K - number of subsets
+ * \param nameStub - name stub for subsets
+ *
+ */
+
+void Galleries::createKSubsets(const int &K,const std::string &nameStub,
+			       std::vector<std::string> &galleriesAddresses){
+  int numberOfPhotos=0;
+  int photosDistributed=0;
+  int createdGalCnt=0;
+  vector< vector<int> > usablePic;
+  vector<int> usableGal;
+  srand(time(NULL));
+
+  usablePic.resize(totalSize());
+  usableGal.resize(totalSize());
+  for(int i=0;i<usablePic.size();++i){
+    numberOfPhotos+=gallerySize(i);
+    usablePic[i].resize(gallerySize(i));
+    for(int j=0;j<usablePic[i].size();++j){
+      usablePic[i][j]=j;
+    }
+    usableGal[i]=i;
+  }
+  
+  while(numberOfPhotos>photosDistributed){
+    Galleries tmp;
+    tmp.setPath(_path);
+    for(int photosInGallery=0;photosInGallery<=numberOfPhotos/K;
+	++photosInGallery){
+      int galNr=rand() % usablePic.size();
+      int picNr=rand() % usablePic[galNr].size();
+
+      tmp.add(getGalleryLabel(usableGal[galNr]),
+	      getPicture(usableGal[galNr],usablePic[galNr][picNr]));
+      usablePic[galNr].erase(usablePic[galNr].begin() + picNr);
+      cerr<<++photosDistributed<<endl;
+      if(usablePic[galNr].empty()){
+	usablePic.erase(usablePic.begin() +galNr);
+	usableGal.erase(usableGal.begin() + galNr);
+      }
+      if(usablePic.empty()){
+	break;
+      }
+    }
+    {    
+      std::stringstream buff;
+      string fileName;
+      buff<<nameStub<<createdGalCnt++<<".xml";
+      buff>>fileName;
+      tmp.save(fileName);
+      galleriesAddresses.push_back(fileName);
+    }  
+    cerr<<createdGalCnt<<endl;
+  }
+
 }

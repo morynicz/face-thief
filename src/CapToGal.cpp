@@ -38,7 +38,7 @@ int main(int argc,char **argv){
   int outHeight=outWidth+FACE_FACTOR*outWidth;
 
 
-  Size picSize(outWidth,outHeight);
+  Size picSize(OUT_WIDTH,OUT_HEIGHT);
   
   string adres,label;
 
