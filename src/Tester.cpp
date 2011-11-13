@@ -88,11 +88,30 @@ int main(int argc,char **argv){
    // vector<bool> selector;
    // selector.resize(noOfSubsets);
 
-   double score=0;
+
+   vector<double> score;
+   {
+     int noOfAlgs=0;
+#ifdef PITTPATT_PRESENT
+     ++noOfAlgs;
+#endif
+     
+#ifdef PCAREC
+     ++noOfAlgs;
+#endif
+#ifdef SVMREC
+     ++noOfAlgs;
+#endif
+     score.resize(noOfAlgs,0);
+   }
+
+   
+   
+   
 
    for(int i=0;i<noOfSubsets;++i){
-    
-     double ptScore=0;
+     vector<double> ptScore;
+     ptScore.resize(score.size(),0);
      Galleries validation;
      Galleries training;
      validation.setPath(argv[1]);
@@ -175,7 +194,7 @@ int main(int argc,char **argv){
 		  cerr<<endl<<alg[z]->getName()+" "+bestMatch
 		      <<endl<<endl;
 		  if(bestMatch==label){
-		    ptScore+=1;
+		    ptScore[z]+=1;
 		  }
 		}	
 		cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
@@ -194,19 +213,38 @@ int main(int argc,char **argv){
 	  }
 	}
       }
-      ptScore/=numberOfPhotos;
-      cout<<"ptScore: "<<ptScore;
-      score+=ptScore;
+      for(int k=0;k<ptScore.size();++k){
+	ptScore[k]/=numberOfPhotos;
+	cout<<alg[k]->getName()<<" ptScore: "<<ptScore[k]<<endl;
+	score[k]+=ptScore[k];
+      }
     }
     for(int k=0;k<alg.size();++k){
       delete alg[k];
     }
    }
 
-   score/=noOfSubsets;
-   
-   cout<<"Recognition score: "<<score*100<<"%"<<endl;
-   
+   {
+     vector<Rec*> alg;
+     
+#ifdef PITTPATT_PRESENT
+     alg.push_back(new PPRec);
+#endif
+     
+#ifdef PCAREC
+     alg.push_back(new PCARec);
+#endif
+#ifdef SVMREC
+     alg.push_back(new SVMRec);
+#endif
+     for(int j=0;j<score.size();++j){
+       score[j]/=noOfSubsets;
+       cout<<alg[j]->getName()<<"Recognition score: "<<score[j]*100<<"%"<<endl;
+     }
+     for(int k=0;k<alg.size();++k){
+      delete alg[k];
+    }
+   }
    return 0;
 }
    /*
