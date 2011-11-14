@@ -48,7 +48,7 @@ OBJ= obj/CapToGal.o obj/Catcher.o obj/Galleries.o obj/Comparator.o  \
 
 GAL_FOLD=galleries
 VID_FOLD=video
-GAL_LIMIT=100
+GAL_LIMIT=150
 VIDS:=$(wildcard $(VID_FOLD)/*.avi)
 GALERIE:=$(addprefix $(GAL_FOLD)/, $(notdir $(basename $(VIDS))))
 
@@ -85,7 +85,8 @@ clean:
 	rm -f obj/* ${VID} ${M_GAL} ${S_GAL} ${POR} ${M_GAL} ${COMP}
 	make -C doc clean
 
-buildFromVids: buildGalleries precompute
+
+buildPrecomputedGalleries: buildGalleries precompute
 
 buildGalleries: $(GALERIE)
 
@@ -97,3 +98,4 @@ precompute: $(GALERIE)
 
 documentation:
 	make -C doc
+

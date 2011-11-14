@@ -67,8 +67,8 @@ int main(int argc,char **argv){
     return 1;
   }
 
-  //  noOfSubsets=atoi(argv[2]);
-  noOfSubsets=3;
+  noOfSubsets=atoi(argv[2]);
+  //noOfSubsets=3;
   try{
     trainGalleries.setPath(argv[1]);
     trainGalleries.load("galeria.xml");
@@ -161,6 +161,7 @@ int main(int argc,char **argv){
       cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
       	   <<fmod(time.elapsed(),60) <<"s"<<endl;
       time.restart();
+      cout<<endl;
     } 
     
     {
@@ -171,6 +172,7 @@ int main(int argc,char **argv){
 
       for(int j=0;j<validation.totalSize();++j){
 	string label=validation.getGalleryLabel(j);
+	cout<<"na zdjęciu: "<<label<<endl;
 	for(int k=0;k<validation.gallerySize(j);++k){
 	  Mat image=validation.getPicture(j,k);
 	  try{
@@ -188,13 +190,16 @@ int main(int argc,char **argv){
 		  cout<<training.getGalleryLabel(sit->label)<<" "<<sit->mean
 		      <<" "<<sit->max<<" "<<sit->min<<endl;
 		}
-	    
+		
 		if(!wyniki.empty()){
 		  bestMatch=training.getGalleryLabel(wyniki.front().label);
 		  cerr<<endl<<alg[z]->getName()+" "+bestMatch
 		      <<endl<<endl;
 		  if(bestMatch==label){
 		    ptScore[z]+=1;
+		    cout<<"trafienie"<<endl;
+		  }else{
+		    cout<<"pudło"<<endl;
 		  }
 		}	
 		cout<<"finished in "<<floor(time.elapsed()/60)<<"min "

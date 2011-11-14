@@ -28,6 +28,7 @@ const int WRONG_PICTURE_SIZE=8;
 const int WRONG_PICTURE_TYPE=9;
 const int PITTPATT_ERROR=10;
 const int UNKNOWN_MAT_TYPE=11;
+const int NO_SUCH_FILE=12;
 const int INITIAL_SIZE=-2;
 
 class Galleries{
@@ -40,6 +41,9 @@ class Galleries{
   int _picType;
   std::vector<Gallery> _gal;
   std::string _path;
+  void addPictureByAddress(string label,string target);
+  string getPictureAddress(int galleryNumber,int picNr);
+
 public:
   Galleries(){
     _path.clear();
@@ -51,6 +55,7 @@ public:
   void load(string filename);
   void save(string filename);
   void add(string label, cv::Mat image);
+
   int totalSize(){return _gal.size();}
   
   void setPath(string path);

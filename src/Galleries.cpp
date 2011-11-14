@@ -172,7 +172,7 @@ void Galleries::add(string label,cv::Mat img){
 	  break;
       }
 
-
+      
       if(_gal.size()==number){
 	Gallery galeria;
 	galeria.label=label;
@@ -200,9 +200,9 @@ void Galleries::add(string label,cv::Mat img){
       if(img.size()!=_picSize){
 	Exception ex(WRONG_PICTURE_SIZE,
 		     "exception: picture size differs from standard galleries size",
-		      __func__,__FILE__,__LINE__);
+		     __func__,__FILE__,__LINE__);
       }
-	
+      
       if(img.type()!=_picType){
 	Exception ex(WRONG_PICTURE_TYPE,
 		     "exception: picture type differs from standard galleries type",
@@ -210,8 +210,8 @@ void Galleries::add(string label,cv::Mat img){
       }
       string cel;
       std::stringstream sBufor;
-       sBufor<<_path<<'/'<<_gal[number].label<<'/'<<_gal[number].counter++
-	     <<".jpg";
+      sBufor<<_path<<'/'<<_gal[number].label<<'/'<<_gal[number].counter++
+	    <<".jpg";
       sBufor>>cel;
       cerr<<cel<<endl;
       imwrite(cel,img);
@@ -397,6 +397,40 @@ std::string Galleries::getGalleryLabel(int galleryNumber){
   return _gal[galleryNumber].label;
 }
 
+void Galleries::addPictureByAddress(string label,string target){
+  int galNr=getGalleryNumber(label);
+  if(galNr<0){
+    Gallery galeria;
+    galeria.label=label;
+    galeria.counter=0;
+    galNr=_gal.size();
+    _gal.push_back(galeria);
+   //  if(!boost::filesystem::exists(_path+target)){
+   //    Exception ex(NO_SUCH_FILE,"exception: there is no such file: "+
+   // 		   target,__func__,__FILE__,__LINE__);
+   //    throw ex;
+   // }
+  }
+  
+  _gal[galNr].photos.push_back(target);
+}
+
+string Galleries::getPictureAddress(int galleryNumber,int photoNumber){
+  if(galleryNumber<0||galleryNumber>=_gal.size()){
+    cv::Exception ex(INCORRECT_GALLERY_NUMBER,
+		     "exception: incorrect gallery number",
+		     __func__,__FILE__,__LINE__);
+    throw ex;
+  }else if(photoNumber<0||photoNumber>=_gal[galleryNumber].photos.size()){
+    cv::Exception ex(INCORRECT_PHOTO_NUMBER,
+		     "exception: incorrect photo number",
+		     __func__,__FILE__,__LINE__);
+    throw ex;
+  }else{
+    return _gal[galleryNumber].photos[photoNumber];
+  }
+}
+
 /*!
  * Method allows to randomly divide gallery into K roughly equal in numbers
  * subsets. The subsets are saved in xml files named "stub%", where % 
@@ -436,8 +470,13 @@ void Galleries::createKSubsets(const int &K,const std::string &nameStub,
       int galNr=rand() % usablePic.size();
       int picNr=rand() % usablePic[galNr].size();
 
-      tmp.add(getGalleryLabel(usableGal[galNr]),
-	      getPicture(usableGal[galNr],usablePic[galNr][picNr]));
+      cerr<<"wylosowane:"<<galNr<<" "<<picNr<<endl;
+      cerr<<"czyli: "<<usableGal[galNr]<<" "<<usablePic[galNr][picNr]<<endl;
+      // tmp.add(getGalleryLabel(usableGal[galNr]),
+      // 	      getPicture(usableGal[galNr],usablePic[galNr][picNr]));
+      tmp.addPictureByAddress(getGalleryLabel(usableGal[galNr]),
+		       getPictureAddress(usableGal[galNr],
+					 usablePic[galNr][picNr]));
       usablePic[galNr].erase(usablePic[galNr].begin() + picNr);
       cerr<<++photosDistributed<<endl;
       if(usablePic[galNr].empty()){

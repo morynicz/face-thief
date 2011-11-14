@@ -2,7 +2,7 @@
 #define FACE_FACTOR_HPP
 const float FACE_FACTOR=0.3;
 
-const int OUT_WIDTH=100;
+const int OUT_WIDTH=200;
 const int OUT_HEIGHT=OUT_WIDTH+FACE_FACTOR*OUT_WIDTH;
 
 #endif
