@@ -29,7 +29,7 @@ Galleries::Galleries(string path, string filename){
 int Galleries::getGalleryNumber(string label){
   int number=-1;
   for(number=0;number<_gal.size();++number){
-    cerr<<"szuka "<<label<<" == "<<_gal[number].label<<'?'<<endl;
+    //    cerr<<"szuka "<<label<<" == "<<_gal[number].label<<'?'<<endl;
     if(_gal[number].label==label)
       break;
   }
@@ -167,7 +167,7 @@ void Galleries::add(string label,cv::Mat img){
   if(!_path.empty()){
     if(!_gal.empty()){
       for(number=0;number<_gal.size();++number){
-	cerr<<"szuka "<<label<<" == "<<_gal[number].label<<'?'<<endl;
+	//	cerr<<"szuka "<<label<<" == "<<_gal[number].label<<'?'<<endl;
 	if(_gal[number].label==label)
 	  break;
       }

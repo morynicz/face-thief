@@ -96,12 +96,14 @@ int main(int argc,char **argv){
      ++noOfAlgs;
 #endif
      
-#ifdef PCAREC
-     ++noOfAlgs;
-#endif
 #ifdef SVMREC
      ++noOfAlgs;
 #endif
+
+#ifdef PCAREC
+     ++noOfAlgs;
+#endif
+
      score.resize(noOfAlgs,0);
    }
 
@@ -131,13 +133,15 @@ int main(int argc,char **argv){
 #ifdef PITTPATT_PRESENT
      alg.push_back(new PPRec);
 #endif
+
+#ifdef SVMREC
+    alg.push_back(new SVMRec);
+#endif
      
 #ifdef PCAREC
     alg.push_back(new PCARec);
 #endif
-#ifdef SVMREC
-    alg.push_back(new SVMRec);
-#endif
+
     
     for(int z=0;z<alg.size();++z){
       cout<<alg[z]->getName()<<" initialisng"<<endl;

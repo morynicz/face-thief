@@ -258,7 +258,7 @@ void SVMRec::savePrecomputedGalleries(const string& target){
 
 
 /*!
- * Method executes computations needed for projection int PCA space and 
+ * Method executes computations needed for projection into PCA space and 
  * training SVMs
  *
  * \pre Method loadGalleries was succesfully used to load galleries of images
@@ -281,9 +281,12 @@ void SVMRec::compute(){
     {
       CvSVMParams params;
       params.svm_type=CvSVM::C_SVC;
-      params.kernel_type=CvSVM::RBF;
-      params.C=2;
-      params.gamma=2;
+      params.kernel_type=CvSVM::POLY;
+      params.C=1.1;
+      params.coef0=1.1;
+      params.degree=2;
+      params.gamma=1.1;
+      params.term_crit =  TermCriteria(CV_TERMCRIT_ITER, (int)1e7, 1e-6);
       for(int i=0;i<=_labelNr.back();++i){
 	vector<int> res;
 	for(list<int>::iterator it=_labelNr.begin();
@@ -301,7 +304,12 @@ void SVMRec::compute(){
 	//q_svms.back().train(tmp,Mat(res));
 	cerr<<_svms.size()<<endl;
 	//cerr<<tmp<<endl;
-	_svms.back().train_auto(_vectors,Mat(res),Mat(),Mat(),params);
+	if(!_svms.back().train_auto(tmp,Mat(res),Mat(),Mat(),params)){
+	  cv::Exception ex(SVM_TRAINING_FAILURE,
+			    "svm could not find a solution",
+			    __func__,__FILE__,__LINE__);
+	  throw ex;
+	}
       }
     }
   }
