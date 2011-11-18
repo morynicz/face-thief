@@ -229,7 +229,7 @@ int main(int argc,char **argv){
 		  //     <<fmod(time.elapsed(),60) <<"s"<<endl;
 		  cout<<endl;
 		  cout<<"\t\t"
-		      <<((double)photosDone)/((double)numberOfPhotos)*100
+		      <<((double)++photosDone)/((double)numberOfPhotos)*100
 		      <<"% of this lap"<<endl<<endl;
 		}
 		catch(Exception ex){
