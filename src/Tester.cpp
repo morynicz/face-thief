@@ -26,13 +26,24 @@
 
 
 
-#define PCAREC
-#define PCAREC_PRECOMPUTED
-#define SVMREC
-#define SVMREC_PRECOMPUTED
+//#define PCAREC
+//#define PCAREC_PRECOMPUTED
+//#define SVMREC
+//#define SVMREC_PRECOMPUTED
 
 using namespace cv;
 using namespace std;
+
+
+/*!
+ * \brief Function printing how much time it took to finish a task
+ *
+ * \param time - timer to compute time elapsed
+ */
+void timeElapsed(const boost::timer &time){
+  cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
+      <<fmod(time.elapsed(),60) <<"s"<<endl;
+}
 
 
 int main(int argc,char **argv){
@@ -85,7 +96,8 @@ int main(int argc,char **argv){
 
 
     boost::timer time;
-   
+    boost::timer totalTime;
+    boost::timer lapTime;
     // vector<bool> selector;
     // selector.resize(noOfSubsets);
 
@@ -114,7 +126,7 @@ int main(int argc,char **argv){
 
     for(int i=0;i<noOfSubsets;++i){
       cout<<"subset "<<i<<" of "<<noOfSubsets<<endl;
-      
+      lapTime.restart();
       vector<double> ptScore;
       ptScore.resize(score.size(),0);
       Galleries validation;
@@ -151,22 +163,24 @@ int main(int argc,char **argv){
 	  time.restart();
 	  alg[z]->initialise();
 	  cout<<alg[z]->getName()<<" initialised"<<endl;
-	  cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
-	      <<fmod(time.elapsed(),60) <<"s"<<endl;
+	  timeElapsed(time);
+	  // cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
+	  //     <<fmod(time.elapsed(),60) <<"s"<<endl;
 	  cout<<alg[z]->getName()<<" galleries loading"<<endl;
 	  time.restart();
 	  alg[z]->loadGalleries(training);
 	  cout<<alg[z]->getName()<<" galleries loaded"<<endl;
-	  cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
-	      <<fmod(time.elapsed(),60) <<"s"<<endl;
+	  timeElapsed(time);
+	  // cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
+	  //     <<fmod(time.elapsed(),60) <<"s"<<endl;
 
 	  cout<<alg[z]->getName()<<" computing"<<endl;
 	  time.restart();
 	  alg[z]->compute();
 	  cout<<alg[z]->getName()<<" computed"<<endl;
-      
-	  cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
-	      <<fmod(time.elapsed(),60) <<"s"<<endl;
+      	  timeElapsed(time);
+	  // cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
+	  //     <<fmod(time.elapsed(),60) <<"s"<<endl;
 	  time.restart();
 	  cout<<endl;
 	}
@@ -217,8 +231,9 @@ int main(int argc,char **argv){
 		      cout<<"pudło"<<endl;
 		    }
 		  }	
-		  cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
-		      <<fmod(time.elapsed(),60) <<"s"<<endl;
+		  timeElapsed(time);
+		  // cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
+		  //     <<fmod(time.elapsed(),60) <<"s"<<endl;
 		  cout<<endl;
 		  cout<<"\t\t"<<photosDone/numberOfPhotos*100<<"% of this lap"
 		      <<endl<<endl;
@@ -241,7 +256,8 @@ int main(int argc,char **argv){
 	  ptScore[k]/=numberOfPhotos;
 	  cout<<alg[k]->getName()<<" ptScore: "<<ptScore[k]<<endl;
 	  score[k]+=ptScore[k];
-	  cout<<((double) i)/noOfSubsets<<"% done"<<endl<<endl;
+	  cout<<alg[k]->getName()<<" Score: "<<score[k]<<endl;
+	  cout<<((double) i)/((double)noOfSubsets)<<"% done"<<endl<<endl;
 	}
       }
       catch(Exception ex){
@@ -250,11 +266,16 @@ int main(int argc,char **argv){
 	cerr<<ex.code<<endl<<ex.err<<endl<<ex.func<<endl<<ex.line<<endl;
 	throw ex;
       }
-    
+      cerr<<"deletion"<<endl;
       for(int k=0;k<alg.size();++k){
 	delete alg[k];
       }
+      cerr<<"deleted"<<endl;
+      cout<<"subset "<<i<<" of "<<noOfSubsets<<" validated"<<endl;
+      timeElapsed(lapTime);
     }
+    cout<<"all subsets validated"<<endl;
+    timeElapsed(totalTime);
 
     {
       vector<Rec*> alg;

@@ -171,6 +171,7 @@ void PPRec::loadGalleries(Galleries& galleries){
 	    idList.push_back(id);
 	    lList.push_back(i);
 	  }
+	  ppr_free_image(pImg);
 	}
 	//	cerr<<endl;
       }
@@ -435,7 +436,8 @@ list<Result> PPRec::recognise(Mat &img){
       // ppr_free_similarity_matrix(similarityMatrix);
       // ppr_free_subject_list(sTList);
       //      ppr_free_index_list(iList);
-    
+      ppr_free_image(pImg);
+
       Exception ex(PITTPATT_ERROR,
 		   "Exception: image contains more than one target",
 		   __func__,__FILE__,__LINE__);
@@ -449,6 +451,7 @@ list<Result> PPRec::recognise(Mat &img){
     ppr_free_similarity_matrix(similarityMatrix);
     ppr_free_subject_list(sTList);
     ppr_free_index_list(iList);
+    ppr_free_image(pImg);
   }
     
   catch(Exception ex){
