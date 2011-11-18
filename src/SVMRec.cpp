@@ -378,7 +378,7 @@ std::list<Result> SVMRec::recognise(cv::Mat& img){
     similarity.max=0;
     similarity.label=-1;
     // image projection
-    imshow("lost_one",eq);
+    //    imshow("lost_one",eq);
     //waitKey(2000);
     _pca.project(eq.reshape(1,1),vec);
     //    vec.convertTo(in,CV_32FC1);
