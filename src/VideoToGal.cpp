@@ -73,9 +73,9 @@ int main(int argc,char **argv){
     cerr<<ex.code<<endl<<ex.err<<endl<<ex.func<<endl<<ex.line<<endl;
   }
 
-  namedWindow("faces",CV_WINDOW_NORMAL);
-  namedWindow("input",CV_WINDOW_NORMAL);
-  namedWindow("equalised",CV_WINDOW_NORMAL);
+  // namedWindow("faces",CV_WINDOW_NORMAL);
+  // namedWindow("input",CV_WINDOW_NORMAL);
+  // namedWindow("equalised",CV_WINDOW_NORMAL);
   
   while(ster!='q' && counter<limit){
     try{
@@ -129,8 +129,8 @@ int main(int argc,char **argv){
 	}
 	if(ster!='q'){
 	   if(!faces.empty()){
-	    imshow("input",facePics);
-	    imshow("faces",mid);
+	    // imshow("input",facePics);
+	    // imshow("faces",mid);
 	  }
 	  ster=waitKey(10);
 	}

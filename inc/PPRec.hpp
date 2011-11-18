@@ -29,6 +29,7 @@ class PPRec:public Rec{
   std::vector<int> idList;
   std::vector<int> lList;
   ppr_subject_list_type sList;
+  bool initialised;
   void eC(ppr_error_type err,std::string func,std::string file,int line);
 public:
   PPRec();

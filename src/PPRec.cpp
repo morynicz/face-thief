@@ -41,7 +41,10 @@ void PPRec::eC(ppr_error_type err,string func,string file,int line){
  * Constructor initialising name field
  */
 
-PPRec::PPRec(){name="PPR";}
+PPRec::PPRec(){
+  name="PPR";
+  initialised=false;
+}
 
 /*!
  * Function initialising the whole structure, separate from constructor to let 
@@ -107,7 +110,7 @@ void PPRec::initialise(){
 	<<" in function "<<__func__<<endl;
     throw ex;
   }
-    
+  initialised=true;
 }
 
 /*!
@@ -126,6 +129,12 @@ void PPRec::loadGalleries(Galleries& galleries){
   ppr_template_type pTemplate;
   ppr_object_suitability_type recAble;
   std::stringstream sbuff;
+
+  if(!initialised){
+    Exception ex(PITTPATT_ERROR,"exception: using uninitialised object",
+		 __func__,__FILE__,__LINE__);
+    throw ex;
+  }
   try{  
     for(int i=0;i<galleries.totalSize();++i){
       for(int j=0;j<galleries.gallerySize(i);++j){
@@ -210,6 +219,12 @@ void PPRec::loadGalleries(Galleries& galleries){
  */
 
 void PPRec::loadPrecomputedGalleries(const string& target){
+  if(!initialised){
+    Exception ex(PITTPATT_ERROR,"exception: using uninitialised object",
+		 __func__,__FILE__,__LINE__);
+    throw ex;
+  }
+  
   try{
     eC(ppr_read_gallery_with_subject_list(context,target.c_str(),&pGallery,
 					  &sList),
@@ -250,6 +265,12 @@ void PPRec::loadPrecomputedGalleries(const string& target){
  */
   
 void PPRec::savePrecomputedGalleries(const string& target){
+  if(!initialised){
+    Exception ex(PITTPATT_ERROR,"exception: using uninitialised object",
+		 __func__,__FILE__,__LINE__);
+    throw ex;
+  }
+
   try{
     eC(ppr_write_gallery_with_subject_list(context,target.c_str(),pGallery,
 					   sList),
@@ -292,7 +313,14 @@ void PPRec::clear(){
  */
 
 list<Result> PPRec::recognise(const string& path){
-  try{
+ 
+  if(!initialised){
+    Exception ex(PITTPATT_ERROR,"exception: using uninitialised object",
+		 __func__,__FILE__,__LINE__);
+    throw ex;
+  }
+
+ try{
     Mat img;
     img=imread(path);
     return recognise(img);
@@ -335,6 +363,12 @@ list<Result> PPRec::recognise(Mat &img){
   
   Mat tmp,eq;
   
+  if(!initialised){
+    Exception ex(PITTPATT_ERROR,"exception: using uninitialised object",
+		 __func__,__FILE__,__LINE__);
+    throw ex;
+  }
+
   scList.num_scores=oList.num_objects=0;
   scList.scores=NULL;
   oList.objects=NULL;
@@ -468,10 +502,13 @@ list<Result> PPRec::recognise(Mat &img){
  */
 
 PPRec::~PPRec(){
-  ppr_free_gallery(pGallery);
-  ppr_free_subject_list(sList);
-  ppr_release_context(context);
-  ppr_finalize_sdk();
+  cerr<<"destructor"<<endl;
+  if(initialised){
+    ppr_free_gallery(pGallery);
+    ppr_free_subject_list(sList);
+    ppr_release_context(context);
+    ppr_finalize_sdk();
+  }
 }
     
 #endif

@@ -121,7 +121,7 @@ int main(int argc,char **argv){
     }
 
     for(int i=0;i<noOfSubsets;++i){
-      cout<<"subset "<<i<<" of "<<noOfSubsets<<endl;
+      cout<<"subset "<<i+1<<" of "<<noOfSubsets<<endl;
       lapTime.restart();
       vector<double> ptScore;
       ptScore.resize(score.size(),0);
@@ -230,8 +230,9 @@ int main(int argc,char **argv){
 		  // cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
 		  //     <<fmod(time.elapsed(),60) <<"s"<<endl;
 		  cout<<endl;
-		  cout<<"\t\t"<<photosDone/((double)numberOfPhotos)*100<<"% of this lap"
-		      <<endl<<endl;
+		  cout<<"\t\t"
+		      <<((double)photosDone)/((double)numberOfPhotos)*100
+		      <<"% of this lap"<<endl<<endl;
 		}
 		catch(Exception ex){
 		  cerr<<ex.code<<" "<<ex.err<<endl
@@ -261,12 +262,12 @@ int main(int argc,char **argv){
 	cerr<<ex.code<<endl<<ex.err<<endl<<ex.func<<endl<<ex.line<<endl;
 	throw ex;
       }
-      cerr<<"deletion"<<endl;
+      //      cerr<<"deletion"<<endl;
       for(int k=0;k<alg.size();++k){
 	delete alg[k];
       }
-      cerr<<"deleted"<<endl;
-      cout<<"subset "<<i<<" of "<<noOfSubsets<<" validated"<<endl;
+      //      cerr<<"deleted"<<endl;
+      cout<<"subset "<<i+1<<" of "<<noOfSubsets<<" validated"<<endl;
       timeElapsed(lapTime);
     }
     cout<<"all subsets validated"<<endl;
@@ -287,9 +288,9 @@ int main(int argc,char **argv){
 #endif
       for(int j=0;j<score.size();++j){
 	score[j]/=noOfSubsets;
-	cout<<alg[j]->getName()<<"Recognition score: "<<score[j]*100<<"%"<<endl;
+	cout<<alg[j]->getName()<<" Recognition score: "<<score[j]*100<<"%"<<endl;
       }
-      cerr<<"second deletion"<<endl;
+      //  cerr<<"second deletion"<<endl;
       for(int k=0;k<alg.size();++k){
 	delete alg[k];
       }
@@ -300,6 +301,7 @@ int main(int argc,char **argv){
 	<<" in function "<<__func__<<endl;;
     cerr<<ex.code<<endl<<ex.err<<endl<<ex.func<<endl<<ex.line<<endl;
   }
+  //  cerr<<"before return"<<endl;
 
   return 0;
 }

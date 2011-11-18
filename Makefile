@@ -48,7 +48,7 @@ OBJ= obj/CapToGal.o obj/Catcher.o obj/Galleries.o obj/Comparator.o  \
 
 GAL_FOLD=galleries
 VID_FOLD=video
-GAL_LIMIT=100
+GAL_LIMIT=50
 VIDS:=$(wildcard $(VID_FOLD)/*.avi)
 GALERIE:=$(addprefix $(GAL_FOLD)/, $(notdir $(basename $(VIDS))))
 
