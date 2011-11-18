@@ -113,6 +113,8 @@ int main(int argc,char **argv){
    
 
     for(int i=0;i<noOfSubsets;++i){
+      cout<<"subset "<<i<<" of "<<noOfSubsets<<endl;
+      
       vector<double> ptScore;
       ptScore.resize(score.size(),0);
       Galleries validation;
@@ -181,12 +183,13 @@ int main(int argc,char **argv){
 	for(int j=0;j<validation.totalSize();++j){
 	  numberOfPhotos+=validation.gallerySize(j);
 	}
+	double photosDone=0;
 
 	for(int j=0;j<validation.totalSize();++j){
 	  string label=validation.getGalleryLabel(j);
 	  for(int k=0;k<validation.gallerySize(j);++k){
 	    Mat image=validation.getPicture(j,k);
-	    cout<<"na zdjęciu: "<<label<<endl<<endl;
+	    cout<<"on photo: "<<label<<endl;
 	    try{
 	      string bestMatch;
 	      for(int z=0;z<alg.size();++z){
@@ -217,6 +220,8 @@ int main(int argc,char **argv){
 		  cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
 		      <<fmod(time.elapsed(),60) <<"s"<<endl;
 		  cout<<endl;
+		  cout<<"\t\t"<<photosDone/numberOfPhotos*100<<"% of this lap"
+		      <<endl<<endl;
 		}
 		catch(Exception ex){
 		  cerr<<ex.code<<" "<<ex.err<<endl
@@ -236,6 +241,7 @@ int main(int argc,char **argv){
 	  ptScore[k]/=numberOfPhotos;
 	  cout<<alg[k]->getName()<<" ptScore: "<<ptScore[k]<<endl;
 	  score[k]+=ptScore[k];
+	  cout<<((double) i)/noOfSubsets<<"% done"<<endl<<endl;
 	}
       }
       catch(Exception ex){
