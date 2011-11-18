@@ -38,11 +38,11 @@ public:
   Rec(){}
   virtual void initialise(){};
   virtual void loadGalleries(Galleries& galleries)=0;
-  virtual void loadPrecomputedGalleries(const std::string& path){}
-  virtual void savePrecomputedGalleries(const std::string& path){}
+  virtual void loadPrecomputedGalleries(const std::string& target){}
+  virtual void savePrecomputedGalleries(const std::string& target){}
   virtual void compute()=0;
   virtual void clear(){}
-  virtual std::list<Result> recognise(const std::string& path)=0;
+  virtual std::list<Result> recognise(const std::string& target)=0;
   virtual std::list<Result> recognise(cv::Mat& face)=0;
   string getName()const{return name;}
   virtual ~Rec(){}

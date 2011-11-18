@@ -286,7 +286,7 @@ void SVMRec::compute(){
       params.coef0=1.1;
       params.degree=2;
       params.gamma=1.1;
-      params.term_crit =  TermCriteria(CV_TERMCRIT_ITER, (int)1e7, 1e-6);
+      params.term_crit =  TermCriteria(CV_TERMCRIT_ITER, (int)1e4, 1e-4);
       for(int i=0;i<=_labelNr.back();++i){
 	vector<int> res;
 	for(list<int>::iterator it=_labelNr.begin();
