@@ -120,10 +120,6 @@ int main(int argc,char **argv){
       score.resize(noOfAlgs,0);
     }
 
-   
-   
-   
-
     for(int i=0;i<noOfSubsets;++i){
       cout<<"subset "<<i<<" of "<<noOfSubsets<<endl;
       lapTime.restart();
@@ -142,7 +138,6 @@ int main(int argc,char **argv){
       }
 
       vector<Rec*> alg;
-
 
  
 #ifdef PITTPATT_PRESENT
@@ -235,7 +230,7 @@ int main(int argc,char **argv){
 		  // cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
 		  //     <<fmod(time.elapsed(),60) <<"s"<<endl;
 		  cout<<endl;
-		  cout<<"\t\t"<<photosDone/numberOfPhotos*100<<"% of this lap"
+		  cout<<"\t\t"<<photosDone/((double)numberOfPhotos)*100<<"% of this lap"
 		      <<endl<<endl;
 		}
 		catch(Exception ex){
@@ -257,7 +252,7 @@ int main(int argc,char **argv){
 	  cout<<alg[k]->getName()<<" ptScore: "<<ptScore[k]<<endl;
 	  score[k]+=ptScore[k];
 	  cout<<alg[k]->getName()<<" Score: "<<score[k]<<endl;
-	  cout<<((double) i)/((double)noOfSubsets)<<"% done"<<endl<<endl;
+	  cout<<((double) i)/((double)noOfSubsets)*100<<"% done"<<endl<<endl;
 	}
       }
       catch(Exception ex){
