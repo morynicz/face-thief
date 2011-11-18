@@ -26,10 +26,8 @@
 
 
 
-//#define PCAREC
-//#define PCAREC_PRECOMPUTED
-//#define SVMREC
-//#define SVMREC_PRECOMPUTED
+#define PCAREC
+#define SVMREC
 
 using namespace cv;
 using namespace std;

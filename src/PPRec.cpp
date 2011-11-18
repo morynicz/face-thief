@@ -377,7 +377,7 @@ list<Result> PPRec::recognise(Mat &img){
   result.label=-1;
 
   results.clear();
-  cerr<<"start"<<endl;
+  //cerr<<"start"<<endl;
   try{
     if(img.channels()!=1){
       cvtColor(img,tmp,CV_RGB2GRAY);
@@ -391,34 +391,34 @@ list<Result> PPRec::recognise(Mat &img){
     eC(ppr_detect_objects(context,pImg,&oList),
        __func__,__FILE__,__LINE__);
 
-    cerr<<"Objects found: "<<oList.num_objects<<endl;
+    //    cerr<<"Objects found: "<<oList.num_objects<<endl;
     
 
     eC(ppr_create_gallery(context,&tGallery),
        __func__,__FILE__,__LINE__); 
    
     if(oList.num_objects==1){
-      cerr<<"czy obiekt sie nadaje"<<endl;
+      //cerr<<"czy obiekt sie nadaje"<<endl;
       eC(ppr_is_object_suitable_for_recognition(context,oList.objects[0],
 						&recAble),
 	 __func__,__FILE__,__LINE__);
       if(PPR_OBJECT_SUITABLE_FOR_RECOGNITION==recAble){
 	int id;
-	cerr<<"extrakcja template"<<endl;
+	//cerr<<"extrakcja template"<<endl;
 	eC(ppr_extract_template_from_object(context,pImg,oList.objects[0],
 					    &pTemplate),
 	   __func__,__FILE__,__LINE__);
-	cerr<<"do temp galerii"<<endl;
+	//cerr<<"do temp galerii"<<endl;
 	eC(ppr_copy_template_to_gallery(context,&tGallery,pTemplate,&id),
 	   __func__,__FILE__,__LINE__);
 	ppr_free_template(pTemplate);
-	cerr<<"cluster"<<endl;
+	//cerr<<"cluster"<<endl;
 	eC(ppr_cluster_gallery(context,tGallery,0,&sTList),
 	   __func__,__FILE__,__LINE__);
-	cerr<<"compare"<<endl;
+	//cerr<<"compare"<<endl;
 	eC(ppr_compare_galleries(context,tGallery,pGallery,&similarityMatrix),
 	   __func__,__FILE__,__LINE__); 
-	cerr<<"get list"<<endl;
+	//cerr<<"get list"<<endl;
 	eC(ppr_get_ranked_subject_list_for_subject(context,similarityMatrix,
 						   sTList.subjects[0],sList,
 						   1000,-100,&iList,&scList),
@@ -432,7 +432,7 @@ list<Result> PPRec::recognise(Mat &img){
 		     __func__,__FILE__,__LINE__);
 	throw ex;
       }
-      cerr<<"przygotoanie rezultatów"<<endl;
+      //      cerr<<"przygotoanie rezultatów"<<endl;
       Result result;
       result.min=result.max=result.mean=0;
       result.label=-1;
@@ -441,7 +441,7 @@ list<Result> PPRec::recognise(Mat &img){
 	char cLabel[30];
 	char sBuff[30];
 	int iLabel;
-	cerr<<"petla"<<endl;
+	//	cerr<<"petla"<<endl;
 	for(int i=0;i<scList.num_scores;++i){
 	  int index=iList.indices[i];
 	  cerr<<scList.scores[i]<<endl;
@@ -452,7 +452,7 @@ list<Result> PPRec::recognise(Mat &img){
 					   template_ids[0],cLabel),
 	     __func__,__FILE__,__LINE__);
 	  
-	  cerr<<"przypisanie"<<endl;
+	  //cerr<<"przypisanie"<<endl;
 	  sscanf(cLabel,"%s %d",sBuff,&iLabel);
 	  //  cerr<<sBuff<<" "<<iLabel<<endl;
 	  result.label=iLabel;
@@ -460,10 +460,10 @@ list<Result> PPRec::recognise(Mat &img){
 	  result.min=result.max=0;
 	  results.push_back(result);
 	}
-	cerr<<"popetla"<<endl;
+	//cerr<<"popetla"<<endl;
       }
     }else{
-      cerr<<"za duzo obiektów"<<endl;
+      //cerr<<"za duzo obiektów"<<endl;
       ppr_free_object_list(oList);
       // ppr_free_score_list(scList);
       ppr_free_gallery(tGallery);
@@ -478,7 +478,7 @@ list<Result> PPRec::recognise(Mat &img){
       throw ex;
     }      
       
-    cerr<<"czyszczenie"<<endl;
+    //cerr<<"czyszczenie"<<endl;
     ppr_free_object_list(oList);
     ppr_free_score_list(scList);
     ppr_free_gallery(tGallery);
@@ -502,7 +502,7 @@ list<Result> PPRec::recognise(Mat &img){
  */
 
 PPRec::~PPRec(){
-  cerr<<"destructor"<<endl;
+  //  cerr<<"destructor"<<endl;
   if(initialised){
     ppr_free_gallery(pGallery);
     ppr_free_subject_list(sList);
