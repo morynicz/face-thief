@@ -478,12 +478,12 @@ void Galleries::createKSubsets(const int &K,const std::string &nameStub,
 		       getPictureAddress(usableGal[galNr],
 					 usablePic[galNr][picNr]));
       usablePic[galNr].erase(usablePic[galNr].begin() + picNr);
-      //      cerr<<++photosDistributed<<endl;
+      ++photosDistributed;
       if(usablePic[galNr].empty()){
 	usablePic.erase(usablePic.begin() +galNr);
 	usableGal.erase(usableGal.begin() + galNr);
       }
-      if(usablePic.empty()){
+      if(usablePic.empty()||usableGal.empty()){
 	break;
       }
     }
