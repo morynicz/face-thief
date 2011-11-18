@@ -289,6 +289,7 @@ int main(int argc,char **argv){
 	score[j]/=noOfSubsets;
 	cout<<alg[j]->getName()<<"Recognition score: "<<score[j]*100<<"%"<<endl;
       }
+      cerr<<"second deletion"<<endl;
       for(int k=0;k<alg.size();++k){
 	delete alg[k];
       }
