@@ -470,15 +470,15 @@ void Galleries::createKSubsets(const int &K,const std::string &nameStub,
       int galNr=rand() % usablePic.size();
       int picNr=rand() % usablePic[galNr].size();
 
-      cerr<<"wylosowane:"<<galNr<<" "<<picNr<<endl;
-      cerr<<"czyli: "<<usableGal[galNr]<<" "<<usablePic[galNr][picNr]<<endl;
+      // cerr<<"wylosowane:"<<galNr<<" "<<picNr<<endl;
+      // cerr<<"czyli: "<<usableGal[galNr]<<" "<<usablePic[galNr][picNr]<<endl;
       // tmp.add(getGalleryLabel(usableGal[galNr]),
       // 	      getPicture(usableGal[galNr],usablePic[galNr][picNr]));
       tmp.addPictureByAddress(getGalleryLabel(usableGal[galNr]),
 		       getPictureAddress(usableGal[galNr],
 					 usablePic[galNr][picNr]));
       usablePic[galNr].erase(usablePic[galNr].begin() + picNr);
-      cerr<<++photosDistributed<<endl;
+      //      cerr<<++photosDistributed<<endl;
       if(usablePic[galNr].empty()){
 	usablePic.erase(usablePic.begin() +galNr);
 	usableGal.erase(usableGal.begin() + galNr);
@@ -495,7 +495,7 @@ void Galleries::createKSubsets(const int &K,const std::string &nameStub,
       tmp.save(fileName);
       galleriesAddresses.push_back(fileName);
     }  
-    cerr<<createdGalCnt<<endl;
+    //    cerr<<createdGalCnt<<endl;
   }
 
 }

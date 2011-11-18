@@ -59,7 +59,7 @@ int main(int argc,char **argv){
   adres=argv[1];
   label=argv[2];
   cap.open(argv[3]);
-  if(argc>=4){
+  if(argc>=5){
     limit=atoi(argv[4]);
   }
 
@@ -75,6 +75,7 @@ int main(int argc,char **argv){
 
   namedWindow("faces",CV_WINDOW_NORMAL);
   namedWindow("input",CV_WINDOW_NORMAL);
+  namedWindow("equalised",CV_WINDOW_NORMAL);
   
   while(ster!='q' && counter<limit){
     try{

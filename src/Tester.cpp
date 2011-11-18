@@ -67,270 +67,294 @@ int main(int argc,char **argv){
     return 1;
   }
 
-  noOfSubsets=atoi(argv[2]);
-  //noOfSubsets=3;
   try{
-    trainGalleries.setPath(argv[1]);
-    trainGalleries.load("galeria.xml");
-    trainGalleries.createKSubsets(noOfSubsets,"sub",galAddresses);
-  }
-  catch(Exception ex){
-    cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
-	<<" in fucntion "<<__func__<<endl;
-    cerr<<ex.code<<endl<<ex.err<<endl<<ex.func<<endl<<ex.line<<endl;
-  }
-  
-  cout<<"hi thar"<<endl;
+    noOfSubsets=atoi(argv[2]);
+    //noOfSubsets=3;
+    try{
+      trainGalleries.setPath(argv[1]);
+      trainGalleries.load("galeria.xml");
+      trainGalleries.createKSubsets(noOfSubsets,"sub",galAddresses);
+    }
+    catch(Exception ex){
+      cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
+	  <<" in function "<<__func__<<endl;
+      cerr<<ex.code<<endl<<ex.err<<endl<<ex.func<<endl<<ex.line<<endl;
+      throw ex;	  
+    }
+    cout<<"hi thar"<<endl;
 
 
-   boost::timer time;
+    boost::timer time;
    
-   // vector<bool> selector;
-   // selector.resize(noOfSubsets);
+    // vector<bool> selector;
+    // selector.resize(noOfSubsets);
 
 
-   vector<double> score;
-   {
-     int noOfAlgs=0;
-#ifdef PITTPATT_PRESENT
-     ++noOfAlgs;
-#endif
-     
-#ifdef SVMREC
-     ++noOfAlgs;
-#endif
-
-#ifdef PCAREC
-     ++noOfAlgs;
-#endif
-
-     score.resize(noOfAlgs,0);
-   }
-
-   
-   
-   
-
-   for(int i=0;i<noOfSubsets;++i){
-     vector<double> ptScore;
-     ptScore.resize(score.size(),0);
-     Galleries validation;
-     Galleries training;
-     validation.setPath(argv[1]);
-     training.setPath(argv[1]);
-     for(int j=0;j<noOfSubsets;++j){
-       if(i==j){
-	 validation.load(galAddresses[j]);
-       }else{
-	 training.load(galAddresses[j]);
-       }
-     }
-
-     vector<Rec*> alg;
-
-
- 
-#ifdef PITTPATT_PRESENT
-     alg.push_back(new PPRec);
-#endif
-
-#ifdef SVMREC
-    alg.push_back(new SVMRec);
-#endif
-     
-#ifdef PCAREC
-    alg.push_back(new PCARec);
-#endif
-
-    
-    for(int z=0;z<alg.size();++z){
-      cout<<alg[z]->getName()<<" initialisng"<<endl;
-      time.restart();
-      alg[z]->initialise();
-      cout<<alg[z]->getName()<<" initialised"<<endl;
-      cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
-	  <<fmod(time.elapsed(),60) <<"s"<<endl;
-      cout<<alg[z]->getName()<<" galleries loading"<<endl;
-      time.restart();
-      alg[z]->loadGalleries(training);
-      cout<<alg[z]->getName()<<" galleries loaded"<<endl;
-      cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
-      	  <<fmod(time.elapsed(),60) <<"s"<<endl;
-
-      cout<<alg[z]->getName()<<" computing"<<endl;
-      time.restart();
-      alg[z]->compute();
-      cout<<alg[z]->getName()<<" computed"<<endl;
-      
-      cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
-      	   <<fmod(time.elapsed(),60) <<"s"<<endl;
-      time.restart();
-      cout<<endl;
-    } 
-    
+    vector<double> score;
     {
-      int numberOfPhotos=0;
-      for(int j=0;j<validation.totalSize();++j){
-	numberOfPhotos+=validation.gallerySize(j);
-      }
+      int noOfAlgs=0;
+#ifdef PITTPATT_PRESENT
+      ++noOfAlgs;
+#endif
+     
+#ifdef SVMREC
+      ++noOfAlgs;
+#endif
 
-      for(int j=0;j<validation.totalSize();++j){
-	string label=validation.getGalleryLabel(j);
-	cout<<"na zdjęciu: "<<label<<endl;
-	for(int k=0;k<validation.gallerySize(j);++k){
-	  Mat image=validation.getPicture(j,k);
-	  try{
-	    string bestMatch;
-	    for(int z=0;z<alg.size();++z){
-	      try{
-		cout<<alg[z]->getName()<<" recognising"<<endl;
-		time.restart();
-		Mat tmp=eq.clone();
-		std::list<Result> wyniki=alg[z]->recognise(image);
-		cout<<alg[z]->getName()<<" recognised "<<endl;
-		for(std::list<Result>::iterator sit=wyniki.begin();
-		    sit!=wyniki.end();++sit){
-		  
-		  cout<<training.getGalleryLabel(sit->label)<<" "<<sit->mean
-		      <<" "<<sit->max<<" "<<sit->min<<endl;
-		}
-		
-		if(!wyniki.empty()){
-		  bestMatch=training.getGalleryLabel(wyniki.front().label);
-		  cerr<<endl<<alg[z]->getName()+" "+bestMatch
-		      <<endl<<endl;
-		  if(bestMatch==label){
-		    ptScore[z]+=1;
-		    cout<<"trafienie"<<endl;
-		  }else{
-		    cout<<"pudło"<<endl;
-		  }
-		}	
-		cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
-		    <<fmod(time.elapsed(),60) <<"s"<<endl;
-	      }
-	      catch(Exception ex){
-		cerr<<ex.code<<" "<<ex.err<<endl
-		    <<ex.func<<endl<<ex.line<<endl;
-	      }
-	    }
-	  }
-	  catch(Exception ex){
-	    cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
-		<<" in function "<<__func__;
-	    cerr<<ex.code<<endl<<ex.err<<endl<<ex.func<<endl<<ex.line<<endl;
-	  }
+#ifdef PCAREC
+      ++noOfAlgs;
+#endif
+
+      score.resize(noOfAlgs,0);
+    }
+
+   
+   
+   
+
+    for(int i=0;i<noOfSubsets;++i){
+      vector<double> ptScore;
+      ptScore.resize(score.size(),0);
+      Galleries validation;
+      Galleries training;
+      validation.setPath(argv[1]);
+      training.setPath(argv[1]);
+      for(int j=0;j<noOfSubsets;++j){
+	if(i==j){
+	  validation.load(galAddresses[j]);
+	}else{
+	  training.load(galAddresses[j]);
 	}
       }
-      for(int k=0;k<ptScore.size();++k){
-	ptScore[k]/=numberOfPhotos;
-	cout<<alg[k]->getName()<<" ptScore: "<<ptScore[k]<<endl;
-	score[k]+=ptScore[k];
+
+      vector<Rec*> alg;
+
+
+ 
+#ifdef PITTPATT_PRESENT
+      alg.push_back(new PPRec);
+#endif
+
+#ifdef SVMREC
+      alg.push_back(new SVMRec);
+#endif
+     
+#ifdef PCAREC
+      alg.push_back(new PCARec);
+#endif
+
+      try{
+	for(int z=0;z<alg.size();++z){
+	  cout<<alg[z]->getName()<<" initialisng"<<endl;
+	  time.restart();
+	  alg[z]->initialise();
+	  cout<<alg[z]->getName()<<" initialised"<<endl;
+	  cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
+	      <<fmod(time.elapsed(),60) <<"s"<<endl;
+	  cout<<alg[z]->getName()<<" galleries loading"<<endl;
+	  time.restart();
+	  alg[z]->loadGalleries(training);
+	  cout<<alg[z]->getName()<<" galleries loaded"<<endl;
+	  cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
+	      <<fmod(time.elapsed(),60) <<"s"<<endl;
+
+	  cout<<alg[z]->getName()<<" computing"<<endl;
+	  time.restart();
+	  alg[z]->compute();
+	  cout<<alg[z]->getName()<<" computed"<<endl;
+      
+	  cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
+	      <<fmod(time.elapsed(),60) <<"s"<<endl;
+	  time.restart();
+	  cout<<endl;
+	}
+      }
+      catch(Exception ex){
+	cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
+	    <<" in function "<<__func__<<endl;
+	cerr<<ex.code<<endl<<ex.err<<endl<<ex.func<<endl<<ex.line<<endl;
+	throw ex;
+      }
+
+      try{
+	int numberOfPhotos=0;
+	for(int j=0;j<validation.totalSize();++j){
+	  numberOfPhotos+=validation.gallerySize(j);
+	}
+
+	for(int j=0;j<validation.totalSize();++j){
+	  string label=validation.getGalleryLabel(j);
+	  for(int k=0;k<validation.gallerySize(j);++k){
+	    Mat image=validation.getPicture(j,k);
+	    cout<<"na zdjęciu: "<<label<<endl<<endl;
+	    try{
+	      string bestMatch;
+	      for(int z=0;z<alg.size();++z){
+		try{
+		  cout<<alg[z]->getName()<<" recognising"<<endl;
+		  time.restart();
+		  Mat tmp=eq.clone();
+		  std::list<Result> wyniki=alg[z]->recognise(image);
+		  cout<<alg[z]->getName()<<" recognised "<<endl;
+		  for(std::list<Result>::iterator sit=wyniki.begin();
+		      sit!=wyniki.end();++sit){
+		  
+		    cout<<training.getGalleryLabel(sit->label)<<" "<<sit->mean
+			<<" "<<sit->max<<" "<<sit->min<<endl;
+		  }
+		
+		  if(!wyniki.empty()){
+		    bestMatch=training.getGalleryLabel(wyniki.front().label);
+		    cerr<<endl<<alg[z]->getName()+" "+bestMatch
+			<<endl<<endl;
+		    if(bestMatch==label){
+		      ptScore[z]+=1;
+		      cout<<"trafienie"<<endl;
+		    }else{
+		      cout<<"pudło"<<endl;
+		    }
+		  }	
+		  cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
+		      <<fmod(time.elapsed(),60) <<"s"<<endl;
+		  cout<<endl;
+		}
+		catch(Exception ex){
+		  cerr<<ex.code<<" "<<ex.err<<endl
+		      <<ex.func<<endl<<ex.line<<endl;
+		}
+	      }
+	    }
+	    catch(Exception ex){
+	      cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
+		  <<" in function "<<__func__<<endl;
+	      cerr<<ex.code<<endl<<ex.err<<endl<<ex.func<<endl<<ex.line<<endl;
+	      throw ex;
+	    }
+	  }
+	}
+	for(int k=0;k<ptScore.size();++k){
+	  ptScore[k]/=numberOfPhotos;
+	  cout<<alg[k]->getName()<<" ptScore: "<<ptScore[k]<<endl;
+	  score[k]+=ptScore[k];
+	}
+      }
+      catch(Exception ex){
+	cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
+	    <<" in function "<<__func__<<endl;
+	cerr<<ex.code<<endl<<ex.err<<endl<<ex.func<<endl<<ex.line<<endl;
+	throw ex;
+      }
+    
+      for(int k=0;k<alg.size();++k){
+	delete alg[k];
       }
     }
-    for(int k=0;k<alg.size();++k){
-      delete alg[k];
-    }
-   }
 
-   {
-     vector<Rec*> alg;
+    {
+      vector<Rec*> alg;
      
 #ifdef PITTPATT_PRESENT
-     alg.push_back(new PPRec);
+      alg.push_back(new PPRec);
 #endif
      
 #ifdef PCAREC
-     alg.push_back(new PCARec);
+      alg.push_back(new PCARec);
 #endif
 #ifdef SVMREC
-     alg.push_back(new SVMRec);
+      alg.push_back(new SVMRec);
 #endif
-     for(int j=0;j<score.size();++j){
-       score[j]/=noOfSubsets;
-       cout<<alg[j]->getName()<<"Recognition score: "<<score[j]*100<<"%"<<endl;
-     }
-     for(int k=0;k<alg.size();++k){
-      delete alg[k];
+      for(int j=0;j<score.size();++j){
+	score[j]/=noOfSubsets;
+	cout<<alg[j]->getName()<<"Recognition score: "<<score[j]*100<<"%"<<endl;
+      }
+      for(int k=0;k<alg.size();++k){
+	delete alg[k];
+      }
     }
-   }
-   return 0;
+  }
+  catch(Exception ex){
+    cerr<<"Exception caught in "<<__FILE__<<':'<<__LINE__
+	<<" in function "<<__func__<<endl;;
+    cerr<<ex.code<<endl<<ex.err<<endl<<ex.func<<endl<<ex.line<<endl;
+  }
+
+  return 0;
 }
-   /*
-#ifdef PITTPATT_PRESENT
-      cout<<"PPR initialisng"<<endl;
-      time.restart();
+/*
+  #ifdef PITTPATT_PRESENT
+  cout<<"PPR initialisng"<<endl;
+  time.restart();
     
-      alg.push_back(new PPRec);
-      alg.back()->initialise();
-      cout<<"PPR initialised"<<endl;
-      cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
-	  <<fmod(time.elapsed(),60) <<"s"<<endl;
-#ifndef PPREC_PRECOMPUTED
-      cout<<"PPR galleries loading"<<endl;
-      time.restart();
-      alg.back()->loadGalleries(galleries);
-      cout<<"PPR galleries loaded"<<endl;
-      cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
-      	  <<fmod(time.elapsed(),60) <<"s"<<endl;
+  alg.push_back(new PPRec);
+  alg.back()->initialise();
+  cout<<"PPR initialised"<<endl;
+  cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
+  <<fmod(time.elapsed(),60) <<"s"<<endl;
+  #ifndef PPREC_PRECOMPUTED
+  cout<<"PPR galleries loading"<<endl;
+  time.restart();
+  alg.back()->loadGalleries(galleries);
+  cout<<"PPR galleries loaded"<<endl;
+  cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
+  <<fmod(time.elapsed(),60) <<"s"<<endl;
 
-      cout<<"PPR computing"<<endl;
-       time.restart();
-      alg.back()->compute();
-      cout<<"PPR computed"<<endl;
+  cout<<"PPR computing"<<endl;
+  time.restart();
+  alg.back()->compute();
+  cout<<"PPR computed"<<endl;
       
-      cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
-      	   <<fmod(time.elapsed(),60) <<"s"<<endl;
-      time.restart();
-      cout<<"PPR saving precomputed galleries"<<endl;
-      	  alg.back()->savePrecomputedGalleries((alg.back()->getName()+"Data")
-				       +"/"+alg.back()->getName()+".xml");
-      cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
-      	  <<fmod(time.elapsed(),60) <<"s"<<endl;
+  cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
+  <<fmod(time.elapsed(),60) <<"s"<<endl;
+  time.restart();
+  cout<<"PPR saving precomputed galleries"<<endl;
+  alg.back()->savePrecomputedGalleries((alg.back()->getName()+"Data")
+  +"/"+alg.back()->getName()+".xml");
+  cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
+  <<fmod(time.elapsed(),60) <<"s"<<endl;
 
-#elseif
-      cout<<"PPR loading precomputed galleries"<<endl;
-      time.restart();
-      alg.back()->loadPrecomputedGalleries((alg.back()->getName()+"Data")
-				       +"/"+alg.back()->getName()+".xml");
-      cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
-	  <<fmod(time.elapsed(),60) <<"s"<<endl;
-#endif   
+  #elseif
+  cout<<"PPR loading precomputed galleries"<<endl;
+  time.restart();
+  alg.back()->loadPrecomputedGalleries((alg.back()->getName()+"Data")
+  +"/"+alg.back()->getName()+".xml");
+  cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
+  <<fmod(time.elapsed(),60) <<"s"<<endl;
+  #endif   
 
-#endif
+  #endif
  
-#ifdef PCAREC
-    cout<<"Starting PCA"<<endl;
-    alg.push_back(new PCARec);
-    alg.back()->initialise();
-    cout<<"finished in "<<time.elapsed()<<"s"<<endl;
-#ifndef PCAREC_PRECOMPUTED
+  #ifdef PCAREC
+  cout<<"Starting PCA"<<endl;
+  alg.push_back(new PCARec);
+  alg.back()->initialise();
+  cout<<"finished in "<<time.elapsed()<<"s"<<endl;
+  #ifndef PCAREC_PRECOMPUTED
 
-    cout<<"PCA: Loading galleries"<<endl;
-    alg.back()->loadGalleries(galleries);
-    cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
-	<<fmod(time.elapsed(),60) <<"s"<<endl;
+  cout<<"PCA: Loading galleries"<<endl;
+  alg.back()->loadGalleries(galleries);
+  cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
+  <<fmod(time.elapsed(),60) <<"s"<<endl;
      
-    cout<<"PCA: Computing"<<endl;
-    time.restart();
-    alg.back()->compute();
-    cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
-	<<fmod(time.elapsed(),60) <<"s"<<endl;
+  cout<<"PCA: Computing"<<endl;
+  time.restart();
+  alg.back()->compute();
+  cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
+  <<fmod(time.elapsed(),60) <<"s"<<endl;
 
 
-    cout<<"PCA: saving"<<endl;
-    time.restart();
-    alg.back()->savePrecomputedGalleries((alg.back()->getName()+"Data")
-				       +"/"+alg.back()->getName()+".xml");
-    cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
-	<<fmod(time.elapsed(),60) <<"s"<<endl;
-#else
-    cout<<"PCA: Loading precomputed galleries"<<endl;
-    time.restart();
-    alg.back()->loadPrecomputedGalleries((alg.back()->getName()+"Data")
-				       +"/"+alg.back()->getName()+".xml");
-    cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
-	<<fmod(time.elapsed(),60) <<"s"<<endl;
+  cout<<"PCA: saving"<<endl;
+  time.restart();
+  alg.back()->savePrecomputedGalleries((alg.back()->getName()+"Data")
+  +"/"+alg.back()->getName()+".xml");
+  cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
+  <<fmod(time.elapsed(),60) <<"s"<<endl;
+  #else
+  cout<<"PCA: Loading precomputed galleries"<<endl;
+  time.restart();
+  alg.back()->loadPrecomputedGalleries((alg.back()->getName()+"Data")
+  +"/"+alg.back()->getName()+".xml");
+  cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
+  <<fmod(time.elapsed(),60) <<"s"<<endl;
 
 #endif
 #endif
