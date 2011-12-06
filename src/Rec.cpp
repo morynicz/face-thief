@@ -1,3 +1,7 @@
+///\file
+///\brief File containing implementation of functions connected with class Rec
+///\author Michał Orynicz
+
 #include "Rec.hpp"
 #include <string>
 #include <iostream>

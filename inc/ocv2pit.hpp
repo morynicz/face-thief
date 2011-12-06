@@ -1,3 +1,6 @@
+/// \file
+/// \brief Header file for function translating cv::Mat to ppr_image_type
+/// \author Michał Orynicz
 #include "opencv2/core/core.hpp"
 #include "PittpattPresence.hpp"
 #ifdef PITTPATT_PRESENT

@@ -1,3 +1,6 @@
+///\file
+///\brief File containing implementation of class PPRec
+///\author Michał Orynicz
 #include "PPRec.hpp"
 #include "ocv2pit.hpp"
 #include <vector>
@@ -43,7 +46,7 @@ void PPRec::eC(ppr_error_type err,string func,string file,int line){
 
 PPRec::PPRec(){
   name="PPR";
-  initialised=false;
+  initialised=loaded=false;
 }
 
 /*!
@@ -52,7 +55,7 @@ PPRec::PPRec(){
  *
  */
 
-void PPRec::initialise(){
+void PPRec::initialize(){
   modelPath="../../pittpatt/pittpatt_sdk/models/";
   galleryFile="galleries.ppr";
   precision=PPR_FINE_PRECISION;
@@ -69,8 +72,6 @@ void PPRec::initialise(){
   yawConstraint=PPR_FRONTAL_YAW_CONSTRAINT_RESTRICTIVE;
   templateExtractor=PPR_EXTRACT_SINGLE;
     
-  
-
   context=ppr_get_context();
   try{  
   
@@ -146,7 +147,7 @@ void PPRec::loadGalleries(Galleries& galleries){
 	  cvtColor(img,tmp,CV_RGB2GRAY);
 	  equalizeHist(tmp,bw);
 	}else{
-	  bw=img;
+	  equalizeHist(img,bw);
 	}
 
 	eC(mat2PprImage(bw,pImg,PPR_RAW_IMAGE_GRAY8),
@@ -204,6 +205,7 @@ void PPRec::loadGalleries(Galleries& galleries){
 	<<" in function "<<__func__<<endl;
     throw ex;
   }
+  loaded=true;
 }
 
 
@@ -255,6 +257,7 @@ void PPRec::loadPrecomputedGalleries(const string& target){
 	<<" in function "<<__func__<<endl;
     throw ex;
   }
+  loaded=true;
 }
 
 /*!
@@ -267,6 +270,12 @@ void PPRec::loadPrecomputedGalleries(const string& target){
 void PPRec::savePrecomputedGalleries(const string& target){
   if(!initialised){
     Exception ex(PITTPATT_ERROR,"exception: using uninitialised object",
+		 __func__,__FILE__,__LINE__);
+    throw ex;
+  }
+
+  if(!loaded){
+    Exception ex(PITTPATT_ERROR,"exception: no data loaded to object",
 		 __func__,__FILE__,__LINE__);
     throw ex;
   }
@@ -320,6 +329,12 @@ list<Result> PPRec::recognise(const string& path){
     throw ex;
   }
 
+  if(!loaded){
+    Exception ex(PITTPATT_ERROR,"exception: no data loaded to object",
+		 __func__,__FILE__,__LINE__);
+    throw ex;
+  }
+
  try{
     Mat img;
     img=imread(path);
@@ -365,6 +380,12 @@ list<Result> PPRec::recognise(Mat &img){
   
   if(!initialised){
     Exception ex(PITTPATT_ERROR,"exception: using uninitialised object",
+		 __func__,__FILE__,__LINE__);
+    throw ex;
+  }
+
+  if(!loaded){
+    Exception ex(PITTPATT_ERROR,"exception: no data loaded to object",
 		 __func__,__FILE__,__LINE__);
     throw ex;
   }
@@ -445,7 +466,8 @@ list<Result> PPRec::recognise(Mat &img){
 	for(int i=0;i<scList.num_scores;++i){
 	  int index=iList.indices[i];
 	  cerr<<scList.scores[i]<<endl;
-	  result.mean=scList.scores[index];
+	  //	  result.mean=scList.scores[index];
+	  result.score=scList.scores[index];
 	  cerr<<"getTemplateString"<<endl;
 	  eC(ppr_get_template_string_by_id(context,pGallery,
 					   sList.subjects[index].
@@ -457,7 +479,7 @@ list<Result> PPRec::recognise(Mat &img){
 	  //  cerr<<sBuff<<" "<<iLabel<<endl;
 	  result.label=iLabel;
 	  // cerr<<result.label<<" "<<result.mean<<endl;
-	  result.min=result.max=0;
+	  //result.min=result.max=0;
 	  results.push_back(result);
 	}
 	//cerr<<"popetla"<<endl;
@@ -505,7 +527,9 @@ PPRec::~PPRec(){
   //  cerr<<"destructor"<<endl;
   if(initialised){
     ppr_free_gallery(pGallery);
-    ppr_free_subject_list(sList);
+    if(loaded){
+      ppr_free_subject_list(sList);
+    }
     ppr_release_context(context);
     ppr_finalize_sdk();
   }

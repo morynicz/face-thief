@@ -1,3 +1,6 @@
+///\file
+///\brief Main file of program crossvalidating the algorithms
+
 #include <iostream>
 #include "opencv2/core/core.hpp"
 #include "opencv2/objdetect/objdetect.hpp"
@@ -154,7 +157,7 @@ int main(int argc,char **argv){
 	for(int z=0;z<alg.size();++z){
 	  cout<<alg[z]->getName()<<" initialisng"<<endl;
 	  time.restart();
-	  alg[z]->initialise();
+	  alg[z]->initialize();
 	  cout<<alg[z]->getName()<<" initialised"<<endl;
 	  timeElapsed(time);
 	  // cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
@@ -209,9 +212,11 @@ int main(int argc,char **argv){
 		  for(std::list<Result>::iterator sit=wyniki.begin();
 		      sit!=wyniki.end();++sit){
 		  
-		    cout<<training.getGalleryLabel(sit->label)<<" "<<sit->mean
-			<<" "<<sit->max<<" "<<sit->min<<endl;
-		  }
+		    cout<<training.getGalleryLabel(sit->label)<<" "
+			// <<sit->mean
+			// <<" "<<sit->max<<" "<<sit->min<<endl;
+			<<sit->score<<endl;
+		      }
 		
 		  if(!wyniki.empty()){
 		    bestMatch=training.getGalleryLabel(wyniki.front().label);
@@ -228,9 +233,6 @@ int main(int argc,char **argv){
 		  // cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
 		  //     <<fmod(time.elapsed(),60) <<"s"<<endl;
 		  cout<<endl;
-		  cout<<"\t\t"
-		      <<((double)++photosDone)/((double)numberOfPhotos)*100
-		      <<"% of this lap"<<endl<<endl;
 		}
 		catch(Exception ex){
 		  cerr<<ex.code<<" "<<ex.err<<endl
@@ -244,6 +246,9 @@ int main(int argc,char **argv){
 	      cerr<<ex.code<<endl<<ex.err<<endl<<ex.func<<endl<<ex.line<<endl;
 	      throw ex;
 	    }
+	    cout<<"\t\t"
+		<<((double)++photosDone)/((double)numberOfPhotos)*100
+		<<"% of this lap"<<endl<<endl;   
 	  }
 	}
 	for(int k=0;k<ptScore.size();++k){

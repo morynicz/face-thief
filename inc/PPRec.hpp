@@ -1,3 +1,7 @@
+/// \file
+/// \brief Header file for class PPRec
+/// \author Michał Orynicz
+
 #include "Rec.hpp"
 #include <string>
 #include "PittpattPresence.hpp"
@@ -29,11 +33,11 @@ class PPRec:public Rec{
   std::vector<int> idList;
   std::vector<int> lList;
   ppr_subject_list_type sList;
-  bool initialised;
+  bool initialised,loaded;
   void eC(ppr_error_type err,std::string func,std::string file,int line);
 public:
   PPRec();
-  virtual void initialise();
+  virtual void initialize();
   virtual void loadGalleries(Galleries& galleries);
   virtual void loadPrecomputedGalleries(const std::string& path);
   virtual void savePrecomputedGalleries(const std::string& path);

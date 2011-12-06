@@ -1,9 +1,16 @@
+///\file
+///\brief File containing implementation of class Catcher
+///\author Michał Orynicz
 #include "Catcher.hpp"
 
 #include <iostream>
 
 using namespace std;
-
+/// Constructor for video streams originating from a device
+/// \param nr - number of the device
+/// \param mat - pointer to cv::Mat object which will contain the most recent
+/// frame
+/// \param mtx - pointer to mutex 
 Catcher::Camera::Camera(const int &nr,
 		       cv::Mat *mat,
 		       boost::mutex *mtx):cam(nr){
@@ -19,6 +26,11 @@ Catcher::Camera::Camera(const int &nr,
   frameRate=0;
 }
 
+/// Constructor for video streams originating from a device
+/// \param name - name of video file
+/// \param mat - pointer to cv::Mat object which will contain the most recent
+/// frame
+/// \param mtx - pointer to mutex 
 Catcher::Camera::Camera(const std::string &name,
 		       cv::Mat *mat,
 		       boost::mutex *mtx):cam(name){
@@ -38,10 +50,12 @@ Catcher::Camera::Camera(const std::string &name,
   }
 }
 
+/// Empty destructor
 Catcher::Camera::~Camera(){
 }
 
-
+/// Method which reads subsequent frames from stream. Ensures that frame 
+/// buffer of stream is empty
 void Catcher::Camera::operator()(){
   // namedWindow("raw_capture",CV_WINDOW_NORMAL);
   if(frameRate>0){
@@ -61,13 +75,15 @@ void Catcher::Camera::operator()(){
   }
 }
 
-
-    
+/// Initializes mut and thr pointers
 Catcher::Catcher(){
   mut=NULL;
   thr=NULL;
 }
 
+/// Method initializing the object for drawing video stream from a device 
+/// with given number
+/// \param nr - number of device from which the video stream will be drawn
 void Catcher::init(const int &nr){
   if(thr!=NULL){
     thr->interrupt();
@@ -82,6 +98,9 @@ void Catcher::init(const int &nr){
   cam=Camera(nr,&fr,mut);
   thr=new boost::thread(boost::ref(cam));
 }
+
+/// Method initializing the object for drawing video stream from a video file
+/// \param name - name of file from which the video stream will be read
 
 void Catcher::init(const std::string& name){
   if(thr!=NULL){
@@ -98,8 +117,9 @@ void Catcher::init(const std::string& name){
   thr=new boost::thread(boost::ref(cam));
 }
 
-
-Catcher::~Catcher(void){
+/// Destructor, ensures that all threads and dynamic objects will be 
+/// disposed properly
+Catcher::~Catcher(){
   if(thr){
     thr->interrupt();
     thr->join();
@@ -110,6 +130,9 @@ Catcher::~Catcher(void){
   }
 }
 
+/// Method which makes a deep copy of most recent frame, and returns it outside
+/// \param frame - object in which the deep copy of most recent frame will 
+/// be placed
 void Catcher::catchFrame(cv::Mat& frame){
   mut->lock();
   frame=fr.clone();

@@ -1,3 +1,7 @@
+///\file
+///\brief File containing implementation of functions translating image objects
+/// from OpenCV to PittPatt
+///\author Michał Orynicz
 #include "ocv2pit.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 using namespace cv;

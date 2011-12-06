@@ -1,3 +1,6 @@
+///\file 
+///\brief File containing implementation of class Galleries
+///\author Michał Orynicz
 #include "Galleries.hpp"
 #include <iostream>
 #include <sstream>
@@ -439,7 +442,7 @@ string Galleries::getPictureAddress(int galleryNumber,int photoNumber){
  *
  * \param K - number of subsets
  * \param nameStub - name stub for subsets
- *
+ * \param galleriesAddresses - vector of names of created subsets
  */
 
 void Galleries::createKSubsets(const int &K,const std::string &nameStub,

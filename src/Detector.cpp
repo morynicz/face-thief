@@ -1,3 +1,6 @@
+///\file
+///\brief Main file for program recognizing faces from video stream
+
 #include <iostream>
 #include "thread.hpp"
 // #include "opencv2/opencv.hpp"
@@ -109,7 +112,7 @@ int main(int argc,char **argv){
       time.restart();
       //      PPRec pp;
       alg.push_back(new PPRec);
-      alg.back()->initialise();
+      alg.back()->initialize();
       cout<<"PPR initialised"<<endl;
       cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
 	  <<fmod(time.elapsed(),60) <<"s"<<endl;
@@ -150,7 +153,7 @@ int main(int argc,char **argv){
     cout<<"Starting PCA"<<endl;
     //PCARec pca;
     alg.push_back(new PCARec);
-    alg.back()->initialise();
+    alg.back()->initialize();
     cout<<"finished in "<<time.elapsed()<<"s"<<endl;
 #ifndef PCAREC_PRECOMPUTED
 
@@ -188,7 +191,7 @@ int main(int argc,char **argv){
     time.restart();
     //SVMRec svm;
     alg.push_back(new SVMRec);
-    alg.back()->initialise();
+    alg.back()->initialize();
     cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
 	<<fmod(time.elapsed(),60) <<"s"<<endl;
 
@@ -315,8 +318,10 @@ int main(int argc,char **argv){
 		    cout<<alg[z]->getName()<<" recognised "<<endl;
 		    for(std::list<Result>::iterator sit=wyniki.begin();
 			sit!=wyniki.end();++sit){
-		      cout<<galleries.getGalleryLabel(sit->label)<<" "<<sit->mean
-			  <<" "<<sit->max<<" "<<sit->min<<endl;
+		      cout<<galleries.getGalleryLabel(sit->label)<<" "
+			  // <<sit->mean
+			  // <<" "<<sit->max<<" "<<sit->min<<endl;
+			  <<sit->score<<endl;
 		    }
 		    bestMatch=galleries.getGalleryLabel(wyniki.front().label);
 		    cerr<<endl<<alg[z]->getName()+" "+bestMatch

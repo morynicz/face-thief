@@ -1,7 +1,6 @@
 ///\file
 /// \brief Main function file for galleries precomputing program
-///
-
+///\author Michał Orynicz
 #include <iostream>
 #include "thread.hpp"
 #include "opencv2/opencv.hpp"
@@ -101,7 +100,7 @@ int main(int argc,char **argv){
       algTime.restart();
       cout<<"initialising"<<endl;
       time.restart();
-      alg[i]->initialise();
+      alg[i]->initialize();
       timeElapsed(time);
       cout<<endl;
 

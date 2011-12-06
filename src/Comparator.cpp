@@ -1,3 +1,6 @@
+///\file
+///\brief Main file of program recognizing people from photos
+
 #include <iostream>
 //#include "thread.hpp"
 //#include "opencv2/opencv.hpp"
@@ -101,7 +104,7 @@ int main(int argc,char **argv){
       time.restart();
       //      PPRec pp;
       alg.push_back(new PPRec);
-      alg.back()->initialise();
+      alg.back()->initialize();
       cout<<"PPR initialised"<<endl;
       cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
 	  <<fmod(time.elapsed(),60) <<"s"<<endl;
@@ -141,7 +144,7 @@ int main(int argc,char **argv){
 #ifdef PCAREC
     cout<<"Starting PCA"<<endl;
     alg.push_back(new PCARec);
-    alg.back()->initialise();
+    alg.back()->initialize();
     cout<<"finished in "<<time.elapsed()<<"s"<<endl;
 #ifndef PCAREC_PRECOMPUTED
 
@@ -178,7 +181,7 @@ int main(int argc,char **argv){
     cerr<<"SVM starting"<<endl;
     time.restart();
     alg.push_back(new SVMRec);
-    alg.back()->initialise();
+    alg.back()->initialize();
     cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
 	<<fmod(time.elapsed(),60) <<"s"<<endl;
 
@@ -280,8 +283,10 @@ int main(int argc,char **argv){
 		    for(std::list<Result>::iterator sit=wyniki.begin();
 			sit!=wyniki.end();++sit){
 		      //  cerr<<sit->label<<endl;
-		      cout<<galleries.getGalleryLabel(sit->label)<<" "<<sit->mean
-			  <<" "<<sit->max<<" "<<sit->min<<endl;
+		      cout<<galleries.getGalleryLabel(sit->label)<<" "
+			  // <<sit->mean
+			  // <<" "<<sit->max<<" "<<sit->min<<endl;
+			  <<sit->score<<endl;
 		    }
 		   
 		    if(!wyniki.empty()){

@@ -1,3 +1,6 @@
+/// \file
+/// \brief Header file for class SVMRec
+/// \author Michał Orynicz
 #include "opencv2/ml/ml.hpp"
 #include "Rec.hpp"
 #include <string>
@@ -7,13 +10,14 @@
 #ifndef SVM_REC_HPP
 #define SVM_REC_HPP
 
+///\brief Class providing object recognition using support vector machines and PCA
 class SVMRec:public Rec{
-  cv::Mat _data;
-  cv::Mat _vectors;
-  cv::PCA _pca;
-  std::list<CvSVM> _svms;
-  std::list<int> _labelNr;
-  
+  cv::Mat _data; ///< Matrix containing pictures from loaded galleries
+  cv::Mat _vectors; ///< matrix containing pictures projected to PCA space
+  cv::PCA _pca; ///< object containing PCA
+  std::list<CvSVM> _svms; ///< vector containing support vector machines
+  std::list<int> _labelNr; ///< list of numeric labels of pictures
+  ///\cond  
   static int POSITIVE;
   static int NEGATIVE;
 
@@ -41,7 +45,7 @@ class SVMRec:public Rec{
   static std::string SVMS_QUANTITY;
   static std::string SVMS;
   static std::string SVM;
-
+  ///\endcond
 public:
   SVMRec();
   virtual void loadGalleries(Galleries& galleries);

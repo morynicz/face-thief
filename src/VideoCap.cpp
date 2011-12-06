@@ -1,3 +1,6 @@
+///\file
+/// \brief Main function file for video recording program
+///\author Michał Orynicz
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/core/core.hpp"
 //#include "Lapacz.hpp"
@@ -26,10 +29,10 @@ int main(int argc,char *argv[]){
   do{
     ++counter;
     try{
-      cerr<<"pif"<<endl;
+      //      cerr<<"pif"<<endl;
       //  lap.stopKlatka(obr);
       cap>>obr;
-      cerr<<"paff"<<endl;
+      // cerr<<"paff"<<endl;
       writ<<obr;
       cerr<<counter<<endl;
       imshow("input",obr);

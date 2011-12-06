@@ -21,11 +21,11 @@ CFLAGS=${INCLUDES} -g -O0 -Wall -pedantic -Wno-sign-compare
 
 CC=g++
 
-S_GAL=kreatorGalerii
-M_GAL=masGalKreator
-POR=porownywacz
-VID=videoKreator
-DET=detektor
+S_GAL=singleGalCreator
+M_GAL=serialGalCreator
+POR=comparator
+VID=videoCreator
+DET=detector
 COMP=computer
 TEST=tester
 

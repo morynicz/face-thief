@@ -1,3 +1,6 @@
+///\file
+/// \brief Main function file for program building gallery from single photos
+///\author Michał Orynicz
 #include <iostream>
 #include "thread.hpp"
 #include "opencv2/opencv.hpp"
@@ -27,15 +30,11 @@ int main(int argc,char **argv){
   Mat img,eq;
   char control='1';
   Mat mid;
-  //  Mat zera;
-
-  //  Mat inDft,outDft;
-  //  Mat czer;
   Mat bw;
   Mat facePics;
 
-  int outWidth=200;
-  int outHeight=outWidth+FACE_FACTOR*outWidth;
+  // int outWidth=200;
+  // int outHeight=outWidth+FACE_FACTOR*outWidth;
 
 
   Size picSize(OUT_WIDTH,OUT_HEIGHT);
@@ -55,6 +54,13 @@ int main(int argc,char **argv){
   CascadeClassifier finder;
 
   finder.load("kaskady/haarcascade_frontalface_alt_tree.xml");
+
+  if(argc<3){
+    cerr<<" Error: incorrect number of arguments. Correct invocation:"<<endl
+	<<argv[0]<<" galleries_folder gallery_label"<<endl;
+    return 1;
+  }
+
   adres=argv[1];
   label=argv[2];
  

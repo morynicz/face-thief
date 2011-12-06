@@ -1,3 +1,6 @@
+///\file
+/// \brief Main function file for program generating galleries from videos
+///\author Michał Orynicz
 #include <iostream>
 #include "thread.hpp"
 //#include "opencv2/opencv.hpp"
@@ -31,8 +34,8 @@ int main(int argc,char **argv){
   Mat bw;
   Mat facePics;
 
-  int outWidth=200;
-  int outHeight=static_cast<int>(outWidth+FACE_FACTOR*outWidth);
+  // int outWidth=200;
+  // int outHeight=static_cast<int>(outWidth+FACE_FACTOR*outWidth);
 
   Size rozm(OUT_WIDTH,OUT_HEIGHT);
   string adres,label;
@@ -51,7 +54,7 @@ int main(int argc,char **argv){
 
   if(argc<4){
     cerr<<"Error: not enough parameters."<<endl<<argv[0]
-	<<" galleries_folder label input_source [number_of_photos_to_extract]"<<endl;
+	<<" galleries_folder label input_device_number [number_of_photos_to_extract]"<<endl;
     return 1;
   }
 

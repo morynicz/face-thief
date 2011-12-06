@@ -1,3 +1,6 @@
+///\file
+///\brief File containing implementation of class PCARec
+///\author Michał Orynicz
 #include "PCARec.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -11,7 +14,7 @@ using std::list;
 using std::cerr;
 using std::endl;
 using namespace cv;
-
+///\cond
 string PCARec::DATA="DATA";
 string PCARec::DATA_ROWS="DATA_ROWS";
 string PCARec::DATA_COLS="DATA_COLS";
@@ -30,7 +33,7 @@ string PCARec::EIGEN_TYPE="EIGEN_TYPE";
 string PCARec::MEAN="MEAN";
 string PCARec::MEAN_COLS="MEAN_COLS";
 string PCARec::MEAN_TYPE="MEAN_TYPE";
-
+///\endcond
 
 /*!
  * \brief Constructor initialising name field
@@ -324,29 +327,36 @@ std::list<Result> PCARec::recognise(cv::Mat& img){
   
     //recognition
     Result similarity;
-    similarity.mean=0;
-    similarity.min=100;
-    similarity.max=0;
+    //    similarity.mean=0;
+    // similarity.min=100;
+    // similarity.max=0;
+    similarity.score=100;
     similarity.label=-1;
     for(int i=0;i<_vectors.rows;++i){
       int label=*it; //computing distance
       double distance=Mahalanobis(_vectors.row(i),vec,_icovar);
-      similarity.mean+=distance;
-      if(similarity.min>distance){ //searching extreme values
-	similarity.min=distance;
-      }
-      if(similarity.max<distance){
-	similarity.max=distance;
-      }
+      //similarity.score+=distance;
+      //similarity.mean+=distance;
+      // if(similarity.min>distance){ //searching extreme values
+      // 	similarity.min=distance;
+      // }
+      if(similarity.score>distance){ //searching extreme values
+      	similarity.score=distance;
+       }
+      // if(similarity.max<distance){
+      // 	similarity.max=distance;
+      // }
       ++it;
       ++counter;
       if(*it!=label||it==_labelNr.end()){//saving result
-	similarity.mean/=counter;
+	//similarity.mean/=counter;
 	similarity.label=label;
 	results.push_back(similarity);
-	similarity.min=100;
-	similarity.max=0;
-	similarity.mean=counter=0;
+	// similarity.min=100;
+	similarity.score=100;
+	// similarity.max=0;
+	//similarity.mean=counter=0;
+	counter=0;
       }
     } 
   }
@@ -355,7 +365,7 @@ std::list<Result> PCARec::recognise(cv::Mat& img){
 	<<" in function "<<__func__<<endl;
     throw ex;
   } 
-  results.sort(compareMinResults);//sorting in ascending order by min value
+  results.sort(compareAscending);//sorting in ascending order by min value
   return results;
 }
 

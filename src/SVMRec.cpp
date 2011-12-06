@@ -1,3 +1,6 @@
+///\file
+///\brief File containing implementation of class SVMRec
+///\author Michał Orynicz
 #include "SVMRec.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -11,11 +14,12 @@ using std::vector;
 using std::list;
 using std::cerr;
 using std::endl;
-
+///\cond
+// Constants used for training
 int SVMRec::POSITIVE=-1;
 int SVMRec::NEGATIVE=1; 
 
-
+//Constants used for saving and loading the object
 string SVMRec::VECTORS="VECTORS";
 string SVMRec::VEC_ROWS="VECTORS_ROWS";
 string SVMRec::VEC_COLS="VECTORS_COLS";
@@ -32,7 +36,7 @@ string SVMRec::MEAN_TYPE="MEAN_TYPE";
 string SVMRec::SVMS="SVMS";
 string SVMRec::SVMS_QUANTITY="SVMS_QUANTITY";
 string SVMRec::SVM="SVM";
-
+///\endcond
 /*!
  * \brief Constructor initialising name field
  */
@@ -310,6 +314,10 @@ void SVMRec::compute(){
 			    __func__,__FILE__,__LINE__);
 	  throw ex;
 	}
+	cerr<<"C: "<<params.C<<endl;
+	cerr<<"coef0: "<<params.coef0<<endl;
+	cerr<<"gamma: "<<params.gamma<<endl;
+	cerr<<"degree: "<<params.degree<<endl;
       }
     }
   }
@@ -373,9 +381,10 @@ std::list<Result> SVMRec::recognise(cv::Mat& img){
     }
     equalizeHist(tmp,eq);
     Result similarity;
-    similarity.mean=0;
-    similarity.min=0;
-    similarity.max=0;
+    // similarity.mean=0;
+    // similarity.min=0;
+    // similarity.max=0;
+    similarity.score=0;
     similarity.label=-1;
     // image projection
     //    imshow("lost_one",eq);
@@ -386,12 +395,14 @@ std::list<Result> SVMRec::recognise(cv::Mat& img){
     int cnt=0; //querying SVMs with the image
     for(list<CvSVM>::iterator it=_svms.begin();
 	it!=_svms.end();++it,++cnt){
-      similarity.mean=it->predict(vec,true);
+      //      similarity.mean=it->predict(vec,true);
+      similarity.score=it->predict(vec,true);
       similarity.label=cnt;
       results.push_back(similarity);
-      similarity.mean=0;
-      similarity.min=0;
-      similarity.max=0;
+      // similarity.mean=0;
+      // similarity.min=0;
+      // similarity.max=0;
+      similarity.score=0;
       similarity.label=-1;
     }
   }
@@ -400,7 +411,7 @@ std::list<Result> SVMRec::recognise(cv::Mat& img){
 	<<" in fucntion "<<__func__<<endl;
     throw ex;
   } 
-  results.sort(compareMeanResults); //sorting results in descending order by
+  results.sort(compareDescending); //sorting results in descending order by
   // mean value
  return results;
 }
@@ -413,3 +424,4 @@ SVMRec::~SVMRec(){
 
 }
 
+ 
