@@ -394,7 +394,8 @@ list<Result> PPRec::recognise(Mat &img){
   scList.scores=NULL;
   oList.objects=NULL;
   
-  result.min=result.max=result.mean=0;
+  //  result.min=result.max=result.mean=0;
+  result.score=0;
   result.label=-1;
 
   results.clear();
@@ -455,7 +456,8 @@ list<Result> PPRec::recognise(Mat &img){
       }
       //      cerr<<"przygotoanie rezultatów"<<endl;
       Result result;
-      result.min=result.max=result.mean=0;
+      //result.min=result.max=result.mean=0;
+      result.score=0;
       result.label=-1;
       
       {
