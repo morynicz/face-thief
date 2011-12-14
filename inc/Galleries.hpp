@@ -49,13 +49,21 @@ class Galleries{
     int counter; ///< Number of pictures in gallery
     std::vector<string> photos; ///< Vector of picture addresses
   };
-  /// All pictures must have the same dimensions
-  cv::Size _picSize; ///< Size of a picture 
+
+  ///\brief Size of a picture. 
+
+  /// Size of a picture. All pictures must have the same dimensions
+  cv::Size _picSize;
+
   int _picType; ///< Type of a picture (OpenCV picture type)
+
   std::vector<Gallery> _gal; ///< Vector containing galleries 
+
   std::string _path; ///< Path to the directory designed for the galleries
+
   /// \brief Method for copying picture adress to a gallery
   void addPictureByAddress(string label,string target);
+
   /// \brief Method for retrieveing picture address from a gallery
   string getPictureAddress(int galleryNumber,int picNr);
 
@@ -70,36 +78,51 @@ public:
   /// \brief Constructor which sets path and opens a gallery file
   Galleries(string path,string filename);
   void load(string filename); ///< Method loading galleries from a file
+
   void save(string filename); ///< Method saving galleries to a file
+
   ///\brief Method adding image to gallery with proper label
   void add(string label, cv::Mat image); 
+
   ///\brief Method returning the number of galleries
   int totalSize(){return _gal.size();}
+
   ///\brief Method setting path to the directory designated for galleries
   void setPath(string path);
+
   ///\brief Method retrieveing a picture from galleries
   cv::Mat getPicture(string label, int number);
+
   ///\brief Method retrieveing a picture from galleries
   cv::Mat getPicture(int galleryNumber, int photoNumber);
+
   ///\brief Method retrieveing pictures size 
   
-  /// All pictures must have the same size
+  /// Method retrieveing pictures size. All pictures must have the same size
   cv::Size getPictureSize(){return _picSize;}
+
   ///\brief Method retrieveing the type of the pictures
 
-  /// All pictures should have the same type
+  /// Method retrieveing the type of the pictures. All pictures should have 
+  /// the same type
   int getPictureType(){return _picType;}
+
   ///\brief Method returns the size of chosen gallery
   int gallerySize(std::string label); 
+
   /// \brief Method returns the size of chosen gallery
   int gallerySize(int galleryNumber);
+
   /// \brief Method returning the label of chosen gallery
   std::string getGalleryLabel(int galleryNumber);
+
   /// \brief Method returning the number of chosen gallery
   int getGalleryNumber(std::string label);
+
   /// \brief Method dividing galleries into K subsets
   void createKSubsets(const int &K,const std::string &nameStub,
 		      std::vector<string> &galleriesAddresses);
+
   /// \brief Destructor
   ~Galleries(){};
 };

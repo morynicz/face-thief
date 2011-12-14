@@ -94,27 +94,6 @@ void Galleries::load(string filename){
 	  (*it)[COUNTER]>>cnt;
 	  _gal[galNumber].counter+=cnt;
 	}
-// #if CV_MINOR_VERSION > 3
-// 	(*it)[ADDRESS]>>gallery.photos;
-// 	//	cerr<<_gal.label<<endl<<_gal.counter<<endl;
-// 	{ //size check
-// 	  unsigned i=0;
-// 	  if(_picSize.width==INITIAL_SIZE && _picSize.height==INITIAL_SIZE){
-// 	    cv::Mat img=imread(gallery.photos.front());
-// 	    _picSize=img.size();
-// 	    ++i;
-// 	  }
-// 	  for(;i<gallery.photos.size();++i){
-// 	    cv::Mat img=imread(gallery.photos[i]);
-// 	    if(img.size()!=_picSize){
-// 	      Exception ex(NON_UNIFORM_GALLERY,
-// 			   "exception: all images in the gallery must have the same dimensions",
-// 			   __func__,__FILE__,__LINE__);
-// 	      throw ex;
-// 	    }
-// 	  }
-// 	}
-// #else
 	FileNode gfn=(*it)[ADDRESS];
 	FileNodeIterator git=gfn.begin();
 	for(;git!=gfn.end();++git){
@@ -131,12 +110,7 @@ void Galleries::load(string filename){
 	    }
 	  }
 	}
-    
-	//#endif
-
-	
-
-    
+        
       }
       fs.release();   
     }
@@ -289,10 +263,10 @@ void Galleries::save(string filename){
 }
 
 /*!
- * Method alloing to retrieve a picture from galleries
+ * Method allowing to retrieve a picture from galleries
  *
  * \param label - label of gallery from which image will be retrieved
- * \param number - numberofimage to be retrieved
+ * \param number - number of image to be retrieved
  *
  * \return Image from gallery
  *
@@ -319,10 +293,10 @@ cv::Mat Galleries::getPicture(string label,int number){
 }
 
 /*!
- * Method alloing to retrieve a picture from galleries
+ * Method allowing to retrieve a picture from galleries
  *
  * \param galleryNumber - label of gallery from which image will be retrieved
- * \param photoNumber - numberofimage to be retrieved
+ * \param photoNumber - number of image to be retrieved
  *
  * \return Image from gallery
  *

@@ -15,7 +15,7 @@ struct Result{
   /* double mean; 
   double min;
   double max;*/
-  double score; ///< scor for gallery with asociated label
+  double score; ///< score for gallery with asociated label
 };
 /// Function returning if a is greater than b 
 
@@ -48,8 +48,12 @@ class Rec{
 protected:
   std::string name; ///< Name of algorithm
 public:
-  Rec(){}; ///< Empty constructor
-  virtual void initialize(){}; ///< Method preparing object to work
+  ///\brief Empty constructor
+  Rec(){}; 
+
+  ///\brief Method preparing object to work
+  virtual void initialize(){}; 
+
   /// \brief Method loading galleries to object
   virtual void loadGalleries(Galleries& galleries)=0;
   /// \brief Method loading precomputed data

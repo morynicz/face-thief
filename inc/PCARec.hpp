@@ -45,13 +45,29 @@ class PCARec:public Rec{
 
 public:
   PCARec(); ///< Constructor 
-  virtual void loadGalleries(Galleries& galleries);
+
+  ///\brief Method allowing to load galleries to object
+  virtual void loadGalleries(Galleries& galleries); 
+  
+  ///\brief Method allowing to load previously computed data to object
   virtual void loadPrecomputedGalleries(const std::string& target);
+  
+  ///\brief Method allowing to save computed data for later use
   virtual void savePrecomputedGalleries(const std::string& target);
+
+  ///\brief Method computes data from galleries for recognition 
   virtual void compute();
+
+  ///\brief Method clears the object
   virtual void clear();
+  
+  ///\brief Method performing recognition
   virtual std::list<Result> recognise(const std::string& target);
+  
+  ///\brief Method performing recognition
   virtual std::list<Result> recognise(cv::Mat& img);
+  
+  ///\brief Destructor
   virtual ~PCARec();
 };
 

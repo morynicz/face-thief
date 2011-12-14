@@ -57,7 +57,7 @@ PPRec::PPRec(){
 
 void PPRec::initialize(){
   modelPath="../../pittpatt/pittpatt_sdk/models/";
-  galleryFile="galleries.ppr";
+  //galleryFile="galleries.ppr";
   precision=PPR_FINE_PRECISION;
   detector=PPR_DUAL_FRONTAL_LANDMARK_DETECTOR;
   detectorMode=PPR_AUTOMATIC_LANDMARKS;

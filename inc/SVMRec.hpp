@@ -13,10 +13,12 @@
 ///\brief Class providing object recognition using support vector machines and PCA
 class SVMRec:public Rec{
   cv::Mat _data; ///< Matrix containing pictures from loaded galleries
-  cv::Mat _vectors; ///< matrix containing pictures projected to PCA space
-  cv::PCA _pca; ///< object containing PCA
-  std::list<CvSVM> _svms; ///< vector containing support vector machines
-  std::list<int> _labelNr; ///< list of numeric labels of pictures
+  cv::Mat _vectors; ///< Matrix containing pictures projected to PCA space
+  cv::PCA _pca; ///< Object containing PCA
+  std::list<CvSVM> _svms; ///< Vector containing support vector machines
+  
+  std::list<int> _labelNr; ///< List of numeric labels of pictures
+  
   ///\cond  
   static int POSITIVE;
   static int NEGATIVE;
@@ -47,14 +49,30 @@ class SVMRec:public Rec{
   static std::string SVM;
   ///\endcond
 public:
-  SVMRec();
+  SVMRec();///< Constructor 
+
+  ///\brief Method allowing to load galleries to object
   virtual void loadGalleries(Galleries& galleries);
+
+  ///\brief Method allowing to load previously computed data to object
   virtual void loadPrecomputedGalleries(const std::string& target);
+
+  ///\brief Method allowing to save computed data for later use
   virtual void savePrecomputedGalleries(const std::string& target);
+
+  ///\brief Method computes data from galleries for recognition 
   virtual void compute();
+
+  ///\brief Method clears the object
   virtual void clear();
+
+  ///\brief Method performing recognition
   virtual std::list<Result> recognise(const std::string& target);
+
+  ///\brief Method performing recognition
   virtual std::list<Result> recognise(cv::Mat& img);
+
+  ///\brief Destructor
   virtual ~SVMRec();
 };
 
