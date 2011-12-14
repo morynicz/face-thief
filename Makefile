@@ -1,7 +1,7 @@
-SHELL=/bin/bash
-# HOST=$(shell hostname)
-# HUST=$(HOSTNAME)
+# Face recognition library
+# Author: Michał Orynicz
 
+SHELL=/bin/bash
 
 INCLUDES= -Iinc \
 	-I /usr/local/include/opencv2 \
@@ -15,12 +15,14 @@ LIBS=-lopencv_core \
 	-lboost_thread \
 	-lboost_filesystem 
 
+# The file contains information if PittPatt library is present 
 -include makefile.local
 
 CFLAGS=${INCLUDES} -g -O0 -Wall -pedantic -Wno-sign-compare
 
 CC=g++
 
+# Names of programs. Can be freely changed
 S_GAL=singleGalCreator
 M_GAL=serialGalCreator
 POR=comparator
@@ -29,6 +31,7 @@ DET=detector
 COMP=computer
 TEST=tester
 
+# objects needed for programs to compile
 S_GAL_OBJ=obj/CapToGal.o obj/Catcher.o obj/Galleries.o
 M_GAL_OBJ= obj/VideoToGal.o obj/Catcher.o obj/Galleries.o
 VID_OBJ=obj/VideoCap.o obj/Catcher.o
@@ -41,21 +44,29 @@ COMP_OBJ=obj/PCARec.o obj/SVMRec.o obj/PPRec.o obj/Computer.o \
 TEST_OBJ=obj/PCARec.o obj/SVMRec.o obj/PPRec.o obj/Tester.o \
 	obj/Galleries.o obj/ocv2pit.o obj/Rec.o
 
+# All objects
 OBJ= obj/CapToGal.o obj/Catcher.o obj/Galleries.o obj/Comparator.o  \
 	obj/PCARec.o obj/SVMRec.o obj/VideoCap.o obj/VideoToGal.o \
 	obj/ocv2pit.o obj/PPRec.o obj/Detector.o obj/Computer.o obj/Rec.o \
 	obj/Tester.o
 
+# folder containing galleries for buildGalleries target
 GAL_FOLD=galleries
+
+#folder containing videos for buildGalleries target
 VID_FOLD=video
+
+#number of photos to extract from videoas for each person
 GAL_LIMIT=50
+
+# macro creating base for list of labels for bulidGalleries
 VIDS:=$(wildcard $(VID_FOLD)/*.avi)
-GALERIE:=$(addprefix $(GAL_FOLD)/, $(notdir $(basename $(VIDS))))
+# macro building list of labels for bulidGalleries
+GALLERIES:=$(addprefix $(GAL_FOLD)/, $(notdir $(basename $(VIDS))))
 
+
+#targets
 all:  ${S_GAL} ${POR} ${M_GAL} ${VID} ${DET} ${COMP} ${TEST}
-
-hoste:
-	@echo $(HUST)
 
 ${S_GAL}: ${S_GAL_OBJ}
 	$(CC) -o ${S_GAL}  ${LIBS} ${S_GAL_OBJ} 
@@ -88,14 +99,30 @@ clean:
 
 buildPrecomputedGalleries: buildGalleries precompute
 
-buildGalleries: $(GALERIE)
+buildGalleries: folderPresence $(GALLERIES)
 
-$(GALERIE): $(GAL_FOLD)/%: $(VID_FOLD)/%.avi
+folderPresence:
+	mkdir -p $(GAL_FOLD)
+	mkdir -p $(VID_FOLD)
+
+
+$(GALLERIES): $(GAL_FOLD)/%: $(VID_FOLD)/%.avi
 	./${M_GAL} $(GAL_FOLD) $(notdir $@) $< $(GAL_LIMIT)
 
 precompute: $(GALERIE)
+	mkdir -p PCAData
+	mkdir -p SVMData	
+	mkdir -p PPRData
+
 	./${COMP} $(GAL_FOLD) 
 
 documentation:
 	make -C doc
+
+help:
+	@echo "all - build all programs and objects"
+	@echo "clean - clean all programs and objects and documentation"
+	@echo "buildPrecomputedGalleries - build galleries and precompute"
+	@echo "buildGalleries - build galleries based on videos in folder video"
+	@echo "documentation - build documentation"
 
