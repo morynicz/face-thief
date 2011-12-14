@@ -82,7 +82,7 @@ ${OBJ}: obj/%.o: src/%.cpp inc/*.hpp
 	$(CC) -o $@ $< -c ${CFLAGS} 
 
 clean:
-	rm -f obj/* ${VID} ${M_GAL} ${S_GAL} ${POR} ${M_GAL} ${COMP}
+	rm -f obj/* ${VID} ${M_GAL} ${S_GAL} ${POR} ${COMP} ${TEST} ${DET}
 	make -C doc clean
 
 
