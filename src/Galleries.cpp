@@ -29,10 +29,15 @@ Galleries::Galleries(string path, string filename){
   load(filename);
 }
 
+/*!
+ * Method returns number of gallery with given label
+ *
+ * \param label - label of gallery which number is sought
+ */
+
 int Galleries::getGalleryNumber(string label){
   int number=-1;
   for(number=0;number<_gal.size();++number){
-    //    cerr<<"szuka "<<label<<" == "<<_gal[number].label<<'?'<<endl;
     if(_gal[number].label==label)
       break;
   }
@@ -144,27 +149,25 @@ void Galleries::add(string label,cv::Mat img){
   if(!_path.empty()){
     if(!_gal.empty()){
       for(number=0;number<_gal.size();++number){
-	//	cerr<<"szuka "<<label<<" == "<<_gal[number].label<<'?'<<endl;
 	if(_gal[number].label==label)
 	  break;
       }
-
       
       if(_gal.size()==number){
-	Gallery galeria;
-	galeria.label=label;
-	galeria.counter=0;
-	_gal.push_back(galeria);
+	Gallery gallery;
+	gallery.label=label;
+	gallery.counter=0;
+	_gal.push_back(gallery);
 	if(!boost::filesystem::exists(_path+'/'+label)){
 	  boost::filesystem::create_directory(_path+'/'+label);
 	  cerr<<(_path+'/'+label)<<endl;
 	}
       }
     }else{
-      Gallery galeria;
-      galeria.label=label;
-      galeria.counter=0;
-      _gal.push_back(galeria);
+      Gallery gallery;
+      gallery.label=label;
+      gallery.counter=0;
+      _gal.push_back(gallery);
       number=0;
       _picSize=img.size();
       _picType=img.type();
@@ -176,23 +179,25 @@ void Galleries::add(string label,cv::Mat img){
     {
       if(img.size()!=_picSize){
 	Exception ex(WRONG_PICTURE_SIZE,
-		     "exception: picture size differs from standard galleries size",
+		     "exception: picture size differs from standard \
+galleries size",
 		     __func__,__FILE__,__LINE__);
       }
       
       if(img.type()!=_picType){
 	Exception ex(WRONG_PICTURE_TYPE,
-		     "exception: picture type differs from standard galleries type",
+		     "exception: picture type differs from standard \
+galleries type",
 		     __func__,__FILE__,__LINE__);
       }
-      string cel;
-      std::stringstream sBufor;
-      sBufor<<_path<<'/'<<_gal[number].label<<'/'<<_gal[number].counter++
+      string target;
+      std::stringstream sBuff;
+      sBuff<<_path<<'/'<<_gal[number].label<<'/'<<_gal[number].counter++
 	    <<".jpg";
-      sBufor>>cel;
-      cerr<<cel<<endl;
-      imwrite(cel,img);
-      _gal[number].photos.push_back(cel);
+      sBuff>>target;
+      cerr<<target<<endl;
+      imwrite(target,img);
+      _gal[number].photos.push_back(target);
     }
   }else{
     Exception ex(NO_PATH_DECLARED,
@@ -377,18 +382,12 @@ std::string Galleries::getGalleryLabel(int galleryNumber){
 void Galleries::addPictureByAddress(string label,string target){
   int galNr=getGalleryNumber(label);
   if(galNr<0){
-    Gallery galeria;
-    galeria.label=label;
-    galeria.counter=0;
+    Gallery gallery;
+    gallery.label=label;
+    gallery.counter=0;
     galNr=_gal.size();
-    _gal.push_back(galeria);
-   //  if(!boost::filesystem::exists(_path+target)){
-   //    Exception ex(NO_SUCH_FILE,"exception: there is no such file: "+
-   // 		   target,__func__,__FILE__,__LINE__);
-   //    throw ex;
-   // }
+    _gal.push_back(gallery);
   }
-  
   _gal[galNr].photos.push_back(target);
 }
 
@@ -447,10 +446,6 @@ void Galleries::createKSubsets(const int &K,const std::string &nameStub,
       int galNr=rand() % usablePic.size();
       int picNr=rand() % usablePic[galNr].size();
 
-      // cerr<<"wylosowane:"<<galNr<<" "<<picNr<<endl;
-      // cerr<<"czyli: "<<usableGal[galNr]<<" "<<usablePic[galNr][picNr]<<endl;
-      // tmp.add(getGalleryLabel(usableGal[galNr]),
-      // 	      getPicture(usableGal[galNr],usablePic[galNr][picNr]));
       tmp.addPictureByAddress(getGalleryLabel(usableGal[galNr]),
 		       getPictureAddress(usableGal[galNr],
 					 usablePic[galNr][picNr]));
@@ -472,7 +467,6 @@ void Galleries::createKSubsets(const int &K,const std::string &nameStub,
       tmp.save(fileName);
       galleriesAddresses.push_back(fileName);
     }  
-    //    cerr<<createdGalCnt<<endl;
   }
 
 }

@@ -10,7 +10,8 @@
 #ifndef SVM_REC_HPP
 #define SVM_REC_HPP
 
-///\brief Class providing object recognition using support vector machines and PCA
+///\brief Class providing object recognition using support vector machines 
+///and PCA
 class SVMRec:public Rec{
   cv::Mat _data; ///< Matrix containing pictures from loaded galleries
   cv::Mat _vectors; ///< Matrix containing pictures projected to PCA space

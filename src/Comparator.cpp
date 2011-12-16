@@ -2,9 +2,6 @@
 ///\brief Main file of program recognizing people from photos
 
 #include <iostream>
-//#include "thread.hpp"
-//#include "opencv2/opencv.hpp"
-//#include "opencv2/gpu/gpu.hpp"
 #include "opencv2/core/core.hpp"
 #include "opencv2/objdetect/objdetect.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -27,10 +24,7 @@
 #define PPREC_PRECOMPUTED
 
 #endif
-#include <sstream> //do nazw plików
-
-
-
+#include <sstream> 
 
 #define PCAREC
 #define PCAREC_PRECOMPUTED
@@ -40,51 +34,46 @@
 using namespace cv;
 using namespace std;
 
-
+/// Program demonstrating how the face recognition algorithms work on single 
+/// picture(s).
 int main(int argc,char **argv){
 
 
-  Mat obr,eq;
+  Mat img;
+  Mat eq;
   Mat mid;
   Mat bw;
-  Mat gemben;
+  Mat faces;
 
-  int outWidth=200;
-  int outHeight=outWidth+FACE_FACTOR*outWidth;
-  string zdjecie;
+  string photo;
 
-  Size rozm(OUT_WIDTH,OUT_HEIGHT);
+  Size size(OUT_WIDTH,OUT_HEIGHT);
   
-  string adres;
+  string address;
 
   Galleries galleries;
-  //long counter=1;
 
-  vector<Rect> twarze; 
+
+  vector<Rect> foundFaces; 
   vector<Rec*> alg;
-  //  Lapacz kam(0);
 
-  CascadeClassifier szukacz;
+
+  CascadeClassifier finder;
   
-  // szukacz.load(argv[1]);
  
   if(argc<2){
     cerr<<"Error: incorrect number of arguments. Correct invocation:"<<endl
 	<<argv[0]<<" galleries_folder [photo_for_recognition]"<<endl;
     return 1;
   }
-  adres=argv[1];
-  szukacz.load("kaskady/haarcascade_frontalface_alt_tree.xml");
+  address=argv[1];
+  finder.load("kaskady/haarcascade_frontalface_alt_tree.xml");
   if(argc==3){
-    zdjecie=argv[2];
+    photo=argv[2];
   }
-  Mat do_golenia;
-  //  Mat kompresowany;
-  do_golenia=imread(zdjecie);
-  // wczytywanie galerii zdjęć
   try{
-    galleries.setPath(adres);
-    galleries.load("galeria.xml");
+    galleries.setPath(address);
+    galleries.load("gallery.xml");
   }
   catch(Exception ex){
     cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
@@ -93,16 +82,12 @@ int main(int argc,char **argv){
   }
   
   cout<<"hi thar"<<endl;
-  //  Mat pomiar=imread(zdjecie);
-
 
    boost::timer time;
-
    
 #ifdef PITTPATT_PRESENT
       cout<<"PPR initialisng"<<endl;
       time.restart();
-      //      PPRec pp;
       alg.push_back(new PPRec);
       alg.back()->initialize();
       cout<<"PPR initialised"<<endl;
@@ -159,7 +144,6 @@ int main(int argc,char **argv){
     cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
 	<<fmod(time.elapsed(),60) <<"s"<<endl;
 
-
     cout<<"PCA: saving"<<endl;
     time.restart();
     alg.back()->savePrecomputedGalleries((alg.back()->getName()+"Data")
@@ -215,34 +199,34 @@ int main(int argc,char **argv){
 #endif
 
     {//Control loop
-      Mat obr;
+      Mat img;
       int m,n;
-      char control;
+      char controll;
       if(argc==3)
-	control='\000';
+	controll='\000';
       else
-	control='u';
+	controll='u';
 
-      namedWindow("skanowane",CV_WINDOW_NORMAL|CV_WINDOW_KEEPRATIO);
+      namedWindow("scanned",CV_WINDOW_NORMAL|CV_WINDOW_KEEPRATIO);
       namedWindow("in",CV_WINDOW_NORMAL);
-      namedWindow("znalezione",CV_WINDOW_NORMAL);
+      namedWindow("found",CV_WINDOW_NORMAL);
       long counter=0;
-    while(control!='n'){
+    while(controll!='n'){
        
 	try{
-	  if(control!='r'&&control!='\000'){
-	    cout<<"podaj nazwe zdjęcia do wczytania: "<<endl;
-	    cin>>zdjecie;
+	  if(controll!='r'&&controll!='\000'){
+	    cout<<"please name the photo to be read: "<<endl;
+	    cin>>photo;
 	  }
-	  obr=imread(zdjecie);
-	  if(obr.empty()){
-	    cerr<<"nie ma takiego zdjęcia!"<<endl;
+	  img=imread(photo);
+	  if(img.empty()){
+	    cerr<<"could not read the image!"<<endl;
 	    continue;
 	  }
-	  obr.copyTo(gemben);
-	  cvtColor(obr,bw,CV_RGB2GRAY);
+	  img.copyTo(faces);
+	  cvtColor(img,bw,CV_RGB2GRAY);
 	  equalizeHist(bw,eq);
-	  imshow("in",obr);
+	  imshow("in",img);
 	}
 	catch(Exception ex){
 	  cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
@@ -250,25 +234,25 @@ int main(int argc,char **argv){
 	  throw ex;
 	}   
 	try{
-	  szukacz.detectMultiScale(eq,twarze,1.3);
-	  if(!twarze.empty()){
-	    m=floor(sqrt(twarze.size()));
-	    n=ceil(sqrt(twarze.size()));
-	    mid.create(rozm.height*m,rozm.width*n,eq.type());
+	  finder.detectMultiScale(eq,foundFaces,1.3);
+	  if(!foundFaces.empty()){
+	    m=floor(sqrt(foundFaces.size()));
+	    n=ceil(sqrt(foundFaces.size()));
+	    mid.create(size.height*m,size.width*n,eq.type());
 	    int i=0;
 	 
-	    for(vector<Rect>::iterator it=twarze.begin();
-		it!=twarze.end();++it,++i){
+	    for(vector<Rect>::iterator it=foundFaces.begin();
+		it!=foundFaces.end();++it,++i){
 	      it->y-=(it->height)*FACE_FACTOR/2;
 	      it->height*=(1+FACE_FACTOR);
-	      rectangle(gemben,
+	      rectangle(faces,
 			Point(it->x,it->y),
 			Point(it->x+it->width,it->y+it->height),
 			Scalar(255,0,0));
 
-	      Mat midPt=mid(Rect(rozm.width*(i/n),
-				 rozm.height*(i%m),
-				 rozm.width,rozm.height));
+	      Mat midPt=mid(Rect(size.width*(i/n),
+				 size.height*(i%m),
+				 size.width,size.height));
 	      resize(Mat(eq,(*it)),midPt,midPt.size(),0,0,CV_INTER_LINEAR);
 	  
 	      {
@@ -278,23 +262,20 @@ int main(int argc,char **argv){
 		    cout<<alg[z]->getName()<<" recognising"<<endl;
 		    time.restart();
 		    Mat tmp=eq.clone();
-		    std::list<Result> wyniki=alg[z]->recognise(tmp);
+		    std::list<Result> results=alg[z]->recognise(tmp);
 		    cout<<alg[z]->getName()<<" recognised "<<endl;
-		    for(std::list<Result>::iterator sit=wyniki.begin();
-			sit!=wyniki.end();++sit){
-		      //  cerr<<sit->label<<endl;
+		    for(std::list<Result>::iterator sit=results.begin();
+			sit!=results.end();++sit){
 		      cout<<galleries.getGalleryLabel(sit->label)<<" "
-			  // <<sit->mean
-			  // <<" "<<sit->max<<" "<<sit->min<<endl;
 			  <<sit->score<<endl;
 		    }
 		   
-		    if(!wyniki.empty()){
-		      bestMatch=galleries.getGalleryLabel(wyniki.front().label);
+		    if(!results.empty()){
+		      bestMatch=galleries.getGalleryLabel(results.front().label);
 		      cerr<<endl<<alg[z]->getName()+" "+bestMatch
 			  <<endl<<endl;
 		    }		    
-		    putText(gemben,alg[z]->getName()+" "+bestMatch,
+		    putText(faces,alg[z]->getName()+" "+bestMatch,
 		    	    Point(it->x,it->y+it->height+(z*2.5+2)*10),
 		    	    FONT_HERSHEY_SIMPLEX,
 		    	    1,Scalar(0,255,0),2);
@@ -308,15 +289,15 @@ int main(int argc,char **argv){
 		
 		}
 		}
-	      imshow("skanowane",gemben);
-	      imshow("znalezione",mid);
+	      imshow("scanned",faces);
+	      imshow("found",mid);
 	    }
 	    {
 		string name;
 		std::stringstream buff;
 		buff<<"out"<<counter++<<".jpg";
 		buff>>name;
-		imwrite(name,gemben);
+		imwrite(name,faces);
 		}
 	    }
 	}
@@ -327,10 +308,12 @@ int main(int argc,char **argv){
 	}
 	
      	waitKey(100);
-	if(control!='\000'){
+	if(controll!='\000'){
 	  cout<<"Wczytać kolejne zdjęcie (n-nie/r-powtórz to \
 samo/cokolwiek-tak): "<<endl;
-	  cin>>control;
+	  cout<<"Read another image? (n - no / r - repeat on the previous one\
+any_other_letter - yes"<<endl;
+	  cin>>controll;
 	}else{
 	  break;
 	}

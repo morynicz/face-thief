@@ -14,6 +14,7 @@ using std::vector;
 using std::list;
 using std::cerr;
 using std::endl;
+
 ///\cond
 // Constants used for training
 int SVMRec::POSITIVE=-1;
@@ -37,6 +38,7 @@ string SVMRec::SVMS="SVMS";
 string SVMRec::SVMS_QUANTITY="SVMS_QUANTITY";
 string SVMRec::SVM="SVM";
 ///\endcond
+
 /*!
  * \brief Constructor initialising name field
  */
@@ -172,9 +174,6 @@ void SVMRec::savePrecomputedGalleries(const string& target){
       throw err;
     }
     fs
-      // <<DATA_ROWS<<_data.rows
-      // <<DATA_COLS<<_data.cols
-      // <<DATA_TYPE<<_data.type()
       <<VEC_ROWS<<_vectors.rows
       <<VEC_COLS<<_vectors.cols
       <<VEC_TYPE<<_vectors.type()
@@ -189,26 +188,13 @@ void SVMRec::savePrecomputedGalleries(const string& target){
       string ext=".dat";
       {      
 	size_t position=target.find_last_of("/");
-	//if(position==string::npos){
-	//   cv::Exception err(CANNOT_FIND_DIRECTORY,
-	// 		    "file cannot be opened",
-	// 		    __func__,__FILE__,__LINE__);
-	//   throw err;
-	// }
 	dir=target.substr(0,position);
       }
 
-      // name=dir+"/"+DATA+ext;
-      // writeToBinary(_data,name);
-      // fs<<DATA<<name;
 
       name=dir+"/"+VECTORS+ext;
       writeToBinary(_vectors,name);
       fs<<VECTORS<<name;
-
-      // name=dir+"/"+ICOVAR+ext;
-      // writeToBinary(_icovar,name);
-      // fs<<ICOVAR<<name;
 
       name=dir+"/"+EIGENVECTORS+ext;
       writeToBinary(_pca.eigenvectors,name);
@@ -232,7 +218,6 @@ void SVMRec::savePrecomputedGalleries(const string& target){
 	list<CvSVM>::iterator iter=_svms.begin();
 	for(int i=0;i<_svms.size();++i,++iter){
 	  buff<<dir<<"/"<<SVM<<i<<".xml";
-	  //	  name=dir+"/"+SVM+".xml";
 	  buff>>name;
 	  buff.clear();
 	  cerr<<name<<endl;
@@ -301,13 +286,9 @@ void SVMRec::compute(){
 	    res.push_back(NEGATIVE);
 	  }
 	}
-	//	cerr<<Mat(res)<<endl;
-	//    	cerr<<_vectors<<endl;
 	Mat tmp=_vectors.clone();
 	_svms.push_back(CvSVM());
-	//q_svms.back().train(tmp,Mat(res));
 	cerr<<_svms.size()<<endl;
-	//cerr<<tmp<<endl;
 	if(!_svms.back().train_auto(tmp,Mat(res),Mat(),Mat(),params)){
 	  cv::Exception ex(SVM_TRAINING_FAILURE,
 			    "svm could not find a solution",
@@ -381,27 +362,15 @@ std::list<Result> SVMRec::recognise(cv::Mat& img){
     }
     equalizeHist(tmp,eq);
     Result similarity;
-    // similarity.mean=0;
-    // similarity.min=0;
-    // similarity.max=0;
     similarity.score=0;
     similarity.label=-1;
-    // image projection
-    //    imshow("lost_one",eq);
-    //waitKey(2000);
     _pca.project(eq.reshape(1,1),vec);
-    //    vec.convertTo(in,CV_32FC1);
-    //    cerr<<vec.cols<<" "<<vec.rows<<endl;
     int cnt=0; //querying SVMs with the image
     for(list<CvSVM>::iterator it=_svms.begin();
 	it!=_svms.end();++it,++cnt){
-      //      similarity.mean=it->predict(vec,true);
       similarity.score=it->predict(vec,true);
       similarity.label=cnt;
       results.push_back(similarity);
-      // similarity.mean=0;
-      // similarity.min=0;
-      // similarity.max=0;
       similarity.score=0;
       similarity.label=-1;
     }

@@ -14,7 +14,9 @@ using std::list;
 using std::cerr;
 using std::endl;
 using namespace cv;
+
 ///\cond
+// Strings for saving and loading data
 string PCARec::DATA="DATA";
 string PCARec::DATA_ROWS="DATA_ROWS";
 string PCARec::DATA_COLS="DATA_COLS";
@@ -179,9 +181,6 @@ void PCARec::savePrecomputedGalleries(const string& target){
       throw err;
     }
     fs
-      // <<DATA_ROWS<<_data.rows
-      // <<DATA_COLS<<_data.cols
-      // <<DATA_TYPE<<_data.type()
       <<VEC_ROWS<<_vectors.rows
       <<VEC_COLS<<_vectors.cols
       <<VEC_TYPE<<_vectors.type()
@@ -196,19 +195,8 @@ void PCARec::savePrecomputedGalleries(const string& target){
       string ext=".dat";
       {      
 	size_t position=target.find_last_of("/");
-	//if(position==string::npos){
-	//   cv::Exception err(CANNOT_FIND_DIRECTORY,
-	// 		    "file cannot be opened",
-	// 		    __func__,__FILE__,__LINE__);
-	//   throw err;
-	// }
 	dir=target.substr(0,position);
       }
-
-      // name=dir+"/"+DATA+ext;
-      // writeToBinary(_data,name);
-      // fs<<DATA<<name;
-
       name=dir+"/"+VECTORS+ext;
       writeToBinary(_vectors,name);
       fs<<VECTORS<<name;
@@ -327,35 +315,20 @@ std::list<Result> PCARec::recognise(cv::Mat& img){
   
     //recognition
     Result similarity;
-    //    similarity.mean=0;
-    // similarity.min=100;
-    // similarity.max=0;
     similarity.score=100;
     similarity.label=-1;
     for(int i=0;i<_vectors.rows;++i){
       int label=*it; //computing distance
       double distance=Mahalanobis(_vectors.row(i),vec,_icovar);
-      //similarity.score+=distance;
-      //similarity.mean+=distance;
-      // if(similarity.min>distance){ //searching extreme values
-      // 	similarity.min=distance;
-      // }
       if(similarity.score>distance){ //searching extreme values
       	similarity.score=distance;
        }
-      // if(similarity.max<distance){
-      // 	similarity.max=distance;
-      // }
       ++it;
       ++counter;
       if(*it!=label||it==_labelNr.end()){//saving result
-	//similarity.mean/=counter;
 	similarity.label=label;
 	results.push_back(similarity);
-	// similarity.min=100;
 	similarity.score=100;
-	// similarity.max=0;
-	//similarity.mean=counter=0;
 	counter=0;
       }
     } 

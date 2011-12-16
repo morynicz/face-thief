@@ -1,6 +1,7 @@
 ///\file
 /// \brief Main function file for program building gallery from single photos
 ///\author Michał Orynicz
+
 #include <iostream>
 #include "thread.hpp"
 #include "opencv2/opencv.hpp"
@@ -20,11 +21,8 @@
 using namespace cv;
 using namespace std;
 
-//const float FACE_FACTOR=0.0;
-
-
-    
-
+   
+/// This program can create gallery from single photos
 int main(int argc,char **argv){
 
   Mat img,eq;
@@ -33,10 +31,6 @@ int main(int argc,char **argv){
   Mat bw;
   Mat facePics;
 
-  // int outWidth=200;
-  // int outHeight=outWidth+FACE_FACTOR*outWidth;
-
-
   Size picSize(OUT_WIDTH,OUT_HEIGHT);
   
   string adres,label;
@@ -44,7 +38,7 @@ int main(int argc,char **argv){
   Galleries galleries;
 
   int m,n;
-  int numerZdjecia,numerGalerii;
+  int photoNumber,galleryNumber;
 
   vector<Rect> faces; 
 
@@ -66,7 +60,7 @@ int main(int argc,char **argv){
  
   try{
     galleries.setPath(adres);
-    galleries.load("galeria.xml");
+    galleries.load("gallery.xml");
   }
  
  catch(Exception ex){
@@ -77,10 +71,10 @@ int main(int argc,char **argv){
   
 
   namedWindow("in",CV_WINDOW_NORMAL);
-  namedWindow("proces",CV_WINDOW_NORMAL);
+  namedWindow("process",CV_WINDOW_NORMAL);
   namedWindow("test",CV_WINDOW_NORMAL);
-  namedWindow("gemba",CV_WINDOW_NORMAL);
-  namedWindow("z_galerii",CV_WINDOW_NORMAL);
+  namedWindow("face",CV_WINDOW_NORMAL);
+  namedWindow("fromGallery",CV_WINDOW_NORMAL);
 
   
    while(control!='q'){
@@ -102,7 +96,7 @@ int main(int argc,char **argv){
       
       {
 	stringstream sBufor;
-	string cel,buff;
+	string target,buff;
 	finder.detectMultiScale(eq,faces,1.3);
 	if(!faces.empty()){
 	  m=floor(sqrt(faces.size()));
@@ -123,7 +117,7 @@ int main(int argc,char **argv){
 			       picSize.height*(i%m),
 			       picSize.width,picSize.height));
 	    resize(Mat(eq,(*it)),midPt,midPt.size(),0,0,CV_INTER_LINEAR);
-	    imshow("twarz",midPt);
+	    imshow("face",midPt);
 	    if(control!='q'){
 	      control=' ';
 	      control=waitKey(1000);
@@ -136,16 +130,16 @@ int main(int argc,char **argv){
 	}
 	if(control!='q'){
 	  if(control=='w'){
-	      cout<<"podaj numer galerii i numer zdjęcia"<<endl;
-	      cin>>numerGalerii>>numerZdjecia;
-	      Mat zGalerii=galleries.getPicture(numerGalerii,numerZdjecia);
+	      cout<<"gallery_number photo_number:"<<endl;
+	      cin>>galleryNumber>>photoNumber;
+	      Mat fromGallery=galleries.getPicture(galleryNumber,photoNumber);
 	      cerr<<flush;
-	      imshow("z_galerii",zGalerii);
+	      imshow("fromGallery",fromGallery);
 	    
 	    }
 	  if(!faces.empty()){
 	    imshow("test",facePics);
-	    imshow("proces",mid);
+	    imshow("process",mid);
 	  }
 	  control=waitKey(100);
 	}
@@ -161,7 +155,7 @@ int main(int argc,char **argv){
   
     //===========zapis
     
-  galleries.save("galeria.xml");
+  galleries.save("galleries.xml");
   
   //koniec zapisu
   

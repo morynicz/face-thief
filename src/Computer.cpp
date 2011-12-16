@@ -25,9 +25,8 @@
 
 #define PPREC_PRECOMPUTED
 #endif
-#include <sstream> //do nazw plików
+#include <sstream> 
 
-//#include "Lapacz.hpp"
 
 #define PCAREC
 //#define PCAREC_PRECOMPUTED
@@ -37,16 +36,19 @@
 using namespace cv;
 using namespace std;
 
-/*!
- * \brief Function printing how much time it took to finish a task
- *
- * \param time - timer to compute time elapsed
- */
+
+/// \brief Function printing how much time it took to finish a task
+///
+/// \param time - timer to compute time elapsed
 void timeElapsed(const boost::timer &time){
   cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
       <<fmod(time.elapsed(),60) <<"s"<<endl;
 }
 
+
+
+/// Program performing computations preparing data for recognition and saving
+/// it for later use
 int main(int argc,char **argv){
 
   string address;
@@ -65,7 +67,7 @@ int main(int argc,char **argv){
 
   try{
     galleries.setPath(address);
-    galleries.load("galeria.xml");
+    galleries.load("galleries.xml");
   }
   catch(Exception ex){
     cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__

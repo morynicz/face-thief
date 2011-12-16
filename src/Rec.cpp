@@ -68,7 +68,7 @@ void readFromBinary(cv::Mat &data,const string& target,Size size,int type){
     in.seekg(0,std::ifstream::end);
     int length=in.tellg();
     in.seekg(0);
-      	//allocate
+    //allocate
     char *buff=new char[length];
     in.read(buff,length);
     {

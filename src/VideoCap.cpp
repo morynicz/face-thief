@@ -1,15 +1,17 @@
 ///\file
 /// \brief Main function file for video recording program
 ///\author Michał Orynicz
+
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/core/core.hpp"
-//#include "Lapacz.hpp"
 #include <iostream>
 #include <cstdlib>
 
 using namespace cv;
 using namespace std;
 
+
+/// Program recording a video stream from camera
 int main(int argc,char *argv[]){
   VideoCapture cap;
   VideoWriter writ;
@@ -22,17 +24,13 @@ int main(int argc,char *argv[]){
 	<<" Input_source_name output_target_name"<<endl;
     return 1;
   }
-  //Lapacz lap(atoi(argv[1]));
   cap.open(atoi(argv[1]));
    writ.open(argv[2],CV_FOURCC('D','I','V','X'),10,Size(640,480));
   namedWindow("input",CV_WINDOW_NORMAL);
   do{
     ++counter;
     try{
-      //      cerr<<"pif"<<endl;
-      //  lap.stopKlatka(obr);
       cap>>obr;
-      // cerr<<"paff"<<endl;
       writ<<obr;
       cerr<<counter<<endl;
       imshow("input",obr);

@@ -1,10 +1,9 @@
 ///\file
 /// \brief Main function file for program generating galleries from videos
 ///\author Michał Orynicz
+
 #include <iostream>
 #include "thread.hpp"
-//#include "opencv2/opencv.hpp"
-//#include "opencv2/gpu/gpu.hpp"
 #include "opencv2/core/core.hpp"
 #include "opencv2/objdetect/objdetect.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -16,16 +15,12 @@
 #include "filesystem.hpp"
 #include "Galleries.hpp"
 #include "FaceFactor.hpp"
-#include <sstream> //do nazw plików
-
-//#include "Lapacz.hpp"
+#include <sstream>
 
 using namespace cv;
 using namespace std;
 
-//const float FACE_FACTOR=0.3;
-
-
+///Program extracting pictures of face from video file
 int main(int argc,char **argv){
 
   Mat img,eq;
@@ -33,9 +28,6 @@ int main(int argc,char **argv){
   Mat mid;
   Mat bw;
   Mat facePics;
-
-  // int outWidth=200;
-  // int outHeight=static_cast<int>(outWidth+FACE_FACTOR*outWidth);
 
   Size rozm(OUT_WIDTH,OUT_HEIGHT);
   string adres,label;
@@ -68,18 +60,13 @@ int main(int argc,char **argv){
 
   try{
     galleries.setPath(adres);
-    galleries.load("galeria.xml");
+    galleries.load("gallery.xml");
   }
   catch(Exception ex){
     cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
 	<<" in fucntion "<<__func__;
     cerr<<ex.code<<endl<<ex.err<<endl<<ex.func<<endl<<ex.line<<endl;
   }
-
-  // namedWindow("faces",CV_WINDOW_NORMAL);
-  // namedWindow("input",CV_WINDOW_NORMAL);
-  // namedWindow("equalised",CV_WINDOW_NORMAL);
-  
   while(ster!='q' && counter<limit){
     try{
       cap>>img;
@@ -132,8 +119,6 @@ int main(int argc,char **argv){
 	}
 	if(ster!='q'){
 	   if(!faces.empty()){
-	    // imshow("input",facePics);
-	    // imshow("faces",mid);
 	  }
 	  ster=waitKey(10);
 	}
@@ -147,11 +132,8 @@ int main(int argc,char **argv){
     
   }
    
-   //===========zapis
-    
-   galleries.save("galeria.xml");
    
-   //koniec zapisu
-  
+   galleries.save("gallery.xml");
+     
   return 0;
 }

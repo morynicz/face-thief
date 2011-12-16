@@ -2,10 +2,25 @@
 ///\brief File containing implementation of functions translating image objects
 /// from OpenCV to PittPatt
 ///\author Michał Orynicz
+
 #include "ocv2pit.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 using namespace cv;
 #ifdef PITTPATT_PRESENT
+
+/*!
+ * Function converts cv:Mat BGR image to ppr_imagr_type of desired colorspace
+ *
+ * \param in - image to be converted
+ * \param out - converted image
+ * \param colorspace - desired colorspace
+ *
+ * \return Function execution status
+ *
+ * \pre Input image must be in BGR colorspace
+ * \post Output image is ready to use and must be freed using ppr_free_image()
+ * function to prevent memory leaks.
+ */
 
 ppr_error_type mat2PprImage(cv::Mat& in, 
 			    ppr_image_type& out,
@@ -16,28 +31,6 @@ ppr_error_type mat2PprImage(cv::Mat& in,
   if(in.channels()!=1&&in.channels()!=3){
     return PPR_INVALID_IMAGE;
   }
-  /*
-  if(in.channels()==1){
-    in.convertTo(ready,CV_8UC1);
-    if(colorspace!=PPR_RAW_IMAGE_GRAY8){
-      cv::Mat tmp=ready;
-      cvtColor(tmp,ready,CV_GRAY2RGB);
-      tmp=ready;
-      switch(colorspace){
-      case PPR_RAW_IMAGE_RGB24:
-      case PPR_RAW_IMAGE_BGR24:
-	break;
-      case PPR_RAW_IMAGE_YUV24:
-	cvtColor(tmp,ready,CV_RGB2YUV);
-	break;
-      case PPR_RAW_IMAGE_ARGB32:
-	// Because the alpha channel is unused and Opencv has RGBA/BGRA format
-	// implementation of conversion would be pointless
-	return PPR_INVALID_IMAGE_COLOR_SPACE;
-      }
-    }
-  }
-  */
 
   switch(colorspace){
   case PPR_RAW_IMAGE_GRAY8:

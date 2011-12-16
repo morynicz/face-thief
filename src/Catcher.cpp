@@ -6,6 +6,7 @@
 #include <iostream>
 
 using namespace std;
+
 /// Constructor for video streams originating from a device
 /// \param nr - number of the device
 /// \param mat - pointer to cv::Mat object which will contain the most recent
@@ -57,7 +58,6 @@ Catcher::Camera::~Camera(){
 /// Method which reads subsequent frames from stream. Ensures that frame 
 /// buffer of stream is empty
 void Catcher::Camera::operator()(){
-  // namedWindow("raw_capture",CV_WINDOW_NORMAL);
   if(frameRate>0){
     //   int waitTime=1000/frameRate;
     while(!boost::this_thread::interruption_requested()){
@@ -101,7 +101,6 @@ void Catcher::init(const int &nr){
 
 /// Method initializing the object for drawing video stream from a video file
 /// \param name - name of file from which the video stream will be read
-
 void Catcher::init(const std::string& name){
   if(thr!=NULL){
     thr->interrupt();
