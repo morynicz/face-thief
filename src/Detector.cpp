@@ -42,12 +42,16 @@ using namespace cv;
 using namespace std;
 
 
+///\brief Function printing information about elapsed time.
+///
+///\param time - timer
 
 void timeElapsed(const boost::timer &time){
   cout<<"finished in "<<floor(time.elapsed()/60)<<"min "
       <<fmod(time.elapsed(),60) <<"s"<<endl;
 }
-
+/// Demonstration program which attempts to mark and recognize faces found
+/// on input videostream
 int main(int argc,char **argv){
 
 
