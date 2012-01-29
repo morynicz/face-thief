@@ -2,21 +2,21 @@
 ///\brief Main file for program recognizing faces from video stream
 
 #include <iostream>
-#include "thread.hpp"
+#include <boost/thread.hpp>
 // #include "opencv2/opencv.hpp"
 // #include "opencv2/gpu/gpu.hpp"
 // #include "opencv2/highgui/highgui.hpp"
-#include "opencv2/core/core.hpp"
-#include "opencv2/objdetect/objdetect.hpp"
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
+#include <opencv2/core/core.hpp>
+#include <opencv2/objdetect/objdetect.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 #include <vector>
 #include <list>
 #include <cmath>
 #include <string>
 #include <sstream>
-#include "filesystem.hpp"
-#include "timer.hpp"
+#include <boost/filesystem.hpp>
+#include <boost/timer.hpp>
 #include "Galleries.hpp"
 #include "Rec.hpp"
 #include "PCARec.hpp"

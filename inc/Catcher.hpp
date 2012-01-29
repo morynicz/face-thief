@@ -2,7 +2,7 @@
 /// \brief Header file for class Cather
 /// \author Michał Orynicz
 
-#include "thread.hpp"
+#include <boost/thread.hpp>
 #include "opencv2/opencv.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include <string>

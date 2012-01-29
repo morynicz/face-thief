@@ -2,7 +2,7 @@
 /// \brief Main function file for galleries precomputing program
 ///\author Michał Orynicz
 #include <iostream>
-#include "thread.hpp"
+#include <boost/thread.hpp>
 #include "opencv2/opencv.hpp"
 #include "opencv2/gpu/gpu.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -11,8 +11,8 @@
 #include <cmath>
 #include <string>
 #include <sstream>
-#include "filesystem.hpp"
-#include "timer.hpp"
+#include <boost/filesystem.hpp>
+#include <boost/timer.hpp>
 #include "Galleries.hpp"
 #include "Rec.hpp"
 #include "PCARec.hpp"

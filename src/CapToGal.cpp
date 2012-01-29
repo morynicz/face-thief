@@ -3,14 +3,14 @@
 ///\author Michał Orynicz
 
 #include <iostream>
-#include "thread.hpp"
-#include "opencv2/opencv.hpp"
-#include "opencv2/gpu/gpu.hpp"
+#include <boost/thread.hpp>
+#include <opencv2/opencv.hpp>
+#include <opencv2/gpu/gpu.hpp>
 #include <vector>
 #include <list>
 #include <cmath>
 #include <string>
-#include "filesystem.hpp"
+#include <boost/filesystem.hpp>
 #include "Galleries.hpp"
 #include "FaceFactor.hpp"
 

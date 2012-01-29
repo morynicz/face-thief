@@ -2,20 +2,20 @@
 ///\brief Main file of program recognizing people from photos
 
 #include <iostream>
-#include "opencv2/core/core.hpp"
-#include "opencv2/objdetect/objdetect.hpp"
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
+#include <opencv2/core/core.hpp>
+#include <opencv2/objdetect/objdetect.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 #include <vector>
 #include <list>
 #include <cmath>
 #include <string>
 #include <sstream>
-#include "filesystem.hpp"
+#include <boost/filesystem.hpp>
 #include "Galleries.hpp"
 #include "PCARec.hpp"
 #include "SVMRec.hpp"
-#include "timer.hpp"
+#include <boost/timer.hpp>
 #include "FaceFactor.hpp"
 #include "PittpattPresence.hpp"
 #ifdef PITTPATT_PRESENT
@@ -58,7 +58,7 @@ int main(int argc,char **argv){
   vector<Rec*> alg;
 
 
-  CascadeClassifier finder;
+  //  CascadeClassifier finder;
   
  
   if(argc<2){
@@ -67,7 +67,9 @@ int main(int argc,char **argv){
     return 1;
   }
   address=argv[1];
-  finder.load("kaskady/haarcascade_frontalface_alt_tree.xml");
+
+  CascadeClassifier finder("kaskady/haarcascade_frontalface_alt_tree.xml");
+
   if(argc==3){
     photo=argv[2];
   }
