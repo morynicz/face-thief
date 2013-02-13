@@ -4,6 +4,7 @@
 
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/core/core.hpp"
+#include "Catcher.hpp"
 #include <iostream>
 #include <cstdlib>
 
@@ -13,7 +14,8 @@ using namespace std;
 
 /// Program recording a video stream from camera
 int main(int argc,char *argv[]){
-  VideoCapture cap;
+  Catcher catcher;  
+VideoCapture cap;
   VideoWriter writ;
   char cont='e';
   Mat obr;
@@ -24,17 +26,19 @@ int main(int argc,char *argv[]){
 	<<" Input_source_name output_target_name"<<endl;
     return 1;
   }
-  cap.open(atoi(argv[1]));
+  //cap.open(atoi(argv[1]));
+  catcher.init(atoi(argv[1]));
    writ.open(argv[2],CV_FOURCC('D','I','V','X'),10,Size(640,480));
   namedWindow("input",CV_WINDOW_NORMAL);
   do{
     ++counter;
     try{
-      cap>>obr;
+      //cap>>obr;
+      catcher.catchFrame(obr);
       writ<<obr;
       cerr<<counter<<endl;
       imshow("input",obr);
-      cont=waitKey(100);
+      cont=waitKey(500);
     }
     catch(Exception ex){
       cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__

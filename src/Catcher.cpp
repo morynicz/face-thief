@@ -65,12 +65,15 @@ void Catcher::Camera::operator()(){
       //     waitKey(waitTime);
       cam>>(*fr);
       mut->unlock();
+      unsigned char time =10;
+      boost::this_thread::sleep(boost::posix_time::millisec(10));
     }
   }else{
     while(!boost::this_thread::interruption_requested()){
       mut->lock();
       cam>>(*fr);
       mut->unlock();
+      boost::this_thread::sleep(boost::posix_time::millisec(10));
     }
   }
 }

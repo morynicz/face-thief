@@ -12,6 +12,8 @@ opencv_ml opencv_highgui opencv_imgproc opencv_objdetect)
 
 set(BOOST_LIBRARIES ${BOOST_LIBRARIES} boost_thread  boost_filesystem boost_system)
 
+add_definitions(-Wall -pedantic -g)
+
 add_subdirectory(src)
 add_subdirectory(doc)
 
