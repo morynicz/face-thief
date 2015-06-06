@@ -8,10 +8,6 @@
 #include <fstream>
 #include <sstream>
 
-using namespace cv;
-using std::string;
-using std::vector;
-using std::list;
 using std::cerr;
 using std::endl;
 
@@ -64,24 +60,24 @@ void SVMRec::loadGalleries(Galleries& galleries){
     rows+=galleries.gallerySize(i);
   }
   
-  _data=Mat(rows,cols,CV_8U);
+  _data=cv::Mat(rows,cols,CV_8U);
   
   int y=0;
   for(int i=0;i<galleries.totalSize();++i){
     for(int j=0;j<galleries.gallerySize(i);++j){
-      Mat img=galleries.getPicture(i,j);
-      Mat bw; //needed or OCV2.2 would segment fault
+      cv::Mat img=galleries.getPicture(i,j);
+      cv::Mat bw; //needed or OCV2.2 would segment fault
       
       if(img.channels()!=1){
-	Mat tmp;
+	cv::Mat tmp;
 	cvtColor(img,tmp,CV_RGB2GRAY);
 	equalizeHist(tmp,bw);
       }else{
 	bw=img;
       }
       
-      Mat reshaped=bw.reshape(1,1);
-      Mat dataRow=_data.row(y++);
+      cv::Mat reshaped=bw.reshape(1,1);
+      cv::Mat dataRow=_data.row(y++);
       resize(reshaped,dataRow,dataRow.size(),0,0,CV_INTER_LINEAR);
       _labelNr.push_back(i);
     }
@@ -100,7 +96,7 @@ void SVMRec::loadGalleries(Galleries& galleries){
 void SVMRec::loadPrecomputedGalleries(const string& target){
   clear();
   try{
-    FileStorage fs(target,FileStorage::READ);
+    cv::FileStorage fs(target,cv::FileStorage::READ);
     if(!fs.isOpened()){
       cv::Exception err(CANNOT_OPEN_FILE,
 			"file cannot be opened",
@@ -109,36 +105,36 @@ void SVMRec::loadPrecomputedGalleries(const string& target){
     }
     {
       string path;
-      Mat tmp,tmp2;
+      cv::Mat tmp,tmp2;
 
       int rows,cols,type;
       fs[VECTORS]>>path;
       fs[VEC_ROWS]>>rows;
       fs[VEC_COLS]>>cols;
       fs[VEC_TYPE]>>type;
-      readFromBinary(_vectors,path,Size(cols,rows),type);
+      readFromBinary(_vectors,path,cv::Size(cols,rows),type);
       fs[EIGENVECTORS]>>path;
       fs[EIGEN_ROWS]>>rows;
       fs[EIGEN_COLS]>>cols;
       fs[EIGEN_TYPE]>>type;
-      readFromBinary(_pca.eigenvectors,path,Size(cols,rows),type);
+      readFromBinary(_pca.eigenvectors,path,cv::Size(cols,rows),type);
       fs[EIGENVALUES]>>path;
-      readFromBinary(_pca.eigenvalues,path,Size(1,rows),type);
+      readFromBinary(_pca.eigenvalues,path,cv::Size(1,rows),type);
       fs[MEAN]>>path;
       fs[MEAN_COLS]>>cols;
       fs[MEAN_TYPE]>>type;
-      readFromBinary(_pca.mean,path,Size(cols,1),type);  
+      readFromBinary(_pca.mean,path,cv::Size(cols,1),type);
     }
     {
-      FileNode fn=fs[LABEL_NR];
-      for(FileNodeIterator it=fn.begin();it!=fn.end();++it){
+      cv::FileNode fn=fs[LABEL_NR];
+      for(cv::FileNodeIterator it=fn.begin();it!=fn.end();++it){
 	_labelNr.push_back((int)(*it));
       }
     }
     {
-      FileNode fn=fs[SVMS];
+      cv::FileNode fn=fs[SVMS];
       string name;
-      for(FileNodeIterator it=fn.begin();it!=fn.end();++it){
+      for(cv::FileNodeIterator it=fn.begin();it!=fn.end();++it){
     	_svms.push_back(CvSVM());
     	name=(string)(*it);
     	_svms.back().load(name.c_str());
@@ -147,7 +143,7 @@ void SVMRec::loadPrecomputedGalleries(const string& target){
     fs.release();
     
   }
-  catch(Exception ex){
+  catch(const cv::Exception &ex){
     cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
 	<<" in function "<<__func__<<endl;
     throw ex;
@@ -166,7 +162,7 @@ void SVMRec::loadPrecomputedGalleries(const string& target){
 
 void SVMRec::savePrecomputedGalleries(const string& target){
   try{
-    FileStorage fs(target,FileStorage::WRITE);
+    cv::FileStorage fs(target,cv::FileStorage::WRITE);
     if(!fs.isOpened()){
       cv::Exception err(CANNOT_OPEN_FILE,
 			"file cannot be opened",
@@ -215,7 +211,7 @@ void SVMRec::savePrecomputedGalleries(const string& target){
 	std::stringstream buff;
 	fs<<SVMS_QUANTITY<<size
 	  <<SVMS<<"[";
-	list<CvSVM>::iterator iter=_svms.begin();
+	std::list<CvSVM>::iterator iter=_svms.begin();
 	for(int i=0;i<_svms.size();++i,++iter){
 	  buff<<dir<<"/"<<SVM<<i<<".xml";
 	  buff>>name;
@@ -229,7 +225,7 @@ void SVMRec::savePrecomputedGalleries(const string& target){
     }    
     {
       fs<<LABEL_NR<<"[";
-      for(list<int>::iterator it=_labelNr.begin();
+      for(std::list<int>::iterator it=_labelNr.begin();
 	  it!=_labelNr.end();++it){
 	fs<<(*it);
     }
@@ -238,7 +234,7 @@ void SVMRec::savePrecomputedGalleries(const string& target){
     
     
   }
-  catch(Exception ex){
+  catch(const cv::Exception &ex){
     cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
 	<<" in function "<<__func__<<endl;
     throw ex;
@@ -259,12 +255,12 @@ void SVMRec::savePrecomputedGalleries(const string& target){
 void SVMRec::compute(){
   try{
     {
-      Mat tmp;
+      cv::Mat tmp;
       _data.convertTo(tmp,CV_32FC1);
       _data=tmp;
     }
     
-    _pca(_data,Mat(),CV_PCA_DATA_AS_ROW);
+    _pca(_data,cv::Mat(),CV_PCA_DATA_AS_ROW);
     _pca.project(_data,_vectors);
 
     {
@@ -275,10 +271,10 @@ void SVMRec::compute(){
       params.coef0=1.1;
       params.degree=2;
       params.gamma=1.1;
-      params.term_crit =  TermCriteria(CV_TERMCRIT_ITER, (int)1e4, 1e-4);
+      params.term_crit =  cv::TermCriteria(CV_TERMCRIT_ITER, (int)1e4, 1e-4);
       for(int i=0;i<=_labelNr.back();++i){
-	vector<int> res;
-	for(list<int>::iterator it=_labelNr.begin();
+	std::vector<int> res;
+	for(std::list<int>::iterator it=_labelNr.begin();
 	    it!=_labelNr.end();++it){
 	  if((*it)==i){
 	    res.push_back(POSITIVE);
@@ -286,10 +282,10 @@ void SVMRec::compute(){
 	    res.push_back(NEGATIVE);
 	  }
 	}
-	Mat tmp=_vectors.clone();
+	cv::Mat tmp=_vectors.clone();
 	_svms.push_back(CvSVM());
 	cerr<<_svms.size()<<endl;
-	if(!_svms.back().train_auto(tmp,Mat(res),Mat(),Mat(),params)){
+	if(!_svms.back().train_auto(tmp,cv::Mat(res),cv::Mat(),cv::Mat(),params)){
 	  cv::Exception ex(SVM_TRAINING_FAILURE,
 			    "svm could not find a solution",
 			    __func__,__FILE__,__LINE__);
@@ -302,7 +298,7 @@ void SVMRec::compute(){
       }
     }
   }
-  catch(Exception ex){
+  catch(const cv::Exception &ex){
     cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
 	<<" in function "<<__func__<<endl;
     throw ex;
@@ -331,7 +327,7 @@ void SVMRec::clear(){
  */
 
 std::list<Result> SVMRec::recognise(const string& target){
-  Mat img=imread(target);
+  cv::Mat img=cv::imread(target);
   return recognise(img);
 }
   
@@ -350,7 +346,7 @@ std::list<Result> SVMRec::recognise(const string& target){
 
 std::list<Result> SVMRec::recognise(cv::Mat& img){
 
-  Mat tmp,eq,vec,in;
+  cv::Mat tmp,eq,vec,in;
   std::list<Result> results;
   std::list<int>::iterator lit=_labelNr.begin();
     
@@ -366,7 +362,7 @@ std::list<Result> SVMRec::recognise(cv::Mat& img){
     similarity.label=-1;
     _pca.project(eq.reshape(1,1),vec);
     int cnt=0; //querying SVMs with the image
-    for(list<CvSVM>::iterator it=_svms.begin();
+    for(std::list<CvSVM>::iterator it=_svms.begin();
 	it!=_svms.end();++it,++cnt){
       similarity.score=it->predict(vec,true);
       similarity.label=cnt;
@@ -375,9 +371,9 @@ std::list<Result> SVMRec::recognise(cv::Mat& img){
       similarity.label=-1;
     }
   }
-  catch(Exception ex){
+  catch(const cv::Exception &ex){
     cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
-	<<" in fucntion "<<__func__<<endl;
+	<<" in function "<<__func__<<endl;
     throw ex;
   } 
   results.sort(compareDescending); //sorting results in descending order by

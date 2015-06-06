@@ -10,7 +10,6 @@
 
 using std::cerr;
 using std::endl;
-using namespace cv;
 
 /*!
  * Constructor. Initialises path to galleries and loads galleries 
@@ -63,8 +62,8 @@ void Galleries::load(string filename){
   if(!_path.empty()){
     try{
 
-      FileStorage fs(_path+'/'+filename,
-		     FileStorage::READ);
+      cv::FileStorage fs(_path+'/'+filename,
+		     cv::FileStorage::READ);
       if(!fs.isOpened()){
 	cv::Exception err(CANNOT_OPEN_FILE,
 			  "file cannot be opened",
@@ -72,8 +71,8 @@ void Galleries::load(string filename){
 	throw err;
       }
     
-      FileNode galleries=fs[GALLERIES];
-      FileNodeIterator it=galleries.begin();
+      cv::FileNode galleries=fs[GALLERIES];
+      cv::FileNodeIterator it=galleries.begin();
       {
 	int w,h;
 	fs[WIDTH]>>w;
@@ -83,7 +82,7 @@ void Galleries::load(string filename){
 
       for(;it!=galleries.end();++it){
 	Gallery gallery;
-	string label;
+	std::string label;
 	(*it)[LABEL]>>label;
 	int galNumber;
 	
@@ -99,16 +98,16 @@ void Galleries::load(string filename){
 	  (*it)[COUNTER]>>cnt;
 	  _gal[galNumber].counter+=cnt;
 	}
-	FileNode gfn=(*it)[ADDRESS];
-	FileNodeIterator git=gfn.begin();
+	cv::FileNode gfn=(*it)[ADDRESS];
+	cv::FileNodeIterator git=gfn.begin();
 	for(;git!=gfn.end();++git){
 	  _gal[galNumber].photos.push_back((string)(*git));
-	  cv::Mat img=imread(_gal[galNumber].photos.back());
+	  cv::Mat img=cv::imread(_gal[galNumber].photos.back());
 	  if(_picSize.width==INITIAL_SIZE && _picSize.height==INITIAL_SIZE){
 	    _picSize=img.size();
 	  }else{
 	    if(img.size()!=_picSize){
-	      Exception ex(NON_UNIFORM_GALLERY,
+	      cv::Exception ex(NON_UNIFORM_GALLERY,
 			   "exception: all images in the gallery must have the same dimensions",
 			   __func__,__FILE__,__LINE__);
 	      throw ex;
@@ -119,13 +118,13 @@ void Galleries::load(string filename){
       }
       fs.release();   
     }
-    catch(Exception ex){
+    catch(const cv::Exception &ex){
       cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
 	  <<" in fucntion "<<__func__<<endl;
       throw ex;
     }
   }else{
-    Exception ex(NO_PATH_DECLARED,
+    cv::Exception ex(NO_PATH_DECLARED,
 		 "exception: galleries path was not declared",
 		 __func__,__FILE__,__LINE__);
     throw ex;
@@ -178,14 +177,14 @@ void Galleries::add(string label,cv::Mat img){
     }
     {
       if(img.size()!=_picSize){
-	Exception ex(WRONG_PICTURE_SIZE,
+	cv::Exception ex(WRONG_PICTURE_SIZE,
 		     "exception: picture size differs from standard \
 galleries size",
 		     __func__,__FILE__,__LINE__);
       }
       
       if(img.type()!=_picType){
-	Exception ex(WRONG_PICTURE_TYPE,
+	cv::Exception ex(WRONG_PICTURE_TYPE,
 		     "exception: picture type differs from standard \
 galleries type",
 		     __func__,__FILE__,__LINE__);
@@ -200,7 +199,7 @@ galleries type",
       _gal[number].photos.push_back(target);
     }
   }else{
-    Exception ex(NO_PATH_DECLARED,
+    cv::Exception ex(NO_PATH_DECLARED,
 		 "exception: galleries path was not declared",
 		 __func__,__FILE__,__LINE__);
     throw ex;
@@ -217,7 +216,7 @@ galleries type",
 
 void Galleries::setPath(string path){
   if(!boost::filesystem::exists(path)){
-    Exception ex(NO_SUCH_DIRECTORY,
+    cv::Exception ex(NO_SUCH_DIRECTORY,
 		 "exception: directory "+path+"does not exist",
 		 __func__,__FILE__,__LINE__);
     throw ex;
@@ -235,8 +234,8 @@ void Galleries::setPath(string path){
 
 void Galleries::save(string filename){
   if(!_path.empty()){
-    FileStorage fs(_path+'/'+filename,
-		   FileStorage::WRITE);
+    cv::FileStorage fs(_path+'/'+filename,
+		   cv::FileStorage::WRITE);
     if(!fs.isOpened()){
       cv::Exception err(CANNOT_OPEN_FILE,"file cannot be opened",
 			__func__,__FILE__,__LINE__);
@@ -260,7 +259,7 @@ void Galleries::save(string filename){
       fs<<WIDTH<<_picSize.width<<HEIGHT<<_picSize.height<<TYPE<<_picType;
     }
   }else{
-    Exception ex(NO_PATH_DECLARED,
+    cv::Exception ex(NO_PATH_DECLARED,
 		 "exception: galleries path was not declared",
 		 __func__,__FILE__,__LINE__);
     throw ex;
@@ -285,7 +284,7 @@ cv::Mat Galleries::getPicture(string label,int number){
       try{
 	return getPicture(i,number);
       }
-      catch(cv::Exception ex){
+      catch(const cv::Exception &ex){
 	cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
 	    <<" in fucntion "<<__func__<<endl;
 	throw ex;
@@ -322,7 +321,7 @@ cv::Mat Galleries::getPicture(int galleryNumber,int photoNumber){
   }else{
     try{
 
-      cv::Mat img=imread(_gal[galleryNumber].photos[photoNumber]);
+      cv::Mat img=cv::imread(_gal[galleryNumber].photos[photoNumber]);
       if(img.data==NULL){
 	cv::Exception ex(CANNOT_OPEN_FILE,
 			 "exception: could not open photo file",
@@ -331,7 +330,7 @@ cv::Mat Galleries::getPicture(int galleryNumber,int photoNumber){
       }
       return img;
     }
-    catch(Exception ex){
+    catch(const cv::Exception &ex){
       cerr<<"Exception passed up through "<<__FILE__<<':'<<__LINE__
 	  <<" in fucntion "<<__func__<<endl;
       throw ex;
@@ -423,8 +422,8 @@ void Galleries::createKSubsets(const int &K,const std::string &nameStub,
   int numberOfPhotos=0;
   int photosDistributed=0;
   int createdGalCnt=0;
-  vector< vector<int> > usablePic;
-  vector<int> usableGal;
+  std::vector< std::vector<int> > usablePic;
+  std::vector<int> usableGal;
   srand(time(NULL));
 
   usablePic.resize(totalSize());
